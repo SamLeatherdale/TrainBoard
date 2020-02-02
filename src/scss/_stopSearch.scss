@@ -1,0 +1,11 @@
+@import "variables";
+
+.movie-search {
+    ul {
+        @extend %list-reset;
+
+        li {
+            padding: 8px 16px;
+        }
+    }
+}
