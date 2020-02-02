@@ -1,5 +1,7 @@
 import {TPStopType, TPCoordOutputFormat} from "./types";
 import {StopFinderResponse} from "../models/TripPlanner/stopFinderResponse";
+import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
+import {TripRequestResponse} from "../models/TripPlanner/tripRequestResponse";
 
 export default class APIClient {
     static readonly API_VERSION = "10.2.1.42";
@@ -44,10 +46,23 @@ export default class APIClient {
 
     async getStops(query: string): Promise<StopFinderResponse> {
         return await this.performRequest("tp/stop_finder", {
+            coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             type_sf: TPStopType.Stop,
             name_sf: query,
-            coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             TfNSWSF: true
+        });
+    }
+
+    async getTrips(stopOrigin: StopFinderLocation, stopDestination: StopFinderLocation): Promise<TripRequestResponse> {
+        return await this.performRequest("tp/trip", {
+            coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
+            depArrMacro: "dep",
+            type_origin: "any",
+            type_destination: "any",
+            name_origin: stopOrigin.id,
+            name_destination: stopDestination.id,
+            calcNumberOfTrips: 6,
+            TfNSWTR: true
         });
     }
 }

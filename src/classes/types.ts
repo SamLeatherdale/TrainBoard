@@ -1,14 +1,5 @@
 //Some types adapted from https://github.com/toast-studio/tfnsw-trip-planner/
 
-export type TPError = {
-    message: string
-    versions: {
-        controller: string
-        interfaceMax: string
-        interfaceMin: string
-    }
-}
-
 export enum TPStopType {
     Any = "any",
     Coord = "coord",

@@ -2,7 +2,7 @@ import autoBind from "auto-bind";
 import _ from "lodash";
 import APIClient from "../classes/APIClient";
 import React, {ChangeEvent} from "react";
-import Select, {InputActionMeta, OptionsType} from "react-select";
+import Select, {ActionMeta, InputActionMeta, OptionsType, ValueType} from "react-select";
 import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
 
@@ -19,7 +19,8 @@ class StopSearchState {
 
 interface StopSearchProps {
     label: string;
-    onSelect: (stop: StopFinderLocation) => any;
+    onSelect: (stop?: StopFinderLocation) => any;
+    value?: StopFinderLocation;
 }
 
 export default class StopSearch extends React.Component<StopSearchProps, StopSearchState> {
@@ -37,6 +38,10 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
         this.state = new StopSearchState();
     }
 
+    static convertLocToOption(loc: StopFinderLocation): Option {
+        return {label: loc.name as string, value: loc.id as string};
+    }
+
     onChange(e: ChangeEvent<HTMLInputElement>) {
         const query = e.target.value;
 
@@ -52,6 +57,11 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
         }        
     }
 
+    onSelect(selectedOption: ValueType<Option>, actionMeta: ActionMeta) {
+        //if (actionMeta.action === "select-option" || actionMeta.action === "deselect-option")
+        this.props.onSelect(selectedOption ? this.state.stops.find(stop => stop.id === (selectedOption as Option).value) : undefined);
+    }
+
     getStops(query: string) {
         const client = APIClient.getClient();
         client.getStops(query).then((results) => {
@@ -60,8 +70,10 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
             }
 
             const locations = results.locations.filter(location => location.modes?.includes(StopFinderLocationMode.Train));
-            const options: OptionsType<Option> = locations.map(loc => ({label: loc.name as string, value: loc.id as string}));
+            const options: OptionsType<Option> = locations.map(StopSearch.convertLocToOption);
+
             this.setState({
+                stops: locations,
                 options: options
             });
         }).catch((error) => {
@@ -73,6 +85,8 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
         return (
             <div className="stop-search">
                 <Select
+                    value={this.props.value ? StopSearch.convertLocToOption(this.props.value) : undefined}
+                    onChange={(selected, action) => this.onSelect(selected, action)}
                     onInputChange={this.onSelectInputChange}
                     options={this.state.options}
                 />
