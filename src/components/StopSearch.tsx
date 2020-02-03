@@ -19,6 +19,7 @@ class StopSearchState {
 
 interface StopSearchProps {
     label: string;
+    inputId: string;
     onSelect: (stop?: StopFinderLocation) => any;
     value?: StopFinderLocation;
 }
@@ -85,6 +86,7 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
         return (
             <div className="stop-search">
                 <Select
+                    inputId={this.props.inputId}
                     value={this.props.value ? StopSearch.convertLocToOption(this.props.value) : undefined}
                     onChange={(selected, action) => this.onSelect(selected, action)}
                     onInputChange={this.onSelectInputChange}

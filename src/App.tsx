@@ -5,11 +5,23 @@ import autoBind from "auto-bind";
 import APIClient from "./classes/APIClient";
 import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
 import TripBoard from "./components/TripBoard";
+import AppBar from "@material-ui/core/AppBar";
+import IconButton from "@material-ui/core/IconButton";
+import Toolbar from "@material-ui/core/Toolbar";
+import MenuIcon from "@material-ui/icons/Menu";
+import {makeStyles} from "@material-ui/core/styles";
 
 interface AppState {
     settings: SettingsSet
+    settingsMenuOpen: boolean,
     trips: TripRequestResponseJourney[]
 }
+
+const appBarStyles = {
+    root: {
+        backgroundColor: "#f18500"
+    }
+};
 
 export default class App extends React.Component<{}, AppState> {
     static readonly STORAGE_KEY = "appSettings";
@@ -20,6 +32,7 @@ export default class App extends React.Component<{}, AppState> {
 
         this.state = {
             settings: this.readSettings(),
+            settingsMenuOpen: false,
             trips: []
         }
     }
@@ -60,6 +73,10 @@ export default class App extends React.Component<{}, AppState> {
         });
     }
 
+    toggleMenu() {
+        this.setState(prevState => ({ settingsMenuOpen: !prevState.settingsMenuOpen }));
+    }
+
     getTrips() {
         if (!(this.state.settings.fromStop && this.state.settings.toStop)) {
             return;
@@ -79,10 +96,24 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     render() {
+        const appBarClasses = appBarStyles();
+
         return (
             <div className="App">
-                <div className="container">
-                    <SettingsScreen settings={this.state.settings} onUpdate={(key, value) => this.onUpdateSetting(key, value)} />
+                <div className="container-fluid">
+                    <AppBar position="static" classes={{root: appBarClasses.root}}>
+                        <Toolbar>
+                            <IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleMenu}>
+                                <MenuIcon />
+                            </IconButton>
+                        </Toolbar>
+                    </AppBar>
+                    <SettingsScreen
+                        menuOpen={this.state.settingsMenuOpen}
+                        settings={this.state.settings}
+                        onUpdate={(key, value) => this.onUpdateSetting(key, value)}
+                        onClose={() => this.setState({settingsMenuOpen: false})}
+                    />
                     <TripBoard trips={this.state.trips} settings={this.state.settings} />
                 </div>
             </div>
