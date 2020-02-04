@@ -11,7 +11,6 @@
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.3",
     "@types/react-select": "^3.0.8",
-    "@types/reactstrap": "^8.4.1",
     "auto-bind": "^3.0.0",
     "axios": "^0.19.0",
     "bootstrap": "^4.4.1",

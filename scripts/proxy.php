@@ -1,8 +1,4 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header("Content-Type: application/json");
-
 /**
  * Perform a request to the specified URL, using the given headers.
  * @param string $url
@@ -22,7 +18,7 @@ function request(string $url, array $headers) {
 
     ]);
 
-    $isPost = strcasecmp("POST", $_SERVER["REQUEST_METHOD"]) === 0;
+    $isPost = false;//strcasecmp("POST", $_SERVER["REQUEST_METHOD"]) === 0;
     if ($isPost) {
         curl_setopt_array($ch, [
             CURLOPT_POSTFIELDS => file_get_contents("php://input"),
@@ -31,6 +27,16 @@ function request(string $url, array $headers) {
     }
 
     $res = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $err = curl_error($ch);
+
+    //Set response code
+    http_response_code((int) $http_code);
+
+    if ($err) {
+    	http_response_code(500);
+    	echo $err;
+	}
     echo $res;
 }
 
@@ -59,6 +65,13 @@ function getFilteredRequestHeaders(array $filters): array {
     }, ARRAY_FILTER_USE_KEY);
 }
 
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: *");
+if (strcasecmp($_SERVER["REQUEST_METHOD"], "OPTIONS") === 0) {
+	die();
+}
+header("Content-Type: application/json");
 
 $passthrough_headers = ["Authorization"];
 $url = substr($_SERVER["REQUEST_URI"], 1);

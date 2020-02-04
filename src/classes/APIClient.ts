@@ -9,15 +9,10 @@ export default class APIClient {
     apiKey = "";
     readonly proxyUrl;
 
-    constructor(apiKey: string) {
+    constructor(apiKey: string, proxyUrl: string) {
         this.apiKey = apiKey;
-        this.proxyUrl = `http://${process.env.REACT_APP_PROXY_HOST}:${process.env.REACT_APP_PROXY_PORT}/${APIClient.API_URL}`;
+        this.proxyUrl = `${proxyUrl}/${APIClient.API_URL}`;
         //this.proxyUrl = `https://crossorigin.me/${APIClient.API_URL}`;
-    }
-
-    static getClient(): APIClient {
-        let apiKey = process.env.REACT_APP_TFNSW_API_KEY as string;
-        return new APIClient(apiKey);
     }
 
     async performRequest(url: string, params: { [prop: string]: any }) {

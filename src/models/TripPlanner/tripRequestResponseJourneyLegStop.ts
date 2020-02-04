@@ -18,44 +18,44 @@ export interface TripRequestResponseJourneyLegStop {
     /**
      * This is a unique ID for the returned location. Certain types of ID can be used for subsequent searches performed with `XML_STOPFINDER_REQUEST`, or can be used as the origin or destination in an `XML_TRIP_REQUEST2` request. The format of a location ID differs greatly, depending on the type of location it is. 
      */
-    id?: string;
+    id: string;
     /**
      * This is the long version of the location name, which may include the suburb or other information. 
      */
-    name?: string;
+    name: string;
     /**
      * This is the short version of the location name, which does not include the suburb or other information. 
      */
-    disassembledName?: string;
+    disassembledName: string;
     /**
      * This is the type of location being returned. It will typically represent a specific stop or platform. 
      */
-    type?: TripRequestResponseJourneyLegStop.TypeEnum;
+    type: TripRequestResponseJourneyLegStop.TypeEnum;
     /**
      * Contains exactly two values: the first value is the latitude, the second value is the longitude. 
      */
-    coord?: Array<number>;
-    parent?: ParentLocation;
+    coord: Array<number>;
+    parent: ParentLocation;
     /**
      * A timestamp in `YYYY-MM-DDTHH:MM:SSZ` format that indicates the estimated departure time. If real-time information is available then this timestamp is the real-time estimate, otherwise it is the same as the value in `departureTimePlanned`. 
      */
-    departureTimeEstimated?: string;
+    departureTimeEstimated: string;
     /**
      * A timestamp in `YYYY-MM-DDTHH:MM:SSZ` format that indicates the planned departure time. This is the original scheduled time. 
      */
-    departureTimePlanned?: string;
+    departureTimePlanned: string;
     /**
      * A timestamp in `YYYY-MM-DDTHH:MM:SSZ` format that indicates the estimated arrival time. If real-time information is available then this timestamp is the real-time estimate, otherwise it is the same as the value in `arrivalTimePlanned`. 
      */
-    arrivalTimeEstimated?: string;
+    arrivalTimeEstimated: string;
     /**
      * A timestamp in `YYYY-MM-DDTHH:MM:SSZ` format that indicates the planned arrival time. This is the original scheduled time. 
      */
-    arrivalTimePlanned?: string;
+    arrivalTimePlanned: string;
     /**
      * Contains additional information about this stop, such as wheelchair accessibility information. 
      */
-    properties?: any;
+    properties: any;
 }
 export namespace TripRequestResponseJourneyLegStop {
     export type TypeEnum = 'poi' | 'singlehouse' | 'stop' | 'platform' | 'street' | 'locality' | 'location' | 'unknown';

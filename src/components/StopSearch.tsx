@@ -5,6 +5,7 @@ import React, {ChangeEvent} from "react";
 import Select, {ActionMeta, InputActionMeta, OptionsType, ValueType} from "react-select";
 import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
+import SettingsSet from "../classes/SettingsSet";
 
 type Option = {
     label: string;
@@ -18,6 +19,7 @@ class StopSearchState {
 }
 
 interface StopSearchProps {
+    settings: SettingsSet;
     label: string;
     inputId: string;
     onSelect: (stop?: StopFinderLocation) => any;
@@ -64,7 +66,7 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
     }
 
     getStops(query: string) {
-        const client = APIClient.getClient();
+        const client = new APIClient(this.props.settings.apiKey, this.props.settings.proxyServer);
         client.getStops(query).then((results) => {
             if (!results.locations) {
                 throw new Error("Invalid response");

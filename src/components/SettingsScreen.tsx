@@ -9,7 +9,11 @@ import {createStyles, InputLabel, Theme, withStyles} from "@material-ui/core";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import Typography from "@material-ui/core/Typography";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -64,6 +68,7 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
                     </InputLabel>
 
                     <StopSearch
+                        settings={this.props.settings}
                         inputId={"stopSearchFrom"}
                         label="From"
                         value={this.props.settings.fromStop}
@@ -74,6 +79,7 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
                     </InputLabel>
 
                     <StopSearch
+                        settings={this.props.settings}
                         inputId={"stopSearchTo"}
                         label="To"
                         value={this.props.settings.toStop}
@@ -84,7 +90,30 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
                             label="Walking Time (mins)"
                             type="number"
                             value={this.props.settings.walkTime}
-                            onChange={event => this.onUpdateSetting("walkTime", event.target.value)} />
+                            onChange={event => this.onUpdateSetting("walkTime", parseInt(event.target.value))} />
+
+                    <ExpansionPanel>
+                        <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            Advanced Settings
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails>
+                            <TextField
+                                label="TfNSW API Key"
+                                value={this.props.settings.apiKey}
+                                onChange={event => this.onUpdateSetting("apiKey", event.target.value)}
+                                />
+
+                            <TextField
+                                label="Proxy Server"
+                                value={this.props.settings.proxyServer}
+                                onChange={event => this.onUpdateSetting("proxyServer", event.target.value)}
+                                />
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
                 </DialogContent>
             </Dialog>
         )

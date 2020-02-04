@@ -43,7 +43,12 @@ export default class App extends React.Component<{}, AppState> {
 
     readSettings(): SettingsSet {
         const settings = new SettingsSet();
-        let rawSettings = JSON.parse(window.localStorage.getItem(App.STORAGE_KEY) ?? "");
+        let rawSettings;
+        try {
+            rawSettings = JSON.parse(window.localStorage.getItem(App.STORAGE_KEY) || "");
+        } catch (e) {
+            rawSettings = {};
+        }
 
         for (let key of Object.keys(settings)) {
             if (rawSettings[key]) {
@@ -82,7 +87,8 @@ export default class App extends React.Component<{}, AppState> {
             return;
         }
 
-       APIClient.getClient().getTrips(this.state.settings.fromStop, this.state.settings.toStop).then(response => {
+        const client = new APIClient(this.state.settings.apiKey, this.state.settings.proxyServer);
+        client.getTrips(this.state.settings.fromStop, this.state.settings.toStop).then(response => {
            if (!response.journeys) {
                throw new Error("Missing trips from response.");
            }
@@ -96,12 +102,11 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     render() {
-        const appBarClasses = appBarStyles();
 
         return (
             <div className="App">
                 <div className="container-fluid">
-                    <AppBar position="static" classes={{root: appBarClasses.root}}>
+                    <AppBar position="static">
                         <Toolbar>
                             <IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleMenu}>
                                 <MenuIcon />

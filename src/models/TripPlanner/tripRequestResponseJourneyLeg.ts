@@ -28,8 +28,8 @@ export interface TripRequestResponseJourneyLeg {
      * This indicates whether or not real-time data has been used to calculate the departure/arrival timestamps
      */
     isRealtimeControlled?: boolean;
-    origin?: TripRequestResponseJourneyLegStop;
-    destination?: TripRequestResponseJourneyLegStop;
+    origin: TripRequestResponseJourneyLegStop;
+    destination: TripRequestResponseJourneyLegStop;
     transportation?: TripTransportation;
     /**
      * Contains a number of additional informational messages that may be useful for travellers.
