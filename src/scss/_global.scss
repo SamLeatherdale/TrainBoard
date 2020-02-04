@@ -35,6 +35,15 @@ code {
         #main-wrap {
             flex: 1 0 0;
             @extend %centered-container;
+
+            #main-toolbar {
+                time {
+                    font-size: 3em;
+                    color: $primary-text;
+                }
+            }
+
+
         }
     }
 }

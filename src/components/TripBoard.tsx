@@ -9,6 +9,7 @@ import CardContent from "@material-ui/core/CardContent";
 import ParsedStation from "../classes/ParsedStation";
 import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
+import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
 
 
 interface TripBoardProps {
@@ -75,12 +76,22 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
             <div className="board-item-legs">
                 {showLegs.map((leg, i) => {
                     const isLast = i === showLegs.length - 1;
-                    const station = isLast ? leg.destination : leg.origin;
+                    const station: TripRequestResponseJourneyLegStop = isLast ? leg.destination : leg.origin;
                     const parsedStation = new ParsedStation(station.name);
-                    return (
-                        <div key={i}>
+                    let content;
+
+                    if (parsedStation.isParseSuccess()) {
+                        content = <>
                             {parsedStation.station}
                             <Chip label={`P${parsedStation.platform}`} />
+                        </>
+                    } else {
+                        content = station.parent.disassembledName;
+                    }
+
+                    return (
+                        <div key={i}>
+                            {content}
                         </div>
                     );
                 })}

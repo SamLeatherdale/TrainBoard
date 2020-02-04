@@ -12,7 +12,7 @@
     }
 
     .status-last-refresh {
-        color: white;
+        color: $primary-text;
     }
 
     $widget-size: $toolbar-height - 8px;
@@ -24,6 +24,10 @@
             $default-timer-size: 180px;
             transform: scale($widget-size / $default-timer-size);
             transform-origin: top left;
+        }
+
+        svg.MuiSvgIcon-root {
+            fill: white;
         }
     }
 }

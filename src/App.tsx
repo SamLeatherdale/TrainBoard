@@ -9,9 +9,10 @@ import AppBar from "@material-ui/core/AppBar";
 import IconButton from "@material-ui/core/IconButton";
 import Toolbar from "@material-ui/core/Toolbar";
 import MenuIcon from "@material-ui/icons/Menu";
-import {makeStyles} from "@material-ui/core/styles";
 import RefreshTimer from "./components/RefreshTimer";
 import moment from "moment";
+import {StopFinderLocation} from "./models/TripPlanner/stopFinderLocation";
+import Clock from "react-live-clock";
 
 interface AppState {
     settings: SettingsSet
@@ -89,16 +90,22 @@ export default class App extends React.Component<{}, AppState> {
         this.setState(prevState => ({ settingsMenuOpen: !prevState.settingsMenuOpen }));
     }
 
+    isConfiguredTrip() {
+        return this.state.settings.fromStop && this.state.settings.toStop;
+    }
+
     getTrips() {
-        if (!(this.state.settings.fromStop && this.state.settings.toStop)) {
+        if (!this.isConfiguredTrip()) {
             return;
         }
+        const fromStop = this.state.settings.fromStop as StopFinderLocation;
+        const toStop = this.state.settings.toStop as StopFinderLocation;
 
         clearTimeout(this.getTripsTimeoutKey);
 
         this.setState({isTripsRefreshing: true});
         const client = new APIClient(this.state.settings.apiKey, this.state.settings.proxyServer);
-        client.getTrips(this.state.settings.fromStop, this.state.settings.toStop).then(response => {
+        client.getTrips(fromStop, toStop).then(response => {
            if (!response.journeys) {
                throw new Error("Missing trips from response.");
            }
@@ -137,23 +144,30 @@ export default class App extends React.Component<{}, AppState> {
                     onUpdate={(key, value) => this.onUpdateSetting(key, value)}
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
+
                 <main>
                     <div id="main-wrap">
-                        <div id="trip-board-toolbar">
-                            {!!this.state.lastRefreshTime &&
-                                <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
-                            }
-                            <RefreshTimer
-                                isRefreshing={this.state.isTripsRefreshing}
-                                durationSeconds={this.getTripsInterval}
-                                resetKey={this.state.lastRefreshTime}
-                                />
+                        <div id="main-toolbar">
+                            <Clock format={'HH:mm:ssa'} ticking={true} />
                         </div>
-                        <TripBoard
-                            trips={this.state.trips}
-                            settings={this.state.settings}
-                            renderInterval={this.renderTripsInterval}
-                        />
+                        <div id="trip-board-container">
+                            {this.isConfiguredTrip() &&
+                            <div id="trip-board-toolbar">
+                                {!!this.state.lastRefreshTime &&
+                                    <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
+                                }
+                                <RefreshTimer
+                                    isRefreshing={this.state.isTripsRefreshing}
+                                    durationSeconds={this.getTripsInterval}
+                                    resetKey={this.state.lastRefreshTime}
+                                    />
+                            </div>}
+                            <TripBoard
+                                trips={this.state.trips}
+                                settings={this.state.settings}
+                                renderInterval={this.renderTripsInterval}
+                            />
+                        </div>
                     </div>
                 </main>
             </div>

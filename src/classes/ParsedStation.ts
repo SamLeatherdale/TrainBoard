@@ -1,6 +1,7 @@
 export default class ParsedStation {
     public platform = "";
     public station = "";
+    protected parseSuccess = false;
 
     constructor(fullName: string) {
         const pattern = /(?:.*,\s*)?(.+) Station,\s*Platform (\d+)/;
@@ -11,7 +12,12 @@ export default class ParsedStation {
             }
             if (results.length >= 2) {
                 this.platform = results[2];
+                this.parseSuccess = true;
             }
         }
+    }
+
+    isParseSuccess() {
+        return this.parseSuccess;
     }
 }
