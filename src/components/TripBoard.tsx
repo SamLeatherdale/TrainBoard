@@ -152,7 +152,7 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         const arrivalEst = moment(last.destination.arrivalTimeEstimated);
         const rating = TripBoard.getDepartureTimeClass(departureEst, this.props.settings.walkTime);
 
-        const departureRelative = departurePlanned.diff(moment.now(), "seconds");
+        const departureRelative = departureEst.diff(moment.now(), "seconds");
         const departureLabel = departureRelative > 0 ? "departing" : "departed";
         const departureDiff = TripBoard.getPlannedEstimatedDiff(departurePlanned, departureEst);
 

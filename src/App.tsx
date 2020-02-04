@@ -138,21 +138,23 @@ export default class App extends React.Component<{}, AppState> {
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
                 <main>
-                    <div id="trip-board-toolbar">
-                        {!!this.state.lastRefreshTime &&
-                            <div>Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
-                        }
-                        <RefreshTimer
-                            isRefreshing={this.state.isTripsRefreshing}
-                            durationSeconds={this.getTripsInterval}
-                            resetKey={this.state.lastRefreshTime}
-                            />
+                    <div id="main-wrap">
+                        <div id="trip-board-toolbar">
+                            {!!this.state.lastRefreshTime &&
+                                <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
+                            }
+                            <RefreshTimer
+                                isRefreshing={this.state.isTripsRefreshing}
+                                durationSeconds={this.getTripsInterval}
+                                resetKey={this.state.lastRefreshTime}
+                                />
+                        </div>
+                        <TripBoard
+                            trips={this.state.trips}
+                            settings={this.state.settings}
+                            renderInterval={this.renderTripsInterval}
+                        />
                     </div>
-                    <TripBoard
-                        trips={this.state.trips}
-                        settings={this.state.settings}
-                        renderInterval={this.renderTripsInterval}
-                    />
                 </main>
             </div>
         );
