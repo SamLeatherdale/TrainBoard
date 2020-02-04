@@ -1,5 +1,12 @@
+$centered-max-width: 960px;
+
 %list-reset {
     list-style: none;
     margin: 0;
     padding: 0;
+}
+%centered-container {
+    margin: auto;
+    max-width: $centered-max-width;
+    padding: 0 16px;
 }

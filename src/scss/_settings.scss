@@ -1,5 +1,19 @@
 @import "variables";
 
-.stop-search {
-    margin-bottom: 8px;
+#settings-dialog {
+    .MuiDialogTitle-root {
+        padding-bottom: 0;
+    }
+
+    .settings-row {
+        margin: 16px 0;
+    }
+
+    .MuiExpansionPanelDetails-root {
+        display: block;
+
+        .MuiFormControl-root {
+            width: 100%;
+        }
+    }
 }

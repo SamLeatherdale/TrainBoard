@@ -1,0 +1,114 @@
+#trip-board-toolbar {
+    @extend %centered-container;
+    $toolbar-height: 50px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: $toolbar-height;
+    padding: 4px 8px;
+
+    > * {
+        margin-left: 8px;
+    }
+
+    $widget-size: $toolbar-height - 8px;
+    .refresh-timer {
+        width: $widget-size;
+        height: $widget-size;
+
+        > [aria-label="countdownCircleWidget"] {
+            $default-timer-size: 180px;
+            transform: scale($widget-size / $default-timer-size);
+            transform-origin: top left;
+        }
+    }
+}
+
+@mixin board-item-rating($rating, $color) {
+    &[data-rating=#{$rating}] {
+        border: 1px solid $color;
+
+        .board-departure, .board-arrival {
+            border: 1px solid $color;
+            background-color: $color;
+            color: white;
+        }
+    }
+}
+
+@mixin board-departure-label($status, $color) {
+    &[data-status=#{$status}] {
+        &:before {
+            $size: 10px;
+            content: '';
+            width: $size;
+            height: $size;
+            display: inline-block;
+            background-color: lighten($color, 10%);
+            margin-right: 6px;
+        }
+    }
+}
+
+.board-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.board-item-container {
+    margin: 12px 0;
+    font-size: 1.5rem;
+
+    .board-item {
+        display: flex;
+        align-items: stretch;
+
+        @include board-item-rating("success", #28a745);
+        @include board-item-rating("warning", #ffc107);
+        @include board-item-rating("danger", #dc3545);
+
+        .board-departure, .board-arrival {
+            flex-shrink: 0;
+            width: 100px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        .board-item-mid {
+            flex-grow: 1;
+            padding: 4px 8px;
+
+            .board-item-legs, .board-departure-label {
+                color: #888;
+            }
+
+            .board-item-legs {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                .MuiChip-root {
+                    height: 18px;
+                    margin-left: 8px;
+                }
+            }
+
+            .board-departure-large {
+                margin: 8px 0;
+            }
+
+            .board-departure-label {
+                display: flex;
+                align-items: center;
+
+                @include board-departure-label("onTime", #28a745);
+                @include board-departure-label("early", #007bff);
+                @include board-departure-label("late", #dc3545);
+            }
+        }
+    }
+}

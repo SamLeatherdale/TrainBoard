@@ -14,6 +14,7 @@ import Typography from "@material-ui/core/Typography";
 import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import Box from "@material-ui/core/Box";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -51,6 +52,11 @@ export interface SettingsScreenProps {
 }
 
 export default class SettingsScreen extends React.Component<SettingsScreenProps, {}> {
+    static tryParseInt(value: string, def = 0) {
+        const int = parseInt(value);
+        return isNaN(int) ? def : int;
+    }
+
     constructor(props) {
         super(props);
         autoBind.react(this);
@@ -58,39 +64,45 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
 
     render() {
         return (
-            <Dialog open={this.props.menuOpen} fullWidth={true} maxWidth={"xl"}>
+            <Dialog id={"settings-dialog"} open={this.props.menuOpen} fullWidth={true} maxWidth={"sm"}>
                 <DialogTitle onClose={this.onClose}>
                     Settings
                 </DialogTitle>
                 <DialogContent>
-                    <InputLabel htmlFor={"stopSearchFrom"} shrink={true}>
-                        From stop
-                    </InputLabel>
+                    <div className="settings-row">
+                        <InputLabel htmlFor={"stopSearchFrom"} shrink={true}>
+                            From stop
+                        </InputLabel>
 
-                    <StopSearch
-                        settings={this.props.settings}
-                        inputId={"stopSearchFrom"}
-                        label="From"
-                        value={this.props.settings.fromStop}
-                        onSelect={(s) => this.onUpdateSetting("fromStop", s)} />
+                        <StopSearch
+                            settings={this.props.settings}
+                            inputId={"stopSearchFrom"}
+                            label="From"
+                            value={this.props.settings.fromStop}
+                            onSelect={(s) => this.onUpdateSetting("fromStop", s)} />
+                    </div>
 
-                    <InputLabel htmlFor={"stopSearchTo"} shrink={true}>
-                        To stop
-                    </InputLabel>
+                    <div className="settings-row">
+                        <InputLabel htmlFor={"stopSearchTo"} shrink={true}>
+                            To stop
+                        </InputLabel>
 
-                    <StopSearch
-                        settings={this.props.settings}
-                        inputId={"stopSearchTo"}
-                        label="To"
-                        value={this.props.settings.toStop}
-                        onSelect={(s) => this.onUpdateSetting("toStop", s)} />
+                        <StopSearch
+                            settings={this.props.settings}
+                            inputId={"stopSearchTo"}
+                            label="To"
+                            value={this.props.settings.toStop}
+                            onSelect={(s) => this.onUpdateSetting("toStop", s)} />
+                    </div>
 
-                    <TextField
-                            id="inputWalkTime"
-                            label="Walking Time (mins)"
-                            type="number"
-                            value={this.props.settings.walkTime}
-                            onChange={event => this.onUpdateSetting("walkTime", parseInt(event.target.value))} />
+                    <div className="settings-row">
+                        <TextField
+                                id="inputWalkTime"
+                                label="Walking Time (mins)"
+                                type="number"
+                                value={this.props.settings.walkTime}
+                                onChange={event => this.onUpdateSetting("walkTime", SettingsScreen.tryParseInt(event.target.value))} />
+                    </div>
 
                     <ExpansionPanel>
                         <ExpansionPanelSummary
@@ -101,17 +113,21 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
                             Advanced Settings
                         </ExpansionPanelSummary>
                         <ExpansionPanelDetails>
-                            <TextField
-                                label="TfNSW API Key"
-                                value={this.props.settings.apiKey}
-                                onChange={event => this.onUpdateSetting("apiKey", event.target.value)}
-                                />
+                            <div className="settings-row">
+                                <TextField
+                                    label="TfNSW API Key"
+                                    value={this.props.settings.apiKey}
+                                    onChange={event => this.onUpdateSetting("apiKey", event.target.value)}
+                                    />
+                            </div>
 
-                            <TextField
-                                label="Proxy Server"
-                                value={this.props.settings.proxyServer}
-                                onChange={event => this.onUpdateSetting("proxyServer", event.target.value)}
-                                />
+                            <div className="settings-row">
+                                <TextField
+                                    label="Proxy Server"
+                                    value={this.props.settings.proxyServer}
+                                    onChange={event => this.onUpdateSetting("proxyServer", event.target.value)}
+                                    />
+                            </div>
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </DialogContent>

@@ -5,10 +5,20 @@ body {
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-  
-  code {
+}
+
+code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-      monospace;
-  }
-  
+  monospace;
+}
+
+.App {
+
+    #main-appbar {
+        background-color: #f18500;
+    }
+
+    > main {
+        @extend %centered-container;
+    }
+}

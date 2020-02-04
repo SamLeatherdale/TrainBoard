@@ -18,17 +18,17 @@ export interface TripRequestResponseJourney {
     /**
      * XXX
      */
-    rating?: number;
+    rating: number;
     /**
      * XXX
      */
-    isAdditional?: boolean;
+    isAdditional: boolean;
     /**
      * This element contains one or more legs that constitute the trip.
      */
-    legs?: Array<TripRequestResponseJourneyLeg>;
+    legs: Array<TripRequestResponseJourneyLeg>;
     /**
      * Contains fare options for this trip, including different prices depending on the type of traveller. 
      */
-    fare?: any;
+    fare: any;
 }

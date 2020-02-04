@@ -28,5 +28,5 @@ export interface TripRequestResponse {
     /**
      * Contains zero or more journeys found based on the input parameters.
      */
-    journeys?: Array<TripRequestResponseJourney>;
+    journeys: Array<TripRequestResponseJourney>;
 }
