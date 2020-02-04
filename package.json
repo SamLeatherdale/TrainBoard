@@ -31,7 +31,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "proxy": "php -S localhost:8010 scripts/proxy.php"
+    "proxy": "sh scripts/proxy.sh"
   },
   "eslintConfig": {
     "extends": "react-app"
