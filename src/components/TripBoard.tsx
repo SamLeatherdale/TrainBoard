@@ -1,5 +1,5 @@
 import React from "react";
-import moment, {Moment} from "moment"
+import moment, {min, Moment} from "moment"
 import autoBind from "auto-bind";
 import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
 import SettingsSet from "../classes/SettingsSet";
@@ -46,12 +46,12 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
 
     getDepartureTimeClass(time: Moment) {
         const diff = time.diff(moment.now(), "minutes"); //Positive if time > now
-        const threshold = this.props.settings.walkTime;
-        const buffer = this.props.settings.walkTimeBuffer;
+        const minTime = Math.min(...this.props.settings.walkTimeRange);
+        const maxTime = Math.max(...this.props.settings.walkTimeRange);
 
-        if (diff > threshold + buffer) {
+        if (diff > maxTime) {
             return "success";
-        } else if (diff < threshold - buffer) {
+        } else if (diff < minTime) {
             return "danger";
         } else {
             return "warning";

@@ -5,7 +5,7 @@
 
 #trip-board-toolbar {
     @extend %centered-container;
-    $toolbar-height: 75px;
+    $toolbar-height: 4em;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -22,7 +22,7 @@
         display: flex;
         align-items: center;
         > * {
-            margin-left: 8px;
+            margin-left: .5em;
         }
     }
 
@@ -87,13 +87,13 @@
         display: flex;
         align-items: stretch;
 
-        @include board-item-rating("success", #28a745);
-        @include board-item-rating("warning", #ffc107);
-        @include board-item-rating("danger", #dc3545);
+        @include board-item-rating("success", $success);
+        @include board-item-rating("warning", $warning);
+        @include board-item-rating("danger", $danger);
 
         .board-departure, .board-arrival {
             flex-shrink: 0;
-            width: 100px;
+            width: 4em;
             padding: 0 16px;
             display: flex;
             align-items: center;
@@ -115,8 +115,10 @@
                 justify-content: space-between;
 
                 .MuiChip-root {
-                    height: 18px;
+                    height: auto;
+                    padding: 4px;
                     margin-left: 8px;
+                    font-size: 0.7em;
                 }
             }
 
@@ -128,9 +130,9 @@
                 display: flex;
                 align-items: center;
 
-                @include board-departure-label("onTime", #28a745);
-                @include board-departure-label("early", #007bff);
-                @include board-departure-label("late", #dc3545);
+                @include board-departure-label("onTime", $success);
+                @include board-departure-label("early", $primary);
+                @include board-departure-label("late", $danger);
             }
         }
     }

@@ -14,6 +14,7 @@ import moment from "moment";
 import {StopFinderLocation} from "./models/TripPlanner/stopFinderLocation";
 import Clock from "react-live-clock";
 import {Typography} from "@material-ui/core";
+import ExitIcon from "@material-ui/icons/ExitToApp";
 
 interface AppState {
     settings: SettingsSet
@@ -113,7 +114,7 @@ export default class App extends React.Component<{}, AppState> {
             return '';
         }
 
-        return `: ${trip.from.parent.disassembledName} ➡ ${trip.to.parent.disassembledName}`
+        return `: ${trip.from.disassembledName} ➡ ${trip.to.disassembledName}`
     }
 
     getTrips() {
@@ -160,8 +161,11 @@ export default class App extends React.Component<{}, AppState> {
                             <MenuIcon />
                         </IconButton>
                         <Typography variant={"h6"}>
-                            Train Board {this.getCurrentTripLabel()}
+                            Train Board{this.getCurrentTripLabel()}
                         </Typography>
+                        <IconButton color="inherit" onClick={window.close}>
+                            <ExitIcon />
+                        </IconButton>
                     </Toolbar>
                 </AppBar>
                 <SettingsScreen
@@ -178,7 +182,7 @@ export default class App extends React.Component<{}, AppState> {
                         <div id="trip-board-container">
                             {this.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
-                                <Clock format={'HH:mm:ssa'} ticking={true} />
+                                <Clock format={'hh:mm:ssa'} ticking={true} />
                                 <div id="trip-board-timer-container">
                                     {!!this.state.lastRefreshTime &&
                                         <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>

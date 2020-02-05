@@ -1,9 +1,12 @@
+@import "colors";
+
 $centered-max-width: 960px;
 $primary-text: white;
 
 $media-2k: 1440px;
 $media-xl: 1200px;
 $media-ipad-land: 1024px;
+
 
 @mixin media($width) {
     @media (max-width: $width) {

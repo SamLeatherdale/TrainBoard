@@ -25,7 +25,7 @@ export interface ParentLocation {
     /**
      * This is the short version of the location name, which does not include the suburb or other information. 
      */
-    disassembledName: string;
+    disassembledName?: string;
     /**
      * This is the type of location being returned. It may represent a stop or platform that a public transport service physically stops at for passenger boarding, or it may represent somebody's house. A value of `unknown` likely indicates bad data coming from the server. If a location is returned with this type, you can safely ignore it. 
      */
@@ -33,7 +33,7 @@ export interface ParentLocation {
     /**
      * In some cases, a parent location will also contain its parent (in other words, the grandparent of the initial location) 
      */
-    parent: any;
+    parent?: any;
 }
 export namespace ParentLocation {
     export type TypeEnum = 'poi' | 'singlehouse' | 'stop' | 'platform' | 'street' | 'locality' | 'location' | 'unknown';

@@ -15,6 +15,7 @@ import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import Box from "@material-ui/core/Box";
+import Slider from "@material-ui/core/Slider";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -96,18 +97,18 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
                     </div>
 
                     <div className="settings-row">
-                        <TextField
-                                id="inputWalkTime"
-                                label="Walking time (mins)"
-                                type="number"
-                                value={this.props.settings.walkTime}
-                                onChange={event => this.onUpdateSetting("walkTime", SettingsScreen.tryParseInt(event.target.value))} />
-                        <TextField
-                            id="inputWalkTime"
-                            label="Walking time buffer (mins)"
-                            type="number"
-                            value={this.props.settings.walkTimeBuffer}
-                            onChange={event => this.onUpdateSetting("walkTimeBuffer", SettingsScreen.tryParseInt(event.target.value))} />
+                        <InputLabel shrink={true}>
+                            Walking time (mins)
+                        </InputLabel>
+
+                        <Slider
+                            value={this.props.settings.walkTimeRange}
+                            onChange={(event, newValue: number | number[]) => this.onUpdateSetting("walkTimeRange", newValue)}
+                            valueLabelDisplay="auto"
+                            aria-labelledby="range-slider"
+                            min={0}
+                            max={30}
+                        />
                     </div>
 
                     <ExpansionPanel>

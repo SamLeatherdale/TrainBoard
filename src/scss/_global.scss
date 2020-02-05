@@ -22,6 +22,17 @@ code {
 
     #main-appbar {
         background-color: #f18500;
+
+        .MuiToolbar-root {
+            justify-content: space-between;
+
+            h6 {
+                flex: 1 0 0;
+            }
+
+            button:last-child {
+            }
+        }
     }
 
     > main {
@@ -37,15 +48,15 @@ code {
             @extend %centered-container;
 
             @include media-min($media-2k) {
-                font-size: 2rem;
+                font-size: 1.8em;
             }
 
             @include media($media-2k) {
-                font-size: 1.5rem;
+                font-size: 1.5em;
             }
 
             @include media($media-xl) {
-                font-size: 1rem;
+                font-size: 1em;
             }
         }
     }
