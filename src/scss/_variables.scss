@@ -1,6 +1,22 @@
 $centered-max-width: 960px;
 $primary-text: white;
 
+$media-2k: 1440px;
+$media-xl: 1200px;
+$media-ipad-land: 1024px;
+
+@mixin media($width) {
+    @media (max-width: $width) {
+        @content;
+    }
+}
+
+@mixin media-min($width) {
+    @media (min-width: $width) {
+        @content;
+    }
+}
+
 %list-reset {
     list-style: none;
     margin: 0;

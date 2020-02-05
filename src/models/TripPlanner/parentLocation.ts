@@ -17,23 +17,23 @@ export interface ParentLocation {
     /**
      * This is a unique ID for the returned location. Certain types of ID can be used for subsequent searches performed with `XML_STOPFINDER_REQUEST`, or can be used as the origin or destination in an `XML_TRIP_REQUEST2` request. The format of a location ID differs greatly, depending on the type of location it is. 
      */
-    id?: string;
+    id: string;
     /**
      * This is the long version of the location name, which may include the suburb or other information. 
      */
-    name?: string;
+    name: string;
     /**
      * This is the short version of the location name, which does not include the suburb or other information. 
      */
-    disassembledName?: string;
+    disassembledName: string;
     /**
      * This is the type of location being returned. It may represent a stop or platform that a public transport service physically stops at for passenger boarding, or it may represent somebody's house. A value of `unknown` likely indicates bad data coming from the server. If a location is returned with this type, you can safely ignore it. 
      */
-    type?: ParentLocation.TypeEnum;
+    type: ParentLocation.TypeEnum;
     /**
      * In some cases, a parent location will also contain its parent (in other words, the grandparent of the initial location) 
      */
-    parent?: any;
+    parent: any;
 }
 export namespace ParentLocation {
     export type TypeEnum = 'poi' | 'singlehouse' | 'stop' | 'platform' | 'street' | 'locality' | 'location' | 'unknown';

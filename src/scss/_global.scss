@@ -36,14 +36,17 @@ code {
             flex: 1 0 0;
             @extend %centered-container;
 
-            #main-toolbar {
-                time {
-                    font-size: 3em;
-                    color: $primary-text;
-                }
+            @include media-min($media-2k) {
+                font-size: 2rem;
             }
 
+            @include media($media-2k) {
+                font-size: 1.5rem;
+            }
 
+            @include media($media-xl) {
+                font-size: 1rem;
+            }
         }
     }
 }

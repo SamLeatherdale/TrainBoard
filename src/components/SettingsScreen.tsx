@@ -98,10 +98,16 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
                     <div className="settings-row">
                         <TextField
                                 id="inputWalkTime"
-                                label="Walking Time (mins)"
+                                label="Walking time (mins)"
                                 type="number"
                                 value={this.props.settings.walkTime}
                                 onChange={event => this.onUpdateSetting("walkTime", SettingsScreen.tryParseInt(event.target.value))} />
+                        <TextField
+                            id="inputWalkTime"
+                            label="Walking time buffer (mins)"
+                            type="number"
+                            value={this.props.settings.walkTimeBuffer}
+                            onChange={event => this.onUpdateSetting("walkTimeBuffer", SettingsScreen.tryParseInt(event.target.value))} />
                     </div>
 
                     <ExpansionPanel>

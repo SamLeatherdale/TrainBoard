@@ -13,6 +13,7 @@ import RefreshTimer from "./components/RefreshTimer";
 import moment from "moment";
 import {StopFinderLocation} from "./models/TripPlanner/stopFinderLocation";
 import Clock from "react-live-clock";
+import {Typography} from "@material-ui/core";
 
 interface AppState {
     settings: SettingsSet
@@ -94,18 +95,39 @@ export default class App extends React.Component<{}, AppState> {
         return this.state.settings.fromStop && this.state.settings.toStop;
     }
 
-    getTrips() {
+    getConfiguredTrip(): undefined |
+        {from: StopFinderLocation, to: StopFinderLocation} {
         if (!this.isConfiguredTrip()) {
+            return undefined;
+        }
+
+        return {
+            from: this.state.settings.fromStop as StopFinderLocation,
+            to: this.state.settings.toStop as StopFinderLocation
+        };
+    }
+
+    getCurrentTripLabel() {
+        const trip = this.getConfiguredTrip();
+        if (!trip) {
+            return '';
+        }
+
+        return `: ${trip.from.parent.disassembledName} ➡ ${trip.to.parent.disassembledName}`
+    }
+
+    getTrips() {
+        const trip = this.getConfiguredTrip();
+        if (!trip) {
             return;
         }
-        const fromStop = this.state.settings.fromStop as StopFinderLocation;
-        const toStop = this.state.settings.toStop as StopFinderLocation;
+        const {from, to} = trip;
 
         clearTimeout(this.getTripsTimeoutKey);
 
         this.setState({isTripsRefreshing: true});
         const client = new APIClient(this.state.settings.apiKey, this.state.settings.proxyServer);
-        client.getTrips(fromStop, toStop).then(response => {
+        client.getTrips(from, to).then(response => {
            if (!response.journeys) {
                throw new Error("Missing trips from response.");
            }
@@ -119,6 +141,7 @@ export default class App extends React.Component<{}, AppState> {
                }
            });
        }).catch(e => {
+           this.setState({isTripsRefreshing: false});
            console.error(e);
        });
     }
@@ -136,6 +159,9 @@ export default class App extends React.Component<{}, AppState> {
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleMenu}>
                             <MenuIcon />
                         </IconButton>
+                        <Typography variant={"h6"}>
+                            Train Board {this.getCurrentTripLabel()}
+                        </Typography>
                     </Toolbar>
                 </AppBar>
                 <SettingsScreen
@@ -148,19 +174,21 @@ export default class App extends React.Component<{}, AppState> {
                 <main>
                     <div id="main-wrap">
                         <div id="main-toolbar">
-                            <Clock format={'HH:mm:ssa'} ticking={true} />
                         </div>
                         <div id="trip-board-container">
                             {this.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
-                                {!!this.state.lastRefreshTime &&
-                                    <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
-                                }
-                                <RefreshTimer
-                                    isRefreshing={this.state.isTripsRefreshing}
-                                    durationSeconds={this.getTripsInterval}
-                                    resetKey={this.state.lastRefreshTime}
-                                    />
+                                <Clock format={'HH:mm:ssa'} ticking={true} />
+                                <div id="trip-board-timer-container">
+                                    {!!this.state.lastRefreshTime &&
+                                        <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
+                                    }
+                                    <RefreshTimer
+                                        isRefreshing={this.state.isTripsRefreshing}
+                                        durationSeconds={this.getTripsInterval}
+                                        resetKey={this.state.lastRefreshTime}
+                                        />
+                                </div>
                             </div>}
                             <TripBoard
                                 trips={this.state.trips}

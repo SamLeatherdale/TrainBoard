@@ -4,7 +4,19 @@
  * @param string $url
  * @param array $headers
  */
-function request(string $url, array $headers) {
+function request(string $url, array $headers, bool $cache = false) {
+	$cache_dir = __DIR__ . "/../cache";
+	$cache_file = "last.json";
+	$cache_path = $cache_dir . DIRECTORY_SEPARATOR . $cache_file;
+
+	//Try to read from cache
+	if ($cache) {
+		if (is_readable($cache_path)) {
+			echo file_get_contents($cache_path);
+			return;
+		}
+	}
+
     $ch = curl_init($url);
 
     //Convert headers from key value pairs to flat strings.
@@ -33,9 +45,17 @@ function request(string $url, array $headers) {
     //Set response code
     http_response_code((int) $http_code);
 
-    if ($err) {
+    if ($err || substr((string)$http_code, 0, 1) !== '2') {
     	http_response_code(500);
     	echo $err;
+    	return;
+	}
+
+    if ($cache) {
+    	if (!is_dir($cache_dir)) {
+    		mkdir($cache_dir);
+		}
+    	file_put_contents($cache_path, $res);
 	}
     echo $res;
 }

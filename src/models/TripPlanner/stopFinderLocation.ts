@@ -20,23 +20,23 @@ export interface StopFinderLocation {
     /**
      * This is a unique ID for the returned location. Certain types of ID can be used for subsequent searches performed with `XML_STOPFINDER_REQUEST`, or can be used as the origin or destination in an `XML_TRIP_REQUEST2` request. The format of a location ID differs greatly, depending on the type of location it is. 
      */
-    id?: string;
+    id: string;
     /**
      * This is the long version of the location name, which may include the suburb or other information. 
      */
-    name?: string;
+    name: string;
     /**
      * This is the short version of the location name, which does not include the suburb or other information. 
      */
-    disassembledName?: string;
+    disassembledName: string;
     /**
      * Contains exactly two values: the first value is the latitude, the second value is the longitude. 
      */
-    coord?: Array<number>;
+    coord: Array<number>;
     /**
      * This is the type of location being returned. It may represent a stop or platform that a public transport service physically stops at for passenger boarding, or it may represent somebody's house. A value of `unknown` likely indicates bad data coming from the server. If a location is returned with this type, you can safely ignore it. 
      */
-    type?: StopFinderLocation.TypeEnum;
+    type: StopFinderLocation.TypeEnum;
     /**
      * This is the number of the property, included only if the `type` value is set to `singlehouse`. Note that it is a string, as it may include non-numeric characters. 
      */
@@ -52,16 +52,16 @@ export interface StopFinderLocation {
     /**
      * This value indicates how well the returned stop matches the search query. A higher number indicates a better match.
      */
-    matchQuality?: number;
+    matchQuality: number;
     /**
      * Indicates whether or not this is the best match out of all the returned locations.
      */
-    isBest?: boolean;
-    parent?: ParentLocation;
+    isBest: boolean;
+    parent: ParentLocation;
     /**
      * This is a list of stops that are assigned to this location. This means if you're in the current location and want to catch public transport, these assigned stops are directly available to you. 
      */
-    assignedStops?: Array<StopFinderAssignedStop>;
+    assignedStops: Array<StopFinderAssignedStop>;
 }
 export namespace StopFinderLocation {
     export type TypeEnum = 'poi' | 'singlehouse' | 'stop' | 'platform' | 'street' | 'locality' | 'location' | 'unknown';

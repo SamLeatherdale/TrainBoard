@@ -35,7 +35,7 @@ export default class RefreshTimer extends React.Component<RefreshTimerProps, {}>
                 isPlaying={true}
                 durationSeconds={this.props.durationSeconds}
                 colors={[['#ffffff', 0]]}
-                trailColor={'#888888'}
+                trailColor={'#333'}
             />
         )
     }

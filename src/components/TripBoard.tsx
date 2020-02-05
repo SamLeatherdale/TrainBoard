@@ -44,9 +44,10 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         this.setState({lastRender: Date.now()});
     }
 
-    static getDepartureTimeClass(time: Moment, threshold: number) {
+    getDepartureTimeClass(time: Moment) {
         const diff = time.diff(moment.now(), "minutes"); //Positive if time > now
-        const buffer = 2;
+        const threshold = this.props.settings.walkTime;
+        const buffer = this.props.settings.walkTimeBuffer;
 
         if (diff > threshold + buffer) {
             return "success";
@@ -161,7 +162,7 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         const departurePlanned = moment(first.origin.departureTimePlanned);
         const departureEst = moment(first.origin.departureTimeEstimated);
         const arrivalEst = moment(last.destination.arrivalTimeEstimated);
-        const rating = TripBoard.getDepartureTimeClass(departureEst, this.props.settings.walkTime);
+        const rating = this.getDepartureTimeClass(departureEst);
 
         const departureRelative = departureEst.diff(moment.now(), "seconds");
         const departureLabel = departureRelative > 0 ? "departing" : "departed";
