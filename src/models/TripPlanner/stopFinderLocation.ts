@@ -9,6 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import {SimpleCoords} from "../../classes/types";
 import { ParentLocation } from './parentLocation';
 import { StopFinderAssignedStop } from './stopFinderAssignedStop';
 import {StopFinderLocationMode} from "./custom/stopFinderLocationMode";
@@ -32,7 +33,7 @@ export interface StopFinderLocation {
     /**
      * Contains exactly two values: the first value is the latitude, the second value is the longitude. 
      */
-    coord: Array<number>;
+    coord?: SimpleCoords;
     /**
      * This is the type of location being returned. It may represent a stop or platform that a public transport service physically stops at for passenger boarding, or it may represent somebody's house. A value of `unknown` likely indicates bad data coming from the server. If a location is returned with this type, you can safely ignore it. 
      */

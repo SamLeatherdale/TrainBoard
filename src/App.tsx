@@ -1,20 +1,20 @@
-import React from 'react';
-import SettingsScreen from './components/SettingsScreen';
-import SettingsSet from "./classes/SettingsSet";
-import autoBind from "auto-bind";
-import APIClient from "./classes/APIClient";
-import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
-import TripBoard from "./components/TripBoard";
+import {Typography} from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import IconButton from "@material-ui/core/IconButton";
 import Toolbar from "@material-ui/core/Toolbar";
-import MenuIcon from "@material-ui/icons/Menu";
-import RefreshTimer from "./components/RefreshTimer";
-import moment from "moment";
-import {StopFinderLocation} from "./models/TripPlanner/stopFinderLocation";
-import Clock from "react-live-clock";
-import {Typography} from "@material-ui/core";
 import ExitIcon from "@material-ui/icons/ExitToApp";
+import MenuIcon from "@material-ui/icons/Menu";
+import autoBind from "auto-bind";
+import moment from "moment";
+import React from 'react';
+import Clock from "react-live-clock";
+import APIClient from "./classes/APIClient";
+import SettingsSet from "./classes/SettingsSet";
+import RefreshTimer from "./components/RefreshTimer";
+import SettingsScreen from './components/SettingsScreen';
+import TrainMap from "./components/TrainMap";
+import TripBoard from "./components/TripBoard";
+import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
 
 interface AppState {
     settings: SettingsSet
@@ -52,7 +52,6 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     readSettings(): SettingsSet {
-        const settings = new SettingsSet();
         let rawSettings;
         try {
             rawSettings = JSON.parse(window.localStorage.getItem(App.STORAGE_KEY) || "");
@@ -60,12 +59,7 @@ export default class App extends React.Component<{}, AppState> {
             rawSettings = {};
         }
 
-        for (let key of Object.keys(settings)) {
-            if (rawSettings[key]) {
-                settings[key] = rawSettings[key];
-            }
-        }
-        return settings;
+        return new SettingsSet(rawSettings);
     }
 
     writeSettings(): void {
@@ -75,10 +69,10 @@ export default class App extends React.Component<{}, AppState> {
     onUpdateSetting(key: string, value: any) {
         this.setState(prevState => {
             return {
-                settings: {
+                settings: new SettingsSet({
                     ...prevState.settings,
                     [key]: value
-                }
+                })
             }
         }, () => {
             this.writeSettings();
@@ -92,24 +86,8 @@ export default class App extends React.Component<{}, AppState> {
         this.setState(prevState => ({ settingsMenuOpen: !prevState.settingsMenuOpen }));
     }
 
-    isConfiguredTrip() {
-        return this.state.settings.fromStop && this.state.settings.toStop;
-    }
-
-    getConfiguredTrip(): undefined |
-        {from: StopFinderLocation, to: StopFinderLocation} {
-        if (!this.isConfiguredTrip()) {
-            return undefined;
-        }
-
-        return {
-            from: this.state.settings.fromStop as StopFinderLocation,
-            to: this.state.settings.toStop as StopFinderLocation
-        };
-    }
-
     getCurrentTripLabel() {
-        const trip = this.getConfiguredTrip();
+        const trip = this.state.settings.getConfiguredTrip();
         if (!trip) {
             return '';
         }
@@ -118,7 +96,7 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     getTrips() {
-        const trip = this.getConfiguredTrip();
+        const trip = this.state.settings.getConfiguredTrip();
         if (!trip) {
             return;
         }
@@ -176,11 +154,12 @@ export default class App extends React.Component<{}, AppState> {
                 />
 
                 <main>
+                    <TrainMap settings={this.state.settings} trips={this.state.trips} />
                     <div id="main-wrap">
                         <div id="main-toolbar">
                         </div>
                         <div id="trip-board-container">
-                            {this.isConfiguredTrip() &&
+                            {this.state.settings.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
                                 <Clock format={'hh:mm:ssa'} ticking={true} />
                                 <div id="trip-board-timer-container">

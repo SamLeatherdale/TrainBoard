@@ -129,6 +129,14 @@ export default class SettingsScreen extends React.Component<SettingsScreenProps,
 
                             <div className="settings-row">
                                 <TextField
+                                    label="Google Maps API Key"
+                                    value={this.props.settings.mapsApiKey}
+                                    onChange={event => this.onUpdateSetting("mapsApiKey", event.target.value)}
+                                />
+                            </div>
+
+                            <div className="settings-row">
+                                <TextField
                                     label="Proxy Server"
                                     value={this.props.settings.proxyServer}
                                     onChange={event => this.onUpdateSetting("proxyServer", event.target.value)}
