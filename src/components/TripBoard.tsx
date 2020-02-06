@@ -1,14 +1,12 @@
-import React from "react";
-import moment, {min, Moment} from "moment"
-import autoBind from "auto-bind";
-import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
-import SettingsSet from "../classes/SettingsSet";
-import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {Card} from "@material-ui/core";
-import CardContent from "@material-ui/core/CardContent";
-import ParsedStation from "../classes/ParsedStation";
 import Chip from "@material-ui/core/Chip";
-import Typography from "@material-ui/core/Typography";
+import autoBind from "auto-bind";
+import moment, {Moment} from "moment"
+import React from "react";
+import ParsedStation from "../classes/ParsedStation";
+import SettingsSet from "../classes/SettingsSet";
+import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
+import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
 
 
@@ -62,16 +60,15 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         let showLegs: TripRequestResponseJourneyLeg[];
 
         if (all) {
-            showLegs = legs;
+            showLegs = [...legs];
+            showLegs.push(legs[legs.length - 1]);
         } else {
             const first = legs[0];
             const last = legs[legs.length - 1];
             showLegs = [first, last];
         }
 
-        if (showLegs.length === 1) {
-            showLegs = [showLegs[0], showLegs[0]]
-        }
+        // Add the final one on again as destination
 
         return (
             <div className="board-item-legs">
@@ -128,7 +125,6 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
     static getRelativeFriendlyTime(time: Moment, to?: Moment) {
         to = typeof to === "undefined" ? moment() : to;
 
-        const secondsDiff = time.diff(to, "seconds");
         const minutesDiff = time.diff(to, "minutes");
         const hoursDiff = time.diff(to, "hours");
 
@@ -137,7 +133,7 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         } else if (minutesDiff > 0) {
             return `${minutesDiff} ${TripBoard.getPlural('min', minutesDiff)}`
         } else {
-            return `${secondsDiff} ${TripBoard.getPlural('sec', secondsDiff)}`;
+            return '<1 min';
         }
     }
 
@@ -154,8 +150,8 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         );
     }
 
-    renderTrip(trip: TripRequestResponseJourney, key: number) {
-        const legs = trip.legs as TripRequestResponseJourneyLeg[];
+    renderTrip(journey: TripRequestResponseJourney, key: number) {
+        const legs = journey.legs as TripRequestResponseJourneyLeg[];
 
         const first = legs[0];
         const last = legs[legs.length - 1];

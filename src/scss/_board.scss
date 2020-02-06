@@ -4,7 +4,6 @@
 }
 
 #trip-board-toolbar {
-    @extend %centered-container;
     $toolbar-height: 4em;
     display: flex;
     justify-content: space-between;
@@ -113,6 +112,11 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+
+                > div {
+                    display: flex;
+                    align-items: center;
+                }
 
                 .MuiChip-root {
                     height: auto;

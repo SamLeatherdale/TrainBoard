@@ -45,18 +45,22 @@ code {
 
         #main-wrap {
             flex: 1 0 0;
-            @extend %centered-container;
+            margin: auto;
+            padding: 0 16px;
 
             @include media-min($media-2k) {
                 font-size: 1.8em;
+                max-width: 1366px;
             }
 
             @include media($media-2k) {
                 font-size: 1.5em;
+                max-width: 1200px;
             }
 
             @include media($media-xl) {
                 font-size: 1em;
+                max-width: 960px;
             }
         }
     }

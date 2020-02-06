@@ -1,21 +1,20 @@
-import React from "react";
-import StopSearch from "./StopSearch";
-import autoBind from "auto-bind";
-import SettingsSet from "../classes/SettingsSet";
+import {createStyles, InputLabel, Theme, withStyles} from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
-import TextField from "@material-ui/core/TextField"
-import {createStyles, InputLabel, Theme, withStyles} from "@material-ui/core";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import ExpansionPanel from "@material-ui/core/ExpansionPanel";
+import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
+import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import IconButton from "@material-ui/core/IconButton";
+import Slider from "@material-ui/core/Slider";
+import TextField from "@material-ui/core/TextField"
+import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
-import Typography from "@material-ui/core/Typography";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import Box from "@material-ui/core/Box";
-import Slider from "@material-ui/core/Slider";
+import autoBind from "auto-bind";
+import React from "react";
+import SettingsSet from "../classes/SettingsSet";
+import StopSearch from "./StopSearch";
 
 const styles = (theme: Theme) =>
     createStyles({

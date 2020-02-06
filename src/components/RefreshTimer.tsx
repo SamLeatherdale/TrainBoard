@@ -1,7 +1,7 @@
+import {IconButton} from "@material-ui/core";
+import RefreshIcon from "@material-ui/icons/Refresh";
 import autoBind from "auto-bind";
 import React from "react";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import {IconButton} from "@material-ui/core";
 import {CountdownCircleTimer} from "react-countdown-circle-timer";
 
 interface RefreshTimerProps {

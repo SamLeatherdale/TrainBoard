@@ -1,11 +1,11 @@
 import autoBind from "auto-bind";
 import _ from "lodash";
-import APIClient from "../classes/APIClient";
 import React, {ChangeEvent} from "react";
 import Select, {ActionMeta, InputActionMeta, OptionsType, ValueType} from "react-select";
-import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
-import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
+import APIClient from "../classes/APIClient";
 import SettingsSet from "../classes/SettingsSet";
+import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
+import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 
 type Option = {
     label: string;
