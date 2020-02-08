@@ -5,8 +5,18 @@ export default class SettingsSet {
     public toStop?: StopFinderLocation;
     public walkTimeRange: [number, number] = [8,10];
     public apiKey = "";
-    public mapsApiKey = "";
     public proxyServer = "http://localhost:8010";
+
+    public maps = {
+        enabled: false,
+        apiKey: ""
+    };
+
+    public reminders = {
+        enabled: false,
+        title: "",
+        itemList: [] as string[]
+    };
 
     constructor(params: {[key: string]: any}) {
         const keys = Object.keys(params);

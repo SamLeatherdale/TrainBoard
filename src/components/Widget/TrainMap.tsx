@@ -1,9 +1,9 @@
-import autoBind from "auto-bind";
 import GoogleMapReact, {Coords} from "google-map-react";
 import React from "react";
-import SettingsSet from "../classes/SettingsSet";
-import {SimpleCoords} from "../classes/types";
-import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
+import SettingsSet from "../../classes/SettingsSet";
+import {SimpleCoords} from "../../classes/types";
+import {TripRequestResponseJourney} from "../../models/TripPlanner/tripRequestResponseJourney";
+import AutoBoundComponent from "../AutoBoundComponent";
 
 interface TrainMapProps {
     settings: SettingsSet
@@ -17,15 +17,10 @@ function getGoogleMapCoords(coords: SimpleCoords): Coords {
     }
 }
 
-export default class TrainMap extends React.Component<TrainMapProps, {}> {
-    constructor(props) {
-        super(props);
-        autoBind.react(this);
-    }
-
+export default class TrainMap extends AutoBoundComponent<TrainMapProps, {}> {
     render() {
         const {trips, settings} = this.props;
-        if (!trips.length) {
+        if (!settings.maps.enabled || (!settings.maps.apiKey && process.env.NODE_ENV === 'production') || !trips.length) {
             return null;
         }
         const from = trips[0].legs[0].origin;
@@ -35,9 +30,9 @@ export default class TrainMap extends React.Component<TrainMapProps, {}> {
             <>
                 <div id="bg-google-maps">
                     <GoogleMapReact
-                        bootstrapURLKeys={{key: settings.mapsApiKey}}
+                        bootstrapURLKeys={{key: settings.maps.apiKey}}
                         defaultCenter={gCoords}
-                        defaultZoom={11}
+                        defaultZoom={13}
                     >
                     </GoogleMapReact>
                 </div>

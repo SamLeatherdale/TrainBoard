@@ -6,6 +6,21 @@
 .App {
     > main {
         position: relative;
+        flex-grow: 1;
+        background-color: #333;
+
+        //display: flex;
+        align-items: center;
+        justify-content: center;
+        display: grid;
+        grid-column-gap: 16px;
+        grid-template-columns: 200px 1fr 200px;
+        grid-template-areas:
+            "reminders main x";
+
+        > * {
+            z-index: 2;
+        }
 
         #bg-google-maps, #bg-google-maps-overlay  {
             position: absolute;
@@ -24,8 +39,39 @@
             background-color: rgba(0,0,0,0.5);
         }
 
+        #reminders-panel {
+            grid-area: reminders;
+
+            .MuiListItem-root {
+                display: flex;
+                align-items: center;
+            }
+
+            .MuiListItemIcon-root {
+                min-width: 0;
+                margin-right: 8px;
+            }
+
+            .MuiButtonBase-root {
+                padding: 4px;
+            }
+
+            .MuiListItemText-root {
+                display: inline-flex;
+                margin: 0;
+
+                .MuiTypography-root {
+                    font-size: 0.7em;
+                    line-height: normal;
+                }
+            }
+        }
+
         #main-wrap {
-            z-index: 2;
+            grid-area: main;
+            padding: 0 16px;
+            justify-self: center;
+            width: 100%;
         }
     }
 }

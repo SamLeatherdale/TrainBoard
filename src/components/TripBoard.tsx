@@ -1,6 +1,5 @@
 import {Card} from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
-import autoBind from "auto-bind";
 import moment, {Moment} from "moment"
 import React from "react";
 import ParsedStation from "../classes/ParsedStation";
@@ -8,6 +7,7 @@ import SettingsSet from "../classes/SettingsSet";
 import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
 import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
+import AutoBoundComponent from "./AutoBoundComponent";
 
 
 interface TripBoardProps {
@@ -20,13 +20,11 @@ class TripBoardState {
     lastRender = 0;
 }
 
-export default class TripBoard extends React.Component<TripBoardProps, TripBoardState> {
+export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBoardState> {
     protected renderIntervalKey = 0;
 
     constructor(props) {
         super(props);
-        autoBind.react(this);
-
         this.state = new TripBoardState();
     }
 

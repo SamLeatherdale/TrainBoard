@@ -4,15 +4,17 @@ import IconButton from "@material-ui/core/IconButton";
 import Toolbar from "@material-ui/core/Toolbar";
 import ExitIcon from "@material-ui/icons/ExitToApp";
 import MenuIcon from "@material-ui/icons/Menu";
-import autoBind from "auto-bind";
+import _ from "lodash";
 import moment from "moment";
 import React from 'react';
 import Clock from "react-live-clock";
 import APIClient from "./classes/APIClient";
 import SettingsSet from "./classes/SettingsSet";
+import AutoBoundComponent from "./components/AutoBoundComponent";
 import RefreshTimer from "./components/RefreshTimer";
 import SettingsScreen from './components/SettingsScreen';
-import TrainMap from "./components/TrainMap";
+import RemindersWidget from "./components/Widget/RemindersWidget";
+import TrainMap from "./components/Widget/TrainMap";
 import TripBoard from "./components/TripBoard";
 import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
 
@@ -24,7 +26,7 @@ interface AppState {
     lastRefreshTime: number;
 }
 
-export default class App extends React.Component<{}, AppState> {
+export default class App extends AutoBoundComponent<{}, AppState> {
     static readonly STORAGE_KEY = "appSettings";
     protected getTripsInterval = 30;
     protected getTripsTimeoutKey;
@@ -32,8 +34,6 @@ export default class App extends React.Component<{}, AppState> {
 
     constructor(props) {
         super(props);
-        autoBind.react(this);
-
         this.state = {
             settings: this.readSettings(),
             settingsMenuOpen: false,
@@ -68,12 +68,9 @@ export default class App extends React.Component<{}, AppState> {
 
     onUpdateSetting(key: string, value: any) {
         this.setState(prevState => {
-            return {
-                settings: new SettingsSet({
-                    ...prevState.settings,
-                    [key]: value
-                })
-            }
+            const settings = _.cloneDeep(prevState.settings);
+            _.set(settings, key, value);
+            return {settings};
         }, () => {
             this.writeSettings();
             if (["fromStop", "toStop"].includes(key)) {
@@ -153,8 +150,9 @@ export default class App extends React.Component<{}, AppState> {
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
 
-                <main>
+                <main className={[this.state.settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
                     <TrainMap settings={this.state.settings} trips={this.state.trips} />
+                    <RemindersWidget settings={this.state.settings} />
                     <div id="main-wrap">
                         <div id="main-toolbar">
                         </div>
