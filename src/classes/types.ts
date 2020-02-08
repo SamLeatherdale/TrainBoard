@@ -20,3 +20,5 @@ export enum TPLocationType {
 export enum TPCoordOutputFormat {
     EPSG_4326 = "EPSG:4326"
 }
+
+export type SimpleCoords = [number, number];

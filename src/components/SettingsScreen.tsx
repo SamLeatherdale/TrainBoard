@@ -1,20 +1,26 @@
-import React from "react";
-import StopSearch from "./StopSearch";
-import autoBind from "auto-bind";
-import SettingsSet from "../classes/SettingsSet";
+import {createStyles, Theme, withStyles} from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
-import TextField from "@material-ui/core/TextField"
-import {createStyles, InputLabel, Theme, withStyles} from "@material-ui/core";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
 import Typography from "@material-ui/core/Typography";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import Box from "@material-ui/core/Box";
+import CloseIcon from "@material-ui/icons/Close";
+import React from "react";
+import SettingsSet from "../classes/SettingsSet";
+import AutoBoundComponent from "./AutoBoundComponent";
+import GeneralSettingsPane from "./SettingsPane/GeneralSettingsPane";
+import MapsSettingsPane from "./SettingsPane/MapsSettingsPane";
+import RemindersSettingsPane from "./SettingsPane/RemindersSettingsPane";
+import {OnUpdateFunc} from "./SettingsPane/SettingsPane";
+import SettingsIcon from "@material-ui/icons/Settings";
+import MapIcon from "@material-ui/icons/Map";
+import NotificationsIcon from "@material-ui/icons/Notifications";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -44,102 +50,97 @@ const DialogTitle = withStyles(styles)((props:  any) => {
     );
 });
 
+enum SettingsPaneEnum {
+    GENERAL = "General",
+    MAPS = "Maps",
+    REMINDERS = "Reminders"
+}
+
 export interface SettingsScreenProps {
     settings: SettingsSet
     menuOpen: boolean
-    onUpdate: (key: string, value: any) => void,
+    onUpdate: OnUpdateFunc,
     onClose: () => void;
 }
 
-export default class SettingsScreen extends React.Component<SettingsScreenProps, {}> {
-    static tryParseInt(value: string, def = 0) {
-        const int = parseInt(value);
-        return isNaN(int) ? def : int;
-    }
+class SettingsScreenState {
+    activePane = SettingsPaneEnum.GENERAL;
+}
 
+export default class SettingsScreen extends AutoBoundComponent<SettingsScreenProps, SettingsScreenState> {
     constructor(props) {
         super(props);
-        autoBind.react(this);
-    }
 
-    render() {
-        return (
-            <Dialog id={"settings-dialog"} open={this.props.menuOpen} fullWidth={true} maxWidth={"sm"}>
-                <DialogTitle onClose={this.onClose}>
-                    Settings
-                </DialogTitle>
-                <DialogContent>
-                    <div className="settings-row">
-                        <InputLabel htmlFor={"stopSearchFrom"} shrink={true}>
-                            From stop
-                        </InputLabel>
-
-                        <StopSearch
-                            settings={this.props.settings}
-                            inputId={"stopSearchFrom"}
-                            label="From"
-                            value={this.props.settings.fromStop}
-                            onSelect={(s) => this.onUpdateSetting("fromStop", s)} />
-                    </div>
-
-                    <div className="settings-row">
-                        <InputLabel htmlFor={"stopSearchTo"} shrink={true}>
-                            To stop
-                        </InputLabel>
-
-                        <StopSearch
-                            settings={this.props.settings}
-                            inputId={"stopSearchTo"}
-                            label="To"
-                            value={this.props.settings.toStop}
-                            onSelect={(s) => this.onUpdateSetting("toStop", s)} />
-                    </div>
-
-                    <div className="settings-row">
-                        <TextField
-                                id="inputWalkTime"
-                                label="Walking Time (mins)"
-                                type="number"
-                                value={this.props.settings.walkTime}
-                                onChange={event => this.onUpdateSetting("walkTime", SettingsScreen.tryParseInt(event.target.value))} />
-                    </div>
-
-                    <ExpansionPanel>
-                        <ExpansionPanelSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                        >
-                            Advanced Settings
-                        </ExpansionPanelSummary>
-                        <ExpansionPanelDetails>
-                            <div className="settings-row">
-                                <TextField
-                                    label="TfNSW API Key"
-                                    value={this.props.settings.apiKey}
-                                    onChange={event => this.onUpdateSetting("apiKey", event.target.value)}
-                                    />
-                            </div>
-
-                            <div className="settings-row">
-                                <TextField
-                                    label="Proxy Server"
-                                    value={this.props.settings.proxyServer}
-                                    onChange={event => this.onUpdateSetting("proxyServer", event.target.value)}
-                                    />
-                            </div>
-                        </ExpansionPanelDetails>
-                    </ExpansionPanel>
-                </DialogContent>
-            </Dialog>
-        )
+        this.state = new SettingsScreenState();
     }
 
     onClose() {
         this.props.onClose();
     }
 
-    onUpdateSetting(key: string, value: any) {
-        this.props.onUpdate(key, value);
+    setActivePane(key: SettingsPaneEnum) {
+        this.setState({activePane: key});
+    }
+
+    render() {
+        const {settings, onUpdate} = this.props;
+        const {activePane} = this.state;
+
+        const paneProps = {settings, onUpdate};
+
+        interface PaneConfig {
+            key: SettingsPaneEnum,
+            component: JSX.Element,
+            icon: JSX.Element
+        }
+        const panes: PaneConfig[] = [{
+            key: SettingsPaneEnum.GENERAL,
+            component: <GeneralSettingsPane {...paneProps} />,
+            icon: <SettingsIcon />
+        }, {
+            key: SettingsPaneEnum.MAPS,
+            component: <MapsSettingsPane {...paneProps} />,
+            icon: <MapIcon />
+        }, {
+            key: SettingsPaneEnum.REMINDERS,
+            component: <RemindersSettingsPane {...paneProps} />,
+            icon: <NotificationsIcon />
+        }];
+
+        const currentPane = panes.find(pane => pane.key === activePane) as PaneConfig;
+
+        return (
+            <Dialog id={"settings-dialog"} open={this.props.menuOpen} fullWidth={true}>
+                <DialogTitle onClose={this.onClose}>Settings</DialogTitle>
+
+                <Drawer
+                    //className={classes.drawer}
+                    variant="permanent"
+                    //classes={{paper: classes.drawerPaper,}}
+                    //anchor="left"
+                >
+                    <Divider />
+                    <List>
+                        {panes.map((pane) => (
+                            <ListItem
+                                button
+                                key={pane.key}
+                                onClick={() => this.setActivePane(pane.key)}
+                                selected={pane.key === activePane}
+                            >
+                                <ListItemIcon>{pane.icon}</ListItemIcon>
+                                <ListItemText primary={pane.key} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Drawer>
+
+                <div className={"dialog-main"}>
+                    <DialogContent>
+                        {currentPane.component}
+                    </DialogContent>
+                </div>
+            </Dialog>
+        )
     }
 }

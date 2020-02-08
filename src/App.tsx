@@ -1,17 +1,22 @@
-import React from 'react';
-import SettingsScreen from './components/SettingsScreen';
-import SettingsSet from "./classes/SettingsSet";
-import autoBind from "auto-bind";
-import APIClient from "./classes/APIClient";
-import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
-import TripBoard from "./components/TripBoard";
+import {Typography} from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import IconButton from "@material-ui/core/IconButton";
 import Toolbar from "@material-ui/core/Toolbar";
+import ExitIcon from "@material-ui/icons/ExitToApp";
 import MenuIcon from "@material-ui/icons/Menu";
-import {makeStyles} from "@material-ui/core/styles";
-import RefreshTimer from "./components/RefreshTimer";
+import _ from "lodash";
 import moment from "moment";
+import React from 'react';
+import Clock from "react-live-clock";
+import APIClient from "./classes/APIClient";
+import SettingsSet from "./classes/SettingsSet";
+import AutoBoundComponent from "./components/AutoBoundComponent";
+import RefreshTimer from "./components/RefreshTimer";
+import SettingsScreen from './components/SettingsScreen';
+import RemindersWidget from "./components/Widget/RemindersWidget";
+import TrainMap from "./components/Widget/TrainMap";
+import TripBoard from "./components/TripBoard";
+import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
 
 interface AppState {
     settings: SettingsSet
@@ -21,7 +26,7 @@ interface AppState {
     lastRefreshTime: number;
 }
 
-export default class App extends React.Component<{}, AppState> {
+export default class App extends AutoBoundComponent<{}, AppState> {
     static readonly STORAGE_KEY = "appSettings";
     protected getTripsInterval = 30;
     protected getTripsTimeoutKey;
@@ -29,8 +34,6 @@ export default class App extends React.Component<{}, AppState> {
 
     constructor(props) {
         super(props);
-        autoBind.react(this);
-
         this.state = {
             settings: this.readSettings(),
             settingsMenuOpen: false,
@@ -49,7 +52,6 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     readSettings(): SettingsSet {
-        const settings = new SettingsSet();
         let rawSettings;
         try {
             rawSettings = JSON.parse(window.localStorage.getItem(App.STORAGE_KEY) || "");
@@ -57,12 +59,7 @@ export default class App extends React.Component<{}, AppState> {
             rawSettings = {};
         }
 
-        for (let key of Object.keys(settings)) {
-            if (rawSettings[key]) {
-                settings[key] = rawSettings[key];
-            }
-        }
-        return settings;
+        return new SettingsSet(rawSettings);
     }
 
     writeSettings(): void {
@@ -71,12 +68,9 @@ export default class App extends React.Component<{}, AppState> {
 
     onUpdateSetting(key: string, value: any) {
         this.setState(prevState => {
-            return {
-                settings: {
-                    ...prevState.settings,
-                    [key]: value
-                }
-            }
+            const settings = _.cloneDeep(prevState.settings);
+            _.set(settings, key, value);
+            return {settings};
         }, () => {
             this.writeSettings();
             if (["fromStop", "toStop"].includes(key)) {
@@ -89,16 +83,27 @@ export default class App extends React.Component<{}, AppState> {
         this.setState(prevState => ({ settingsMenuOpen: !prevState.settingsMenuOpen }));
     }
 
+    getCurrentTripLabel() {
+        const trip = this.state.settings.getConfiguredTrip();
+        if (!trip) {
+            return '';
+        }
+
+        return `: ${trip.from.disassembledName} ➡ ${trip.to.disassembledName}`
+    }
+
     getTrips() {
-        if (!(this.state.settings.fromStop && this.state.settings.toStop)) {
+        const trip = this.state.settings.getConfiguredTrip();
+        if (!trip) {
             return;
         }
+        const {from, to} = trip;
 
         clearTimeout(this.getTripsTimeoutKey);
 
         this.setState({isTripsRefreshing: true});
         const client = new APIClient(this.state.settings.apiKey, this.state.settings.proxyServer);
-        client.getTrips(this.state.settings.fromStop, this.state.settings.toStop).then(response => {
+        client.getTrips(from, to).then(response => {
            if (!response.journeys) {
                throw new Error("Missing trips from response.");
            }
@@ -112,6 +117,7 @@ export default class App extends React.Component<{}, AppState> {
                }
            });
        }).catch(e => {
+           this.setState({isTripsRefreshing: false});
            console.error(e);
        });
     }
@@ -129,6 +135,12 @@ export default class App extends React.Component<{}, AppState> {
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleMenu}>
                             <MenuIcon />
                         </IconButton>
+                        <Typography variant={"h6"}>
+                            Train Board{this.getCurrentTripLabel()}
+                        </Typography>
+                        <IconButton color="inherit" onClick={window.close}>
+                            <ExitIcon />
+                        </IconButton>
                     </Toolbar>
                 </AppBar>
                 <SettingsScreen
@@ -137,22 +149,35 @@ export default class App extends React.Component<{}, AppState> {
                     onUpdate={(key, value) => this.onUpdateSetting(key, value)}
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
-                <main>
-                    <div id="trip-board-toolbar">
-                        {!!this.state.lastRefreshTime &&
-                            <div>Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
-                        }
-                        <RefreshTimer
-                            isRefreshing={this.state.isTripsRefreshing}
-                            durationSeconds={this.getTripsInterval}
-                            resetKey={this.state.lastRefreshTime}
+
+                <main className={[this.state.settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
+                    <TrainMap settings={this.state.settings} trips={this.state.trips} />
+                    <RemindersWidget settings={this.state.settings} />
+                    <div id="main-wrap">
+                        <div id="main-toolbar">
+                        </div>
+                        <div id="trip-board-container">
+                            {this.state.settings.isConfiguredTrip() &&
+                            <div id="trip-board-toolbar">
+                                <Clock format={'hh:mm:ssa'} ticking={true} />
+                                <div id="trip-board-timer-container">
+                                    {!!this.state.lastRefreshTime &&
+                                        <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
+                                    }
+                                    <RefreshTimer
+                                        isRefreshing={this.state.isTripsRefreshing}
+                                        durationSeconds={this.getTripsInterval}
+                                        resetKey={this.state.lastRefreshTime}
+                                        />
+                                </div>
+                            </div>}
+                            <TripBoard
+                                trips={this.state.trips}
+                                settings={this.state.settings}
+                                renderInterval={this.renderTripsInterval}
                             />
+                        </div>
                     </div>
-                    <TripBoard
-                        trips={this.state.trips}
-                        settings={this.state.settings}
-                        renderInterval={this.renderTripsInterval}
-                    />
                 </main>
             </div>
         );

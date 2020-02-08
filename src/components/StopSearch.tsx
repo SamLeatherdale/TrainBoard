@@ -1,11 +1,11 @@
-import autoBind from "auto-bind";
 import _ from "lodash";
-import APIClient from "../classes/APIClient";
 import React, {ChangeEvent} from "react";
 import Select, {ActionMeta, InputActionMeta, OptionsType, ValueType} from "react-select";
-import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
-import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
+import APIClient from "../classes/APIClient";
 import SettingsSet from "../classes/SettingsSet";
+import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
+import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
+import AutoBoundComponent from "./AutoBoundComponent";
 
 type Option = {
     label: string;
@@ -26,7 +26,7 @@ interface StopSearchProps {
     value?: StopFinderLocation;
 }
 
-export default class StopSearch extends React.Component<StopSearchProps, StopSearchState> {
+export default class StopSearch extends AutoBoundComponent<StopSearchProps, StopSearchState> {
     protected static _uid = 0;
 
     id = "";
@@ -34,7 +34,6 @@ export default class StopSearch extends React.Component<StopSearchProps, StopSea
 
     constructor(props) {
         super(props);
-        autoBind.react(this);
 
         this.id = `stop-search-${StopSearch._uid++}`;
         this.debounceGetStops = _.debounce(this.getStops, 500);

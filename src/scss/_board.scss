@@ -1,17 +1,109 @@
+
+
+#main-toolbar {
+}
+
+.App {
+    > main {
+        position: relative;
+        flex-grow: 1;
+        background-color: #333;
+
+        //display: flex;
+        align-items: center;
+        justify-content: center;
+        display: grid;
+        grid-column-gap: 16px;
+        grid-template-columns: 200px 1fr 200px;
+        grid-template-areas:
+            "reminders main x";
+
+        > * {
+            z-index: 2;
+        }
+
+        #bg-google-maps, #bg-google-maps-overlay  {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #bg-google-maps {
+            z-index: 0;
+        }
+
+        #bg-google-maps-overlay {
+            z-index: 1;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        #reminders-panel {
+            grid-area: reminders;
+
+            .MuiListItem-root {
+                display: flex;
+                align-items: center;
+            }
+
+            .MuiListItemIcon-root {
+                min-width: 0;
+                margin-right: 8px;
+            }
+
+            .MuiButtonBase-root {
+                padding: 4px;
+            }
+
+            .MuiListItemText-root {
+                display: inline-flex;
+                margin: 0;
+
+                .MuiTypography-root {
+                    font-size: 0.7em;
+                    line-height: normal;
+                }
+            }
+        }
+
+        #main-wrap {
+            grid-area: main;
+            padding: 0 16px;
+            justify-self: center;
+            width: 100%;
+        }
+    }
+}
+
 #trip-board-toolbar {
-    @extend %centered-container;
-    $toolbar-height: 50px;
+    $toolbar-height: 4em;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     height: $toolbar-height;
     padding: 4px 8px;
 
-    > * {
-        margin-left: 8px;
+
+    time {
+        font-size: 3em;
+        color: $primary-text;
     }
 
-    $widget-size: $toolbar-height - 8px;
+    #trip-board-timer-container {
+        display: flex;
+        align-items: center;
+        > * {
+            margin-left: .5em;
+        }
+    }
+
+
+    .status-last-refresh {
+        color: $primary-text;
+    }
+
+    $widget-size: 50px;
     .refresh-timer {
         width: $widget-size;
         height: $widget-size;
@@ -20,6 +112,10 @@
             $default-timer-size: 180px;
             transform: scale($widget-size / $default-timer-size);
             transform-origin: top left;
+        }
+
+        svg.MuiSvgIcon-root {
+            fill: white;
         }
     }
 }
@@ -58,19 +154,18 @@
 
 .board-item-container {
     margin: 12px 0;
-    font-size: 1.5rem;
 
     .board-item {
         display: flex;
         align-items: stretch;
 
-        @include board-item-rating("success", #28a745);
-        @include board-item-rating("warning", #ffc107);
-        @include board-item-rating("danger", #dc3545);
+        @include board-item-rating("success", $success);
+        @include board-item-rating("warning", $warning);
+        @include board-item-rating("danger", $danger);
 
         .board-departure, .board-arrival {
             flex-shrink: 0;
-            width: 100px;
+            width: 4em;
             padding: 0 16px;
             display: flex;
             align-items: center;
@@ -83,7 +178,7 @@
             padding: 4px 8px;
 
             .board-item-legs, .board-departure-label {
-                color: #888;
+                color: #555;
             }
 
             .board-item-legs {
@@ -91,9 +186,16 @@
                 align-items: center;
                 justify-content: space-between;
 
+                > div {
+                    display: flex;
+                    align-items: center;
+                }
+
                 .MuiChip-root {
-                    height: 18px;
+                    height: auto;
+                    padding: 4px;
                     margin-left: 8px;
+                    font-size: 0.7em;
                 }
             }
 
@@ -105,9 +207,9 @@
                 display: flex;
                 align-items: center;
 
-                @include board-departure-label("onTime", #28a745);
-                @include board-departure-label("early", #007bff);
-                @include board-departure-label("late", #dc3545);
+                @include board-departure-label("onTime", $success);
+                @include board-departure-label("early", $primary);
+                @include board-departure-label("late", $danger);
             }
         }
     }

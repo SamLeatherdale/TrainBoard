@@ -23,6 +23,7 @@ export interface TripRequestResponseJourney {
      * XXX
      */
     isAdditional: boolean;
+    interchanges: number;
     /**
      * This element contains one or more legs that constitute the trip.
      */

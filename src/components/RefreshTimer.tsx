@@ -1,8 +1,8 @@
-import autoBind from "auto-bind";
-import React from "react";
-import RefreshIcon from "@material-ui/icons/Refresh";
 import {IconButton} from "@material-ui/core";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import React from "react";
 import {CountdownCircleTimer} from "react-countdown-circle-timer";
+import AutoBoundComponent from "./AutoBoundComponent";
 
 interface RefreshTimerProps {
     isRefreshing: boolean;
@@ -10,12 +10,7 @@ interface RefreshTimerProps {
     resetKey: number;
 }
 
-export default class RefreshTimer extends React.Component<RefreshTimerProps, {}>{
-    constructor(props) {
-        super(props);
-        autoBind.react(this);
-    }
-
+export default class RefreshTimer extends AutoBoundComponent<RefreshTimerProps, {}>{
     render() {
         return <div className="refresh-timer">{this.getContent()}</div>
     }
@@ -34,7 +29,8 @@ export default class RefreshTimer extends React.Component<RefreshTimerProps, {}>
                 key={this.props.resetKey}
                 isPlaying={true}
                 durationSeconds={this.props.durationSeconds}
-                colors={[['#000000', 0]]}
+                colors={[['#ffffff', 0]]}
+                trailColor={'#333'}
             />
         )
     }

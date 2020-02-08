@@ -9,6 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import {SimpleCoords} from "../../classes/types";
 import { ParentLocation } from './parentLocation';
 
 /**
@@ -34,7 +35,7 @@ export interface TripRequestResponseJourneyLegStop {
     /**
      * Contains exactly two values: the first value is the latitude, the second value is the longitude. 
      */
-    coord: Array<number>;
+    coord: SimpleCoords;
     parent: ParentLocation;
     /**
      * A timestamp in `YYYY-MM-DDTHH:MM:SSZ` format that indicates the estimated departure time. If real-time information is available then this timestamp is the real-time estimate, otherwise it is the same as the value in `departureTimePlanned`. 

@@ -1,14 +1,13 @@
-import React from "react";
-import moment, {Moment} from "moment"
-import autoBind from "auto-bind";
-import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
-import SettingsSet from "../classes/SettingsSet";
-import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {Card} from "@material-ui/core";
-import CardContent from "@material-ui/core/CardContent";
-import ParsedStation from "../classes/ParsedStation";
 import Chip from "@material-ui/core/Chip";
-import Typography from "@material-ui/core/Typography";
+import moment, {Moment} from "moment"
+import React from "react";
+import ParsedStation from "../classes/ParsedStation";
+import SettingsSet from "../classes/SettingsSet";
+import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
+import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
+import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
+import AutoBoundComponent from "./AutoBoundComponent";
 
 
 interface TripBoardProps {
@@ -21,13 +20,11 @@ class TripBoardState {
     lastRender = 0;
 }
 
-export default class TripBoard extends React.Component<TripBoardProps, TripBoardState> {
+export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBoardState> {
     protected renderIntervalKey = 0;
 
     constructor(props) {
         super(props);
-        autoBind.react(this);
-
         this.state = new TripBoardState();
     }
 
@@ -43,13 +40,14 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         this.setState({lastRender: Date.now()});
     }
 
-    static getDepartureTimeClass(time: Moment, threshold: number) {
+    getDepartureTimeClass(time: Moment) {
         const diff = time.diff(moment.now(), "minutes"); //Positive if time > now
-        const buffer = 2;
+        const minTime = Math.min(...this.props.settings.walkTimeRange);
+        const maxTime = Math.max(...this.props.settings.walkTimeRange);
 
-        if (diff > threshold + buffer) {
+        if (diff > maxTime) {
             return "success";
-        } else if (diff < threshold - buffer) {
+        } else if (diff < minTime) {
             return "danger";
         } else {
             return "warning";
@@ -60,27 +58,36 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         let showLegs: TripRequestResponseJourneyLeg[];
 
         if (all) {
-            showLegs = legs;
+            showLegs = [...legs];
+            showLegs.push(legs[legs.length - 1]);
         } else {
             const first = legs[0];
             const last = legs[legs.length - 1];
             showLegs = [first, last];
         }
 
-        if (showLegs.length === 1) {
-            showLegs = [showLegs[0], showLegs[0]]
-        }
+        // Add the final one on again as destination
 
         return (
             <div className="board-item-legs">
                 {showLegs.map((leg, i) => {
                     const isLast = i === showLegs.length - 1;
-                    const station = isLast ? leg.destination : leg.origin;
+                    const station: TripRequestResponseJourneyLegStop = isLast ? leg.destination : leg.origin;
                     const parsedStation = new ParsedStation(station.name);
-                    return (
-                        <div key={i}>
+                    let content;
+
+                    if (parsedStation.isParseSuccess()) {
+                        content = <>
                             {parsedStation.station}
                             <Chip label={`P${parsedStation.platform}`} />
+                        </>
+                    } else {
+                        content = station.parent.disassembledName;
+                    }
+
+                    return (
+                        <div key={i}>
+                            {content}
                         </div>
                     );
                 })}
@@ -116,7 +123,6 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
     static getRelativeFriendlyTime(time: Moment, to?: Moment) {
         to = typeof to === "undefined" ? moment() : to;
 
-        const secondsDiff = time.diff(to, "seconds");
         const minutesDiff = time.diff(to, "minutes");
         const hoursDiff = time.diff(to, "hours");
 
@@ -125,7 +131,7 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         } else if (minutesDiff > 0) {
             return `${minutesDiff} ${TripBoard.getPlural('min', minutesDiff)}`
         } else {
-            return `${secondsDiff} ${TripBoard.getPlural('sec', secondsDiff)}`;
+            return '<1 min';
         }
     }
 
@@ -142,17 +148,17 @@ export default class TripBoard extends React.Component<TripBoardProps, TripBoard
         );
     }
 
-    renderTrip(trip: TripRequestResponseJourney, key: number) {
-        const legs = trip.legs as TripRequestResponseJourneyLeg[];
+    renderTrip(journey: TripRequestResponseJourney, key: number) {
+        const legs = journey.legs as TripRequestResponseJourneyLeg[];
 
         const first = legs[0];
         const last = legs[legs.length - 1];
         const departurePlanned = moment(first.origin.departureTimePlanned);
         const departureEst = moment(first.origin.departureTimeEstimated);
         const arrivalEst = moment(last.destination.arrivalTimeEstimated);
-        const rating = TripBoard.getDepartureTimeClass(departureEst, this.props.settings.walkTime);
+        const rating = this.getDepartureTimeClass(departureEst);
 
-        const departureRelative = departurePlanned.diff(moment.now(), "seconds");
+        const departureRelative = departureEst.diff(moment.now(), "seconds");
         const departureLabel = departureRelative > 0 ? "departing" : "departed";
         const departureDiff = TripBoard.getPlannedEstimatedDiff(departurePlanned, departureEst);
 

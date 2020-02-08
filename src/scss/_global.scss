@@ -1,3 +1,7 @@
+html, body, #root, .App {
+    height: 100%;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -13,12 +17,50 @@ code {
 }
 
 .App {
+    display: flex;
+    flex-direction: column;
 
     #main-appbar {
         background-color: #f18500;
+
+        .MuiToolbar-root {
+            justify-content: space-between;
+
+            h6 {
+                flex: 1 0 0;
+            }
+
+            button:last-child {
+            }
+        }
     }
 
     > main {
-        @extend %centered-container;
+        @include media-min($media-2k) {
+            font-size: 1.8em;
+        }
+
+        @include media($media-2k) {
+            font-size: 1.5em;
+        }
+
+        @include media($media-xl) {
+            font-size: 1em;
+        }
+
+        #main-wrap {
+
+            @include media-min($media-2k) {
+                max-width: 1366px;
+            }
+
+            @include media($media-2k) {
+                max-width: 1200px;
+            }
+
+            @include media($media-xl) {
+                max-width: 960px;
+            }
+        }
     }
 }
