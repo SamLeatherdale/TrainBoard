@@ -203,7 +203,7 @@ main.maps-enabled {
 
             .board-item-legs, .board-info-bottom {
                 display: flex;
-                align-items: center;
+                align-items: baseline; //So font lines up
                 justify-content: space-between;
             }
 
@@ -223,6 +223,24 @@ main.maps-enabled {
                     padding: 4px;
                     margin-left: 8px;
                     font-size: 0.7em;
+                }
+
+                .line-icon {
+                    //$size: 1em;
+                    //min-width: 3em;
+                    //padding: 0.2em;
+                    //font-size: 0.5em;
+                    //border-radius: 50%;
+
+                    height: auto;
+                    color: white;
+                    border: 1px solid white;
+
+                    &.line-icon-train {
+                    }
+                    &.line-icon-bus {
+                        background-color: $primary;
+                    }
                 }
             }
 

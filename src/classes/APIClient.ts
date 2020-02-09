@@ -63,7 +63,7 @@ export default class APIClient {
         });
     }
 
-    async getTrips(stopOrigin: StopFinderLocation, stopDestination: StopFinderLocation): Promise<TripRequestResponse> {
+    async getTrips(stopOrigin: StopFinderLocation, stopDestination: StopFinderLocation, tripCount: number): Promise<TripRequestResponse> {
        return await this.performJsonRequest("tp/trip", {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             depArrMacro: "dep",
@@ -71,7 +71,7 @@ export default class APIClient {
             type_destination: "any",
             name_origin: stopOrigin.id,
             name_destination: stopDestination.id,
-            calcNumberOfTrips: 6,
+            calcNumberOfTrips: tripCount,
             TfNSWTR: true
         });
     }

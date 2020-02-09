@@ -36,8 +36,7 @@ export default class ParsedTripId {
 
     constructor(tripId: string) {
         const parts = tripId.split(".");
-
-        try {
+        if (parts.length >= 7) {
             this.tripName = parts[0];
             this.timetableId = parts[1];
             this.timetableVersionId = parts[2];
@@ -45,9 +44,8 @@ export default class ParsedTripId {
             this.setType = parts[4] as SetType;
             this.numberOfCars = tryParseInt(parts[5]);
             this.tripInstance = parts[6];
-        } catch (e) {
+        } else {
             this.valid = false;
-            console.error(e);
         }
     }
 

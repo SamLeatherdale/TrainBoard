@@ -11,6 +11,7 @@ import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestRespo
 import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
 import AutoBoundComponent from "./AutoBoundComponent";
+import {getLineType} from "../classes/LineType";
 
 
 interface TripBoardProps {
@@ -58,6 +59,25 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
         }
     }
 
+    static getTripIcon(leg: TripRequestResponseJourneyLeg) {
+        const tripName = leg.transportation?.disassembledName?.toUpperCase();
+        if (!tripName) {
+            return null;
+        }
+
+        const isTrain = tripName.startsWith('T');
+        const className = isTrain ? 'line-icon-train' : 'line-icon-bus';
+        const color = getLineType(tripName).color;
+        const style = isTrain ? {backgroundColor: color} : {};
+        return (
+            <Chip
+                label={tripName}
+                style={style}
+                className={['line-icon', className].join(' ')}
+            />
+        );
+    }
+
     static getTripLabel(legs: TripRequestResponseJourneyLeg[], all = false) {
         let showLegs: TripRequestResponseJourneyLeg[];
 
@@ -78,6 +98,7 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                     const isLast = i === showLegs.length - 1;
                     const station: TripRequestResponseJourneyLegStop = isLast ? leg.destination : leg.origin;
                     const parsedStation = new ParsedStation(station.name);
+                    const lineName = leg.transportation?.disassembledName;
                     let content;
 
                     if (parsedStation.isParseSuccess()) {
@@ -93,9 +114,15 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                     }
 
                     return (
+                    <>
                         <div key={i}>
                             <span>{content}</span>
                         </div>
+                        {(!isLast && !!lineName) &&
+                        <div key={`line-${i}`}>
+                            {TripBoard.getTripIcon(leg)}
+                        </div>}
+                    </>
                     );
                 })}
             </div>

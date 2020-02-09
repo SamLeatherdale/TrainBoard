@@ -96,7 +96,8 @@ export default class App extends AutoBoundComponent<{}, AppState> {
     }
 
     async getTrips() {
-        const trip = this.state.settings.getConfiguredTrip();
+        const {settings} = this.state;
+        const trip = settings.getConfiguredTrip();
         if (!trip) {
             return;
         }
@@ -105,27 +106,32 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         clearTimeout(this.getTripsTimeoutKey);
 
         this.setState({isTripsRefreshing: true});
-        const client = new APIClient(this.state.settings.apiKey, this.state.settings.proxyServer);
+        const client = new APIClient(settings.apiKey, settings.proxyServer);
         try {
-            const response = await client.getTrips(from, to);
+            const response = await client.getTrips(from, to, settings.tripCount);
             if (!response.journeys) {
                 throw new Error("Missing trips from response.");
             }
 
+            const getRealtime = settings.maps.enabled;
+
             this.setState({
                 trips: response.journeys,
+                isTripsRefreshing: getRealtime,
                 lastRefreshTime: Date.now()
             });
 
             // Now get realtime data
-            const tripIds: string[] = response.journeys
-                .map(j => j.legs[0].transportation?.properties?.RealtimeTripId)
-                .filter(id => !!id) as string[];
-            const positionEntities = await client.getGTFSRealtime(tripIds);
-            this.setState({
-                realtimeTripData: positionEntities,
-                isTripsRefreshing: false
-            });
+            if (getRealtime) {
+                const tripIds: string[] = response.journeys
+                    .map(j => j.legs[0].transportation?.properties?.RealtimeTripId)
+                    .filter(id => !!id) as string[];
+                const positionEntities = await client.getGTFSRealtime(tripIds);
+                this.setState({
+                    realtimeTripData: positionEntities,
+                    isTripsRefreshing: false
+                });
+            }
         } catch (e) {
             this.setState({isTripsRefreshing: false});
             console.error(e);
@@ -140,6 +146,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
     }
 
     render() {
+        const {settings, trips, isTripsRefreshing, lastRefreshTime, realtimeTripData, settingsMenuOpen} = this.state;
 
         return (
             <div className="App">
@@ -157,40 +164,40 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                     </Toolbar>
                 </AppBar>
                 <SettingsScreen
-                    menuOpen={this.state.settingsMenuOpen}
-                    settings={this.state.settings}
+                    menuOpen={settingsMenuOpen}
+                    settings={settings}
                     onUpdate={(key, value) => this.onUpdateSetting(key, value)}
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
 
-                <main className={[this.state.settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
+                <main className={[settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
                     <TrainMap
-                        settings={this.state.settings}
-                        trips={this.state.trips}
-                        realtimeTripData={this.state.realtimeTripData.slice(0, 2)}
+                        settings={settings}
+                        trips={trips}
+                        realtimeTripData={realtimeTripData.slice(0, 2)}
                     />
-                    <RemindersWidget settings={this.state.settings} />
+                    <RemindersWidget settings={settings} />
                     <div id="main-wrap">
-                        <div id="trip-board-container" hidden={this.state.settings.developer.mapDebug}>
-                            {this.state.settings.isConfiguredTrip() &&
+                        <div id="trip-board-container" hidden={settings.developer.mapDebug}>
+                            {settings.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
                                 <Clock format={'hh:mm:ssa'} ticking={true}/>
                                 <div id="trip-board-timer-container">
-                                    {!!this.state.lastRefreshTime &&
+                                    {!!lastRefreshTime &&
                                     <div className="status-last-refresh">Last
-                                        refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
+                                        refreshed: {moment(lastRefreshTime).format("hh:mm:ssa")}</div>
                                     }
                                     <RefreshTimer
-                                        isRefreshing={this.state.isTripsRefreshing}
+                                        isRefreshing={isTripsRefreshing}
                                         durationSeconds={this.getTripsInterval}
-                                        resetKey={this.state.lastRefreshTime}
+                                        resetKey={lastRefreshTime}
                                     />
                                 </div>
                             </div>}
                             <TripBoard
-                                trips={this.state.trips}
-                                realtimeTripData={this.state.realtimeTripData}
-                                settings={this.state.settings}
+                                trips={trips}
+                                realtimeTripData={realtimeTripData}
+                                settings={settings}
                                 renderInterval={this.renderTripsInterval}
                             />
                         </div>

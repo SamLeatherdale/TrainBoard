@@ -48,9 +48,25 @@ export default class GeneralSettingsPane extends SettingsPane {
                         value={this.props.settings.walkTimeRange}
                         onChange={(event, newValue: number | number[]) => this.onUpdateSetting("walkTimeRange", newValue)}
                         valueLabelDisplay="auto"
-                        aria-labelledby="range-slider"
+                        aria-labelledby="walkTimeRange"
                         min={0}
                         max={30}
+                    />
+                </div>
+
+                <div className="settings-row">
+                    <InputLabel shrink={true}>
+                        Number of trips to display
+                    </InputLabel>
+
+                    <Slider
+                        value={this.props.settings.tripCount}
+                        onChange={(event, newValue: number | number[]) => this.onUpdateSetting("tripCount", newValue)}
+                        valueLabelDisplay="auto"
+                        aria-labelledby="tripCount"
+                        marks
+                        min={5}
+                        max={10}
                     />
                 </div>
 

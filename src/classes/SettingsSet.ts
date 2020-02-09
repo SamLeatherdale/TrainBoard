@@ -4,6 +4,7 @@ export default class SettingsSet {
     public fromStop?: StopFinderLocation;
     public toStop?: StopFinderLocation;
     public walkTimeRange: [number, number] = [8,10];
+    public tripCount = 6;
     public apiKey = "";
     public proxyServer = "http://localhost:8010";
 
