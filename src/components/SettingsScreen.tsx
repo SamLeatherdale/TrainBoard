@@ -14,6 +14,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import React from "react";
 import SettingsSet from "../classes/SettingsSet";
 import AutoBoundComponent from "./AutoBoundComponent";
+import DeveloperSettingsPane from "./SettingsPane/DeveloperSettingsPane";
 import GeneralSettingsPane from "./SettingsPane/GeneralSettingsPane";
 import MapsSettingsPane from "./SettingsPane/MapsSettingsPane";
 import RemindersSettingsPane from "./SettingsPane/RemindersSettingsPane";
@@ -21,6 +22,7 @@ import {OnUpdateFunc} from "./SettingsPane/SettingsPane";
 import SettingsIcon from "@material-ui/icons/Settings";
 import MapIcon from "@material-ui/icons/Map";
 import NotificationsIcon from "@material-ui/icons/Notifications";
+import CodeIcon from "@material-ui/icons/Code";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -53,7 +55,8 @@ const DialogTitle = withStyles(styles)((props:  any) => {
 enum SettingsPaneEnum {
     GENERAL = "General",
     MAPS = "Maps",
-    REMINDERS = "Reminders"
+    REMINDERS = "Reminders",
+    DEVELOPER = "Developer"
 }
 
 export interface SettingsScreenProps {
@@ -105,6 +108,10 @@ export default class SettingsScreen extends AutoBoundComponent<SettingsScreenPro
             key: SettingsPaneEnum.REMINDERS,
             component: <RemindersSettingsPane {...paneProps} />,
             icon: <NotificationsIcon />
+        }, {
+            key: SettingsPaneEnum.DEVELOPER,
+            component: <DeveloperSettingsPane {...paneProps} />,
+            icon: <CodeIcon />
         }];
 
         const currentPane = panes.find(pane => pane.key === activePane) as PaneConfig;

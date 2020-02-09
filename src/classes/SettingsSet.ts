@@ -18,6 +18,10 @@ export default class SettingsSet {
         itemList: [] as string[]
     };
 
+    public developer = {
+        mapDebug: false
+    };
+
     constructor(params: {[key: string]: any}) {
         const keys = Object.keys(params);
         for (let key of Object.keys(this)) {

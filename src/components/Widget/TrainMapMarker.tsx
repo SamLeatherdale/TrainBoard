@@ -1,13 +1,17 @@
 import React from "react";
 import TrainIcon from "@material-ui/icons/Train";
-import {Coords} from "google-map-react";
+import {LatLng} from "../../classes/types";
 
-interface TrainMapMarkerProps extends Coords {
-    text: string;
+interface TrainMapMarkerProps extends LatLng {
+    label: string;
 }
 
 export default function TrainMapMarker(props: TrainMapMarkerProps) {
+    const {label} = props;
     return (
-        <TrainIcon />
+        <div>
+            <TrainIcon />
+            {label}
+        </div>
     )
 }

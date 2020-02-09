@@ -169,11 +169,9 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                         trips={this.state.trips}
                         realtimeTripData={this.state.realtimeTripData.slice(0, 2)}
                     />
-                    <RemindersWidget settings={this.state.settings}/>
+                    <RemindersWidget settings={this.state.settings} />
                     <div id="main-wrap">
-                        <div id="main-toolbar">
-                        </div>
-                        <div id="trip-board-container">
+                        <div id="trip-board-container" hidden={this.state.settings.developer.mapDebug}>
                             {this.state.settings.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
                                 <Clock format={'hh:mm:ssa'} ticking={true}/>

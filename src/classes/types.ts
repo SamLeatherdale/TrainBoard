@@ -4,6 +4,11 @@ export type TypedObj<T> = {
     [prop: string]: T
 }
 
+export interface LatLng {
+    lat: number
+    lng: number
+}
+
 export enum TPStopType {
     Any = "any",
     Coord = "coord",
