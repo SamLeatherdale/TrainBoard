@@ -161,11 +161,10 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
         const first = legs[0];
         const last = legs[legs.length - 1];
         const parsedTripId = new ParsedTripId(first.transportation?.properties?.RealtimeTripId || '');
-        let realtime: ParsedVehiclePositionEntity | undefined;
 
-        if (parsedTripId.valid) {
-            realtime = this.props.realtimeTripData.find(entity => entity.parsedTripId.equals(parsedTripId));
-        }
+        // if (parsedTripId.valid) {
+        //     realtime = this.props.realtimeTripData.find(entity => entity.parsedTripId.equals(parsedTripId));
+        // }
 
         const departurePlanned = moment(first.origin.departureTimePlanned);
         const departureEst = moment(first.origin.departureTimeEstimated);
@@ -188,8 +187,8 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                             </div>
                             <div className="board-info-bottom">
                                 <div className="board-departure-label" data-status={departureDiff.css}>{departureDiff.label}</div>
-                                {realtime &&
-                                    <div>{`${realtime.parsedTripId.numberOfCars} car ${getTrainSet(realtime.parsedTripId.setType).name}`}</div>}
+                                {parsedTripId.valid &&
+                                    <div>{`${parsedTripId.numberOfCars} car ${getTrainSet(parsedTripId.setType).name}`}</div>}
                             </div>
                         </div>
                         <div className="board-arrival">{arrivalEst.format("LT")}</div>
