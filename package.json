@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "cors-anywhere": "^0.4.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
     "@material-ui/core": "^4.9.0",
     "@material-ui/icons": "^4.5.1",
     "@types/google-map-react": "^1.1.4",
@@ -13,7 +17,6 @@
     "@types/react-dom": "^16.9.3",
     "@types/react-select": "^3.0.8",
     "auto-bind": "^3.0.0",
-    "cors-anywhere": "^0.4.1",
     "google-map-react": "^1.1.6",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
@@ -31,7 +34,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "proxy": "sh scripts/proxy.sh"
+    "yarn-prod": "yarn install --production",
+    "proxy": "node scripts/proxy.js"
   },
   "eslintConfig": {
     "extends": "react-app"
