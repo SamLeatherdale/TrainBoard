@@ -1,4 +1,4 @@
-import {FeedEntity, FeedMessage} from "../models/GTFS/Feed";
+import {FeedMessage} from "../models/GTFS/Feed";
 import {ParsedVehiclePositionEntity} from "../models/GTFS/VehiclePositions";
 import {VehiclePositionEntity} from "../models/GTFS/VehiclePositions";
 import ParsedTripId from "./ParsedTripId";

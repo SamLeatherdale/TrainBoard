@@ -1,6 +1,5 @@
 import {FormControlLabel} from "@material-ui/core";
 import Switch from "@material-ui/core/Switch";
-import TextField from "@material-ui/core/TextField";
 import React from "react";
 import SettingsPane from "./SettingsPane";
 

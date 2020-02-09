@@ -31,4 +31,5 @@ export interface VehicleCoords {
 
 export interface VehicleDescriptor {
     id: string;
+    label?: string;
 }

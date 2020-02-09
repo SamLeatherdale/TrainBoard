@@ -16,7 +16,7 @@ import SettingsScreen from './components/SettingsScreen';
 import RemindersWidget from "./components/Widget/RemindersWidget";
 import TrainMap from "./components/Widget/TrainMap";
 import TripBoard from "./components/TripBoard";
-import {ParsedVehiclePositionEntity, VehiclePositionEntity} from "./models/GTFS/VehiclePositions";
+import {ParsedVehiclePositionEntity} from "./models/GTFS/VehiclePositions";
 import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
 
 interface AppState {

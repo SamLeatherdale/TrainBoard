@@ -102,25 +102,32 @@ function TrainMap(props: TrainMapProps) {
                             ]
                         }, {
                             featureType: "road.highway",
-                            elementType: "all",
+                            elementType: "geometry",
                             stylers: [
                                 {visibility: "on"},
                             ]
                         }]
                     }}
                 >
-                    {realtimeTripData.map((entity, i) => (
+                    {realtimeTripData.map((entity, i) => {
+                        const fromTo = /\d+:\d+ (.+) Station to (.+) Station/i.exec(entity.vehicle.vehicle.label || '');
+                        let to = '';
+                        if (fromTo && fromTo.length > 1) {
+                            to = fromTo[2].slice(0, 3).toUpperCase();
+                        }
+
+                        return (
                         <TrainMapMarker
                             key={i}
-                            label={i.toString()}
+                            label={to || i.toString()}
                             {...vehicleCoordsToLatLng(entity.vehicle.position)}
                         />
-                    ))}
+                    )})}
                 </GoogleMap>
             </div>
             <div id="bg-google-maps-overlay" hidden={settings.developer.mapDebug} />
         </>
     )
-};
+}
 
 export default TrainMap;

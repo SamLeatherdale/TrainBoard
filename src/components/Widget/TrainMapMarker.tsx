@@ -9,9 +9,11 @@ interface TrainMapMarkerProps extends LatLng {
 export default function TrainMapMarker(props: TrainMapMarkerProps) {
     const {label} = props;
     return (
-        <div>
-            <TrainIcon />
-            {label}
+        <div className="train-map-marker">
+            <div className="train-map-marker-icon">
+                <TrainIcon />
+            </div>
+            <span>{label}</span>
         </div>
     )
 }

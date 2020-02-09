@@ -103,7 +103,7 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
     }
 
     static getPlannedEstimatedDiff(planned: Moment, estimated: Moment) {
-        const minsLate = planned.diff(estimated, "minutes");
+        const minsLate = estimated.diff(planned, "minutes");
 
         if (minsLate === 0) {
             return {
