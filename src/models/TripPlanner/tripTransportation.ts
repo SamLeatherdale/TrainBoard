@@ -51,5 +51,9 @@ export interface TripTransportation {
     /**
      * Contains additional properties about this route. 
      */
-    properties?: any;
+    properties?: {
+        isTTB: boolean,
+        tripCode: number,
+        RealtimeTripId: string
+    };
 }

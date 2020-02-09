@@ -1,7 +1,12 @@
-import {TPStopType, TPCoordOutputFormat} from "./types";
+import {FeedEntity, FeedMessage} from "../models/GTFS/Feed";
+import {ParsedVehiclePositionEntity} from "../models/GTFS/VehiclePositions";
+import {VehiclePositionEntity} from "../models/GTFS/VehiclePositions";
+import ParsedTripId from "./ParsedTripId";
+import {TPStopType, TPCoordOutputFormat, TypedObj} from "./types";
 import {StopFinderResponse} from "../models/TripPlanner/stopFinderResponse";
 import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 import {TripRequestResponse} from "../models/TripPlanner/tripRequestResponse";
+import GTFS from "gtfs-realtime-bindings";
 
 export default class APIClient {
     static readonly API_VERSION = "10.2.1.42";
@@ -15,32 +20,42 @@ export default class APIClient {
         //this.proxyUrl = `https://crossorigin.me/${APIClient.API_URL}`;
     }
 
-    async performRequest(url: string, params: { [prop: string]: any }) {
-        const defaults = {
-            outputFormat: "rapidJSON"
-        };
-        const readonly = {
+    async performJsonRequest(url: string, params: TypedObj<any> = {}): Promise<any> {
+        const allParams = {
+            outputFormat: "rapidJSON",
+            ...params,
             version: APIClient.API_VERSION
         };
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': `apikey ${this.apiKey}`
         };
-        const allParams = {
-            ...defaults,
-            ...params,
-            ...readonly
+        const response = await this.performRequest(url, allParams, headers);
+        return response.json();
+    }
+
+    async performProtobufRequest(url: string, params: TypedObj<any> = {}): Promise<Uint8Array> {
+        const headers = {
+            'Content-Type': 'application/x-google-protobuf'
+        };
+        const response = await this.performRequest(url, params, headers);
+        const arrayBuffer = await response.arrayBuffer();
+        return new Uint8Array(arrayBuffer);
+    }
+
+    async performRequest(url: string, params: TypedObj<any>, headers: TypedObj<string>): Promise<Response> {
+        headers = {
+            ...headers,
+            'Authorization': `apikey ${this.apiKey}`
         };
         const fullUrl = `${this.proxyUrl}/${url}`;
 
-        const response = await window.fetch(`${fullUrl}?${(new URLSearchParams(allParams)).toString()}`, {
+        return window.fetch(`${fullUrl}?${(new URLSearchParams(params)).toString()}`, {
             headers: headers
         });
-        return await response.json();
     }
 
     async getStops(query: string): Promise<StopFinderResponse> {
-        return await this.performRequest("tp/stop_finder", {
+        return await this.performJsonRequest("tp/stop_finder", {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             type_sf: TPStopType.Stop,
             name_sf: query,
@@ -49,7 +64,7 @@ export default class APIClient {
     }
 
     async getTrips(stopOrigin: StopFinderLocation, stopDestination: StopFinderLocation): Promise<TripRequestResponse> {
-        return await this.performRequest("tp/trip", {
+       return await this.performJsonRequest("tp/trip", {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             depArrMacro: "dep",
             type_origin: "any",
@@ -59,5 +74,34 @@ export default class APIClient {
             calcNumberOfTrips: 6,
             TfNSWTR: true
         });
+    }
+
+    async getGTFSRealtime(tripIds: string[] = []): Promise<ParsedVehiclePositionEntity[]> {
+        const body = await this.performProtobufRequest("gtfs/vehiclepos/sydneytrains");
+        const feed: FeedMessage<VehiclePositionEntity> = GTFS.transit_realtime.FeedMessage.decode(body);
+
+        let entities = feed.entity;
+        const parsedTripIds: string[] = tripIds.map(tripId => new ParsedTripId(tripId).toEqualityString());
+
+        const map = new Map<string, ParsedVehiclePositionEntity>();
+        for (const entity of entities) {
+            const parsedTripId = new ParsedTripId(entity.vehicle.trip.tripId);
+            const parsedEntity = entity as ParsedVehiclePositionEntity;
+            parsedEntity.parsedTripId = parsedTripId;
+            map.set(parsedTripId.toEqualityString(), parsedEntity);
+        }
+
+        if (parsedTripIds.length) {
+            const filteredMap = new Map<string, ParsedVehiclePositionEntity>();
+            for (const tripId of parsedTripIds) {
+                const entity = map.get(tripId);
+                if (entity) {
+                    filteredMap.set(tripId, entity)
+                }
+            }
+            return Array.from(filteredMap.values());
+        }
+
+        return Array.from(map.values());
     }
 }

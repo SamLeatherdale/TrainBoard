@@ -152,8 +152,28 @@
     margin: 0;
 }
 
+main.maps-enabled {
+    .board-item-container {
+
+        > .MuiPaper-root {
+            background: transparent;
+        }
+
+        .board-departure-large {
+            color: white;
+        }
+
+        .board-item-legs, .board-info-bottom {
+            color: #ccc !important;
+        }
+    }
+}
+
 .board-item-container {
     margin: 12px 0;
+
+    > .MuiPaper-root {
+    }
 
     .board-item {
         display: flex;
@@ -181,14 +201,21 @@
                 color: #555;
             }
 
-            .board-item-legs {
+            .board-item-legs, .board-info-bottom {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+            }
+
+            .board-item-legs {
 
                 > div {
                     display: flex;
                     align-items: center;
+
+                    > span {
+                        white-space: nowrap;
+                    }
                 }
 
                 .MuiChip-root {
@@ -203,13 +230,17 @@
                 margin: 8px 0;
             }
 
-            .board-departure-label {
-                display: flex;
-                align-items: center;
+            .board-info-bottom {
 
-                @include board-departure-label("onTime", $success);
-                @include board-departure-label("early", $primary);
-                @include board-departure-label("late", $danger);
+                .board-departure-label {
+                    display: flex;
+                    align-items: center;
+                    color: inherit;
+
+                    @include board-departure-label("onTime", $success);
+                    @include board-departure-label("early", $primary);
+                    @include board-departure-label("late", $danger);
+                }
             }
         }
     }

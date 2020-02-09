@@ -16,12 +16,14 @@ import SettingsScreen from './components/SettingsScreen';
 import RemindersWidget from "./components/Widget/RemindersWidget";
 import TrainMap from "./components/Widget/TrainMap";
 import TripBoard from "./components/TripBoard";
+import {ParsedVehiclePositionEntity, VehiclePositionEntity} from "./models/GTFS/VehiclePositions";
 import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
 
 interface AppState {
     settings: SettingsSet
     settingsMenuOpen: boolean,
     trips: TripRequestResponseJourney[]
+    realtimeTripData: ParsedVehiclePositionEntity[],
     isTripsRefreshing: boolean
     lastRefreshTime: number;
 }
@@ -38,6 +40,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
             settings: this.readSettings(),
             settingsMenuOpen: false,
             trips: [],
+            realtimeTripData: [],
             isTripsRefreshing: false,
             lastRefreshTime: 0
         }
@@ -80,7 +83,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
     }
 
     toggleMenu() {
-        this.setState(prevState => ({ settingsMenuOpen: !prevState.settingsMenuOpen }));
+        this.setState(prevState => ({settingsMenuOpen: !prevState.settingsMenuOpen}));
     }
 
     getCurrentTripLabel() {
@@ -92,7 +95,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         return `: ${trip.from.disassembledName} ➡ ${trip.to.disassembledName}`
     }
 
-    getTrips() {
+    async getTrips() {
         const trip = this.state.settings.getConfiguredTrip();
         if (!trip) {
             return;
@@ -103,23 +106,33 @@ export default class App extends AutoBoundComponent<{}, AppState> {
 
         this.setState({isTripsRefreshing: true});
         const client = new APIClient(this.state.settings.apiKey, this.state.settings.proxyServer);
-        client.getTrips(from, to).then(response => {
-           if (!response.journeys) {
-               throw new Error("Missing trips from response.");
-           }
+        try {
+            const response = await client.getTrips(from, to);
+            if (!response.journeys) {
+                throw new Error("Missing trips from response.");
+            }
 
-           this.scheduleTimeout();
-           this.setState(prevState => {
-               return {
-                   trips: response.journeys,
-                   isTripsRefreshing: false,
-                   lastRefreshTime: Date.now()
-               }
-           });
-       }).catch(e => {
-           this.setState({isTripsRefreshing: false});
-           console.error(e);
-       });
+            this.setState({
+                trips: response.journeys,
+                lastRefreshTime: Date.now()
+            });
+
+            // Now get realtime data
+            const tripIds: string[] = response.journeys
+                .map(j => j.legs[0].transportation?.properties?.RealtimeTripId)
+                .filter(id => !!id) as string[];
+            const positionEntities = await client.getGTFSRealtime(tripIds);
+            this.setState({
+                realtimeTripData: positionEntities,
+                isTripsRefreshing: false
+            });
+        } catch (e) {
+            this.setState({isTripsRefreshing: false});
+            console.error(e);
+        } finally {
+            // No matter what, try again later
+            this.scheduleTimeout();
+        }
     }
 
     scheduleTimeout() {
@@ -133,13 +146,13 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                 <AppBar position="static" id="main-appbar">
                     <Toolbar>
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={this.toggleMenu}>
-                            <MenuIcon />
+                            <MenuIcon/>
                         </IconButton>
                         <Typography variant={"h6"}>
                             Train Board{this.getCurrentTripLabel()}
                         </Typography>
                         <IconButton color="inherit" onClick={window.close}>
-                            <ExitIcon />
+                            <ExitIcon/>
                         </IconButton>
                     </Toolbar>
                 </AppBar>
@@ -151,28 +164,34 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                 />
 
                 <main className={[this.state.settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
-                    <TrainMap settings={this.state.settings} trips={this.state.trips} />
-                    <RemindersWidget settings={this.state.settings} />
+                    <TrainMap
+                        settings={this.state.settings}
+                        trips={this.state.trips}
+                        realtimeTripData={this.state.realtimeTripData.slice(0, 2)}
+                    />
+                    <RemindersWidget settings={this.state.settings}/>
                     <div id="main-wrap">
                         <div id="main-toolbar">
                         </div>
                         <div id="trip-board-container">
                             {this.state.settings.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
-                                <Clock format={'hh:mm:ssa'} ticking={true} />
+                                <Clock format={'hh:mm:ssa'} ticking={true}/>
                                 <div id="trip-board-timer-container">
                                     {!!this.state.lastRefreshTime &&
-                                        <div className="status-last-refresh">Last refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
+                                    <div className="status-last-refresh">Last
+                                        refreshed: {moment(this.state.lastRefreshTime).format("hh:mm:ssa")}</div>
                                     }
                                     <RefreshTimer
                                         isRefreshing={this.state.isTripsRefreshing}
                                         durationSeconds={this.getTripsInterval}
                                         resetKey={this.state.lastRefreshTime}
-                                        />
+                                    />
                                 </div>
                             </div>}
                             <TripBoard
                                 trips={this.state.trips}
+                                realtimeTripData={this.state.realtimeTripData}
                                 settings={this.state.settings}
                                 renderInterval={this.renderTripsInterval}
                             />

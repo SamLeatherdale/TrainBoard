@@ -3,7 +3,10 @@ import Chip from "@material-ui/core/Chip";
 import moment, {Moment} from "moment"
 import React from "react";
 import ParsedStation from "../classes/ParsedStation";
+import ParsedTripId from "../classes/ParsedTripId";
 import SettingsSet from "../classes/SettingsSet";
+import {getTrainSet} from "../classes/TrainSets";
+import {ParsedVehiclePositionEntity} from "../models/GTFS/VehiclePositions";
 import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
 import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
@@ -12,6 +15,7 @@ import AutoBoundComponent from "./AutoBoundComponent";
 
 interface TripBoardProps {
     trips: TripRequestResponseJourney[],
+    realtimeTripData: ParsedVehiclePositionEntity[],
     settings: SettingsSet,
     renderInterval: number; // In seconds
 }
@@ -58,7 +62,7 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
         let showLegs: TripRequestResponseJourneyLeg[];
 
         if (all) {
-            showLegs = [...legs];
+            showLegs = [...legs].slice(0, 2);
             showLegs.push(legs[legs.length - 1]);
         } else {
             const first = legs[0];
@@ -83,11 +87,14 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                         </>
                     } else {
                         content = station.parent.disassembledName;
+                        if (content && content.length > 30) {
+                            content = content.substr(0, 30) + '...';
+                        }
                     }
 
                     return (
                         <div key={i}>
-                            {content}
+                            <span>{content}</span>
                         </div>
                     );
                 })}
@@ -153,6 +160,13 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
 
         const first = legs[0];
         const last = legs[legs.length - 1];
+        const parsedTripId = new ParsedTripId(first.transportation?.properties?.RealtimeTripId || '');
+        let realtime: ParsedVehiclePositionEntity | undefined;
+
+        if (parsedTripId.valid) {
+            realtime = this.props.realtimeTripData.find(entity => entity.parsedTripId.equals(parsedTripId));
+        }
+
         const departurePlanned = moment(first.origin.departureTimePlanned);
         const departureEst = moment(first.origin.departureTimeEstimated);
         const arrivalEst = moment(last.destination.arrivalTimeEstimated);
@@ -172,7 +186,11 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                             <div className={"board-departure-large"}>
                                 {departureLabel} at {departureEst.format("LT")}
                             </div>
-                            <div className="board-departure-label" data-status={departureDiff.css}>{departureDiff.label}</div>
+                            <div className="board-info-bottom">
+                                <div className="board-departure-label" data-status={departureDiff.css}>{departureDiff.label}</div>
+                                {realtime &&
+                                    <div>{`${realtime.parsedTripId.numberOfCars} car ${getTrainSet(realtime.parsedTripId.setType).name}`}</div>}
+                            </div>
                         </div>
                         <div className="board-arrival">{arrivalEst.format("LT")}</div>
                     </div>

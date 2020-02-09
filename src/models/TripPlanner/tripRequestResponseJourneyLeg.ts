@@ -9,6 +9,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import {SimpleCoords} from "../../classes/types";
 import { TripRequestResponseJourneyLegInterchange } from './tripRequestResponseJourneyLegInterchange';
 import { TripRequestResponseJourneyLegPathDescription } from './tripRequestResponseJourneyLegPathDescription';
 import { TripRequestResponseJourneyLegStop } from './tripRequestResponseJourneyLegStop';
@@ -55,7 +56,7 @@ export interface TripRequestResponseJourneyLeg {
     /**
      * This elements contains a list of coordinates that this journey leg follows. A line between can be plotted between these coordinates in order when representing the journey on a map in order to show where the vehicle travels (or for a walking leg, the path to be walked). 
      */
-    coords?: Array<Array<number>>;
+    coords?: Array<SimpleCoords>;
     /**
      * Contains additional information about this journey leg, such as wheelchair accessibility information.  
      */

@@ -9,11 +9,6 @@ export interface SettingsPaneProps {
 }
 
 export default abstract class SettingsPane extends AutoBoundComponent<SettingsPaneProps, {}>{
-    tryParseInt(value: string, def = 0) {
-        const int = parseInt(value);
-        return isNaN(int) ? def : int;
-    }
-
     onUpdateSetting(key: string, value: any) {
         this.props.onUpdate(key, value);
     }

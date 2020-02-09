@@ -1,5 +1,9 @@
 //Some types adapted from https://github.com/toast-studio/tfnsw-trip-planner/
 
+export type TypedObj<T> = {
+    [prop: string]: T
+}
+
 export enum TPStopType {
     Any = "any",
     Coord = "coord",

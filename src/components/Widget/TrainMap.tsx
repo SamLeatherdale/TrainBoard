@@ -2,12 +2,15 @@ import GoogleMapReact, {Coords} from "google-map-react";
 import React from "react";
 import SettingsSet from "../../classes/SettingsSet";
 import {SimpleCoords} from "../../classes/types";
+import {ParsedVehiclePositionEntity} from "../../models/GTFS/VehiclePositions";
 import {TripRequestResponseJourney} from "../../models/TripPlanner/tripRequestResponseJourney";
 import AutoBoundComponent from "../AutoBoundComponent";
+import TrainMapMarker from "./TrainMapMarker";
 
 interface TrainMapProps {
     settings: SettingsSet
     trips: TripRequestResponseJourney[]
+    realtimeTripData: ParsedVehiclePositionEntity[]
 }
 
 function getGoogleMapCoords(coords: SimpleCoords): Coords {
@@ -32,8 +35,16 @@ export default class TrainMap extends AutoBoundComponent<TrainMapProps, {}> {
                     <GoogleMapReact
                         bootstrapURLKeys={{key: settings.maps.apiKey}}
                         defaultCenter={gCoords}
-                        defaultZoom={13}
+                        defaultZoom={12}
                     >
+                        {this.props.realtimeTripData.map((entity, i) => (
+                            <TrainMapMarker
+                                key={i}
+                                text={i.toString()}
+                                lat={entity.vehicle.position.latitude}
+                                lng={entity.vehicle.position.longitude}
+                            />
+                        ))}
                     </GoogleMapReact>
                 </div>
                 <div id="bg-google-maps-overlay" />
