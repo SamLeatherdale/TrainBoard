@@ -63,6 +63,7 @@ export interface SettingsScreenProps {
     settings: SettingsSet
     menuOpen: boolean
     onUpdate: OnUpdateFunc,
+    onReset: () => void;
     onClose: () => void;
 }
 
@@ -86,10 +87,10 @@ export default class SettingsScreen extends AutoBoundComponent<SettingsScreenPro
     }
 
     render() {
-        const {settings, onUpdate} = this.props;
+        const {settings, onUpdate, onReset} = this.props;
         const {activePane} = this.state;
 
-        const paneProps = {settings, onUpdate};
+        const paneProps = {settings, onUpdate, onReset};
 
         interface PaneConfig {
             key: SettingsPaneEnum,

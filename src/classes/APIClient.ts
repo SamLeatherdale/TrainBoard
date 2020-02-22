@@ -16,7 +16,7 @@ export default class APIClient {
 
     constructor(apiKey: string, proxyUrl: string) {
         this.apiKey = apiKey;
-        this.proxyUrl = `${proxyUrl}/${APIClient.API_URL}`;
+        this.proxyUrl = `${proxyUrl}${APIClient.API_URL}`;
         //this.proxyUrl = `https://crossorigin.me/${APIClient.API_URL}`;
     }
 
@@ -68,6 +68,10 @@ export default class APIClient {
         });
     }
 
+    /**
+     * Uses the _Trip Planner_ API.
+     * @see https://opendata.transport.nsw.gov.au/dataset/trip-planner-apis
+     */
     async getTrips(stopOrigin: StopFinderLocation, stopDestination: StopFinderLocation, tripCount: number): Promise<TripRequestResponse> {
        return await this.performJsonRequest("tp/trip", {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
@@ -81,6 +85,10 @@ export default class APIClient {
         });
     }
 
+    /**
+     * Uses the _Public Transport - Realtime Vehicle Positions_ API.
+     * @see https://opendata.transport.nsw.gov.au/dataset/public-transport-realtime-vehicle-positions
+     */
     async getGTFSRealtime(tripIds: string[] = []): Promise<ParsedVehiclePositionEntity[]> {
         const body = await this.performProtobufRequest("gtfs/vehiclepos/sydneytrains");
         const feed: FeedMessage<VehiclePositionEntity> = GTFS.transit_realtime.FeedMessage.decode(body);

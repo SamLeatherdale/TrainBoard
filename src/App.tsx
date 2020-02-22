@@ -32,7 +32,6 @@ interface AppState {
 }
 
 export default class App extends AutoBoundComponent<{}, AppState> {
-    static readonly STORAGE_KEY = "appSettings";
     protected getTripsInterval = 30;
     protected getTripsTimeoutKey;
     protected renderTripsInterval = 5;
@@ -40,7 +39,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
     constructor(props) {
         super(props);
         this.state = {
-            settings: this.readSettings(),
+            settings: SettingsSet.readSettings(),
             settingsMenuOpen: false,
             trips: [],
             realtimeTripData: [],
@@ -58,19 +57,14 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         clearTimeout(this.getTripsTimeoutKey);
     }
 
-    readSettings(): SettingsSet {
-        let rawSettings;
-        try {
-            rawSettings = JSON.parse(window.localStorage.getItem(App.STORAGE_KEY) || "");
-        } catch (e) {
-            rawSettings = {};
-        }
-
-        return new SettingsSet(rawSettings);
+    readSettings(): void {
+        this.setState({
+            settings: SettingsSet.readSettings()
+        })
     }
 
     writeSettings(): void {
-        window.localStorage.setItem(App.STORAGE_KEY, JSON.stringify(this.state.settings));
+        SettingsSet.writeSettings(this.state.settings);
     }
 
     onUpdateSetting(key: string, value: any) {
@@ -84,6 +78,11 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                 this.getTrips();
             }
         });
+    }
+
+    onResetSettings() {
+        SettingsSet.resetSettings();
+        this.readSettings();
     }
 
     toggleMenu() {
@@ -112,7 +111,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         this.setState({isTripsRefreshing: true});
         const client = new APIClient(settings.apiKey, settings.proxyServer);
         try {
-            const response = await client.getTrips(from, to, settings.tripCount);
+            const response = await client.getTrips(from, to, settings.tripCount + 1);
             const getRealtime = settings.maps.enabled;
 
             this.setState({
@@ -189,6 +188,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                     menuOpen={settingsMenuOpen}
                     settings={settings}
                     onUpdate={(key, value) => this.onUpdateSetting(key, value)}
+                    onReset={this.onResetSettings}
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
 

@@ -5,6 +5,7 @@ export type OnUpdateFunc = (key: string, value: any) => void;
 
 export interface SettingsPaneProps {
     onUpdate: OnUpdateFunc,
+    onReset: () => void,
     settings: SettingsSet
 }
 

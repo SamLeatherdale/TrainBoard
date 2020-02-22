@@ -1,12 +1,14 @@
 import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 
 export default class SettingsSet {
+    static readonly STORAGE_KEY = "appSettings";
+
     public fromStop?: StopFinderLocation;
     public toStop?: StopFinderLocation;
     public walkTimeRange: [number, number] = [8,10];
     public tripCount = 6;
-    public apiKey = "";
-    public proxyServer = "http://localhost:8010";
+    public apiKey = "OOtMuUcfZU5rsvDZlGrVqFl8vJDGMVybeuDS"; // Default public API key
+    public proxyServer = "https://cors-anywhere.trainboard.workers.dev/?";
 
     public maps = {
         enabled: false,
@@ -23,7 +25,29 @@ export default class SettingsSet {
         mapDebug: false
     };
 
-    constructor(params: {[key: string]: any}) {
+    static readSettings() {
+        let rawSettings;
+        try {
+            rawSettings = JSON.parse(window.localStorage.getItem(SettingsSet.STORAGE_KEY) || "");
+        } catch (e) {
+            rawSettings = {};
+        }
+
+        return new SettingsSet(rawSettings);
+    }
+
+    static writeSettings(settings: SettingsSet) {
+        window.localStorage.setItem(SettingsSet.STORAGE_KEY, JSON.stringify(settings));
+    }
+
+    static resetSettings() {
+        SettingsSet.writeSettings(new SettingsSet());
+    }
+
+    constructor(params?: {[key: string]: any}) {
+        if (!params) {
+            return;
+        }
         const keys = Object.keys(params);
         for (let key of Object.keys(this)) {
             if (keys.includes(key)) {
