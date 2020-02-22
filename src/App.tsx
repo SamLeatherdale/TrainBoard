@@ -1,9 +1,11 @@
 import {Typography} from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import IconButton from "@material-ui/core/IconButton";
+import Snackbar from "@material-ui/core/Snackbar";
 import Toolbar from "@material-ui/core/Toolbar";
 import ExitIcon from "@material-ui/icons/ExitToApp";
 import MenuIcon from "@material-ui/icons/Menu";
+import Alert from "@material-ui/lab/Alert"
 import _ from "lodash";
 import moment from "moment";
 import React from 'react';
@@ -26,6 +28,7 @@ interface AppState {
     realtimeTripData: ParsedVehiclePositionEntity[],
     isTripsRefreshing: boolean
     lastRefreshTime: number;
+    lastApiError: string;
 }
 
 export default class App extends AutoBoundComponent<{}, AppState> {
@@ -42,7 +45,8 @@ export default class App extends AutoBoundComponent<{}, AppState> {
             trips: [],
             realtimeTripData: [],
             isTripsRefreshing: false,
-            lastRefreshTime: 0
+            lastRefreshTime: 0,
+            lastApiError: ''
         }
     }
 
@@ -109,16 +113,13 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         const client = new APIClient(settings.apiKey, settings.proxyServer);
         try {
             const response = await client.getTrips(from, to, settings.tripCount);
-            if (!response.journeys) {
-                throw new Error("Missing trips from response.");
-            }
-
             const getRealtime = settings.maps.enabled;
 
             this.setState({
                 trips: response.journeys,
                 isTripsRefreshing: getRealtime,
-                lastRefreshTime: Date.now()
+                lastRefreshTime: Date.now(),
+                lastApiError: ''
             });
 
             // Now get realtime data
@@ -129,11 +130,23 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                 const positionEntities = await client.getGTFSRealtime(tripIds);
                 this.setState({
                     realtimeTripData: positionEntities,
-                    isTripsRefreshing: false
+                    isTripsRefreshing: false,
+                    lastApiError: ''
                 });
             }
         } catch (e) {
-            this.setState({isTripsRefreshing: false});
+            let message = e.message;
+
+            if (/Failed to fetch/i.test(e.message)) {
+                message = 'Failed to fetch data from the proxy server. Please check your proxy settings (and check the proxy server is running) and try again.'
+            } else if (/401 Unauthorized/i.test(e.message)) {
+                message = 'Failed to fetch data due to an invalid API key. Please check your TfNSW API key and try again.';
+            }
+
+            this.setState({
+                isTripsRefreshing: false,
+                lastApiError: message
+            });
             console.error(e);
         } finally {
             // No matter what, try again later
@@ -142,11 +155,20 @@ export default class App extends AutoBoundComponent<{}, AppState> {
     }
 
     scheduleTimeout() {
-        setTimeout(this.getTrips, this.getTripsInterval * 1000);
+        window.clearTimeout(this.getTripsTimeoutKey);
+        this.getTripsTimeoutKey = window.setTimeout(this.getTrips, this.getTripsInterval * 1000);
     }
 
     render() {
-        const {settings, trips, isTripsRefreshing, lastRefreshTime, realtimeTripData, settingsMenuOpen} = this.state;
+        const {
+            settings,
+            trips,
+            isTripsRefreshing,
+            lastRefreshTime,
+            lastApiError,
+            realtimeTripData,
+            settingsMenuOpen,
+        } = this.state;
 
         return (
             <div className="App">
@@ -171,6 +193,12 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                 />
 
                 <main className={[settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
+                    <Snackbar
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        open={!!lastApiError}
+                        autoHideDuration={5000}>
+                        <Alert severity={'error'} elevation={6} variant={'filled'}>{lastApiError}</Alert>
+                    </Snackbar>
                     <TrainMap
                         settings={settings}
                         trips={trips}

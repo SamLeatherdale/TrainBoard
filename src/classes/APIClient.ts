@@ -51,6 +51,11 @@ export default class APIClient {
 
         return window.fetch(`${fullUrl}?${(new URLSearchParams(params)).toString()}`, {
             headers: headers
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(`Fetch failed: HTTP ${response.status} ${response.statusText}`);
+            }
+            return response;
         });
     }
 

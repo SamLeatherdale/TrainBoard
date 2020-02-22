@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/lab": "^4.0.0-alpha.43",
     "cors-anywhere": "^0.4.1",
     "dotenv": "^8.2.0",
     "prop-types": "^15.7.2"

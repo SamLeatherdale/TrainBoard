@@ -1,7 +1,7 @@
 import {Card} from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
 import moment, {Moment} from "moment"
-import React from "react";
+import React, {Fragment} from "react";
 import ParsedStation from "../classes/ParsedStation";
 import ParsedTripId from "../classes/ParsedTripId";
 import SettingsSet from "../classes/SettingsSet";
@@ -114,7 +114,7 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                     }
 
                     return (
-                    <>
+                    <Fragment key={`fragment-${i}`}>
                         <div key={i}>
                             <span>{content}</span>
                         </div>
@@ -122,7 +122,7 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
                         <div key={`line-${i}`}>
                             {TripBoard.getTripIcon(leg)}
                         </div>}
-                    </>
+                    </Fragment>
                     );
                 })}
             </div>
