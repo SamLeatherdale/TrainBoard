@@ -4,6 +4,7 @@ $centered-max-width: 960px;
 $primary-text: white;
 
 $theme-primary: #f18500;
+$main-bg: #333;
 
 $media-2k: 1440px;
 $media-xl: 1200px;
@@ -20,6 +21,11 @@ $media-ipad-land: 1024px;
     @media (min-width: $width) {
         @content;
     }
+}
+
+@mixin square($size) {
+    width: $size;
+    height: $size;
 }
 
 %list-reset {

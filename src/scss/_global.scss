@@ -21,7 +21,7 @@ code {
     flex-direction: column;
 
     #main-appbar {
-        background-color: #f18500;
+        background-color: $theme-primary;
 
         .MuiToolbar-root {
             justify-content: space-between;

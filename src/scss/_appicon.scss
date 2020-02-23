@@ -1,0 +1,36 @@
+#AppIcon {
+    $size: 128px;
+    width: 128px;
+    height: 128px;
+    padding: 10%;
+    background-color: $main-bg;
+
+    .icon-container {
+        position: relative;
+
+        .airplay {
+            @include square($size);
+            fill: $theme-primary;
+            //zoom: 3;
+        }
+
+        .train {
+            position: absolute;
+            top: 25%;
+            left: 0;
+            display: flex;
+            //align-items: center;
+            justify-content: center;
+            @include square(100%);
+
+            svg {
+                fill: $theme-primary;
+                @include square($size * 0.4);
+
+            }
+
+            //zoom: 2;
+        }
+    }
+
+}

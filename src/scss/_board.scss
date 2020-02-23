@@ -7,7 +7,7 @@
     > main {
         position: relative;
         flex-grow: 1;
-        background-color: #333;
+        background-color: $main-bg;
 
         //display: flex;
         align-items: center;
