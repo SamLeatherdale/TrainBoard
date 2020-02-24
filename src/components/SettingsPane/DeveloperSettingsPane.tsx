@@ -2,7 +2,6 @@ import {FormControlLabel} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Switch from "@material-ui/core/Switch";
 import React from "react";
-import SettingsSet from "../../classes/SettingsSet";
 import SettingsPane from "./SettingsPane";
 
 export default class DeveloperSettingsPane extends SettingsPane {

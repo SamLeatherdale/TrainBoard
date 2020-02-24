@@ -1,8 +1,9 @@
 #AppIcon {
-    $size: 128px;
-    width: 128px;
-    height: 128px;
-    padding: 10%;
+    $total-size: 256px;
+    $padding: $total-size / 8;
+    $size: $total-size - ($padding * 2);
+    @include square($size);
+    padding: $padding;
     background-color: $main-bg;
 
     .icon-container {
