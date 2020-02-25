@@ -7,6 +7,7 @@ import {StopFinderResponse} from "../models/TripPlanner/stopFinderResponse";
 import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 import {TripRequestResponse} from "../models/TripPlanner/tripRequestResponse";
 import GTFS from "gtfs-realtime-bindings";
+import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
 
 export default class APIClient {
     static readonly API_VERSION = "10.2.1.42";
@@ -16,8 +17,11 @@ export default class APIClient {
 
     constructor(apiKey: string, proxyUrl: string) {
         this.apiKey = apiKey;
-        this.proxyUrl = `${proxyUrl}${APIClient.API_URL}`;
-        //this.proxyUrl = `https://crossorigin.me/${APIClient.API_URL}`;
+        this.proxyUrl = APIClient.getProxiedUrl(proxyUrl, APIClient.API_URL);
+    }
+
+    static getProxiedUrl(proxy: string, url: string): string {
+        return `${proxy}${url}`;
     }
 
     async performJsonRequest(url: string, params: TypedObj<any> = {}): Promise<any> {
@@ -66,6 +70,11 @@ export default class APIClient {
             name_sf: query,
             TfNSWSF: true
         });
+    }
+
+    async getTrainStops(query: string): Promise<StopFinderLocation[]> {
+        const results = await this.getStops(query);
+        return results.locations.filter(location => location.modes?.includes(StopFinderLocationMode.Train));
     }
 
     /**

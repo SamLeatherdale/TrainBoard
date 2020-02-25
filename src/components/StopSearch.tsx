@@ -66,12 +66,7 @@ export default class StopSearch extends AutoBoundComponent<StopSearchProps, Stop
 
     getStops(query: string) {
         const client = new APIClient(this.props.settings.apiKey, this.props.settings.proxyServer);
-        client.getStops(query).then((results) => {
-            if (!results.locations) {
-                throw new Error("Invalid response");
-            }
-
-            const locations = results.locations.filter(location => location.modes?.includes(StopFinderLocationMode.Train));
+        client.getTrainStops(query).then((locations) => {
             const options: OptionsType<Option> = locations.map(StopSearch.convertLocToOption);
 
             this.setState({

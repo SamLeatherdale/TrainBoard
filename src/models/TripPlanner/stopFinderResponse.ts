@@ -24,5 +24,5 @@ export interface StopFinderResponse {
     /**
      * An array of all locations that were found using the specified search input.
      */
-    locations?: Array<StopFinderLocation>;
+    locations: Array<StopFinderLocation>;
 }

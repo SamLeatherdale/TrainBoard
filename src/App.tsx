@@ -50,11 +50,29 @@ export default class App extends AutoBoundComponent<{}, AppState> {
     }
 
     componentDidMount(): void {
+        this.maybeLoadRemoteSettings();
         this.getTrips();
     }
 
     componentWillUnmount(): void {
         clearTimeout(this.getTripsTimeoutKey);
+    }
+
+    async maybeLoadRemoteSettings(): Promise<void> {
+        const { settings } = this.state;
+        const url = new URL(window.location.href);
+        const loadUrl = url.searchParams.get('loadSettings');
+
+        if (loadUrl) {
+            try {
+                const newSettings = await SettingsSet.loadRemoteSettings(loadUrl, settings);
+                this.setState({
+                    settings: newSettings
+                })
+            } catch (e) {
+                console.error(e);
+            }
+        }
     }
 
     readSettings(): void {
