@@ -7,7 +7,7 @@ import ExitIcon from "@material-ui/icons/ExitToApp";
 import MenuIcon from "@material-ui/icons/Menu";
 import Alert from "@material-ui/lab/Alert"
 import _ from "lodash";
-import moment from "moment";
+import createMoment, { TIMEZONE } from "./classes/Moment";
 import React from 'react';
 import Clock from "react-live-clock";
 import APIClient from "./classes/APIClient";
@@ -227,11 +227,15 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                         <div id="trip-board-container" hidden={settings.developer.mapDebug}>
                             {settings.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
-                                <Clock format={'hh:mm:ssa'} ticking={true}/>
+                                <Clock
+                                    format={'hh:mm:ssa'}
+                                    ticking={true}
+                                    timezone={TIMEZONE}
+                                />
                                 <div id="trip-board-timer-container">
                                     {!!lastRefreshTime &&
                                     <div className="status-last-refresh">Last
-                                        refreshed: {moment(lastRefreshTime).format("hh:mm:ssa")}</div>
+                                        refreshed: {createMoment(lastRefreshTime).format("hh:mm:ssa")}</div>
                                     }
                                     <RefreshTimer
                                         isRefreshing={isTripsRefreshing}

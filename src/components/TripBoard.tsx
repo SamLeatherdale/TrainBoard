@@ -1,6 +1,7 @@
 import {Card} from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
-import moment, {Moment} from "moment"
+import createMoment from "../classes/Moment"
+import moment, {Moment} from "moment";
 import React, {Fragment} from "react";
 import ParsedStation from "../classes/ParsedStation";
 import ParsedTripId from "../classes/ParsedTripId";
@@ -155,7 +156,7 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
     }
 
     static getRelativeFriendlyTime(time: Moment, to?: Moment) {
-        to = typeof to === "undefined" ? moment() : to;
+        to = typeof to === "undefined" ? createMoment() : to;
 
         const minutesDiff = time.diff(to, "minutes");
         const hoursDiff = time.diff(to, "hours");
@@ -170,8 +171,8 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
     }
 
     static isTripNotExpired(trip: TripRequestResponseJourney) {
-        const departureEst = moment(trip.legs[0].origin.departureTimeEstimated);
-        return departureEst.isAfter(moment(), "minutes");
+        const departureEst = createMoment(trip.legs[0].origin.departureTimeEstimated);
+        return departureEst.isAfter(createMoment(), "minutes");
     }
 
     render() {
@@ -196,9 +197,9 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
         //     realtime = this.props.realtimeTripData.find(entity => entity.parsedTripId.equals(parsedTripId));
         // }
 
-        const departurePlanned = moment(first.origin.departureTimePlanned);
-        const departureEst = moment(first.origin.departureTimeEstimated);
-        const arrivalEst = moment(last.destination.arrivalTimeEstimated);
+        const departurePlanned = createMoment(first.origin.departureTimePlanned);
+        const departureEst = createMoment(first.origin.departureTimeEstimated);
+        const arrivalEst = createMoment(last.destination.arrivalTimeEstimated);
         const rating = this.getDepartureTimeClass(departureEst);
 
         const departureRelative = departureEst.diff(moment.now(), "seconds");
