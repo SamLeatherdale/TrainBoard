@@ -48,7 +48,7 @@ code {
             font-size: 1em;
         }
 
-        #main-wrap {
+        .main-wrap {
 
             @include media-min($media-2k) {
                 max-width: 1366px;

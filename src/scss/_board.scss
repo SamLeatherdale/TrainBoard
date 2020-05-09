@@ -12,11 +12,16 @@
         //display: flex;
         align-items: center;
         justify-content: center;
-        display: grid;
-        grid-column-gap: 16px;
-        grid-template-columns: 200px 1fr 200px;
-        grid-template-areas:
-            "reminders main x";
+
+        .main-grid {
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            grid-column-gap: 16px;
+            grid-template-columns: 200px 1fr 200px;
+            grid-template-areas:
+                "reminders main x";
+        }
 
         > * {
             z-index: 2;
@@ -72,7 +77,7 @@
             }
         }
 
-        #main-wrap {
+        .main-wrap {
             grid-area: main;
             padding: 0 16px;
             justify-self: center;

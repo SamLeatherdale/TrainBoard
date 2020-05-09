@@ -20,6 +20,7 @@ import TrainMap from "./components/Widget/TrainMap";
 import TripBoard from "./components/TripBoard";
 import {ParsedVehiclePositionEntity} from "./models/GTFS/VehiclePositions";
 import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
+import WelcomeMessage from "./components/WelcomeMessage";
 
 interface AppState {
     settings: SettingsSet
@@ -210,7 +211,9 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                     onClose={() => this.setState({settingsMenuOpen: false})}
                 />
 
-                <main className={[settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
+                <main className={[settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>  
+                
+                {!settings.isConfiguredTrip() && <WelcomeMessage />}  
                     <Snackbar
                         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                         open={!!lastApiError}
@@ -222,8 +225,9 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                         trips={trips}
                         realtimeTripData={realtimeTripData.slice(0, 2)}
                     />
+                    <div className='main-grid'>
                     <RemindersWidget settings={settings} />
-                    <div id="main-wrap">
+                    <div className="main-wrap">
                         <div id="trip-board-container" hidden={settings.developer.mapDebug}>
                             {settings.isConfiguredTrip() &&
                             <div id="trip-board-toolbar">
@@ -251,6 +255,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                                 renderInterval={this.renderTripsInterval}
                             />
                         </div>
+                    </div>
                     </div>
                 </main>
             </div>

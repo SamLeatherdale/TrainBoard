@@ -1,3 +1,5 @@
+// TODO: Remove after completing map implementation
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import GoogleMap from "google-map-react";
 import React from "react";
 import {COLOR_PRIMARY} from "../../classes/functions";

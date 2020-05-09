@@ -3,7 +3,6 @@ import React, {ChangeEvent} from "react";
 import Select, {ActionMeta, InputActionMeta, OptionsType, ValueType} from "react-select";
 import APIClient from "../classes/APIClient";
 import SettingsSet from "../classes/SettingsSet";
-import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
 import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
 import AutoBoundComponent from "./AutoBoundComponent";
 
