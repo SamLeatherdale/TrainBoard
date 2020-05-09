@@ -28,7 +28,7 @@ export default class RefreshTimer extends AutoBoundComponent<RefreshTimerProps, 
                 ariaLabel={"countdownCircleWidget"}
                 key={this.props.resetKey}
                 isPlaying={true}
-                durationSeconds={this.props.durationSeconds}
+                duration={this.props.durationSeconds}
                 colors={[['#ffffff', 0]]}
                 trailColor={'#333'}
             />

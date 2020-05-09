@@ -59,7 +59,7 @@ export default class StopSearch extends AutoBoundComponent<StopSearchProps, Stop
         }        
     }
 
-    onSelect(selectedOption: ValueType<Option>, actionMeta: ActionMeta) {
+    onSelect(selectedOption: ValueType<Option>, actionMeta: ActionMeta<Option>) {
         //if (actionMeta.action === "select-option" || actionMeta.action === "deselect-option")
         this.props.onSelect(selectedOption ? this.state.stops.find(stop => stop.id === (selectedOption as Option).value) : undefined);
     }

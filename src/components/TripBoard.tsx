@@ -1,7 +1,8 @@
 import {Card} from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
 import createMoment from "../classes/Moment"
-import moment, {Moment} from "moment";
+import moment from "moment";
+import { Moment } from "../classes/Moment";
 import React, {Fragment} from "react";
 import ParsedStation from "../classes/ParsedStation";
 import ParsedTripId from "../classes/ParsedTripId";
@@ -155,8 +156,8 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
         return count === 1 ? str : `${str}${suffix}`;
     }
 
-    static getRelativeFriendlyTime(time: Moment, to?: Moment) {
-        to = typeof to === "undefined" ? createMoment() : to;
+    static getRelativeFriendlyTime(time: Moment, toMoment?: Moment) {
+        const to: Moment = toMoment ?? createMoment();
 
         const minutesDiff = time.diff(to, "minutes");
         const hoursDiff = time.diff(to, "hours");

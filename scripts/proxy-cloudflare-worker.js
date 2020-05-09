@@ -12,7 +12,7 @@ originWhitelist = [ "^http.?://www.zibri.org$", "zibri.org$", "test\\..*" ];  //
 */
 
 const fetchWhitelist = ["https://api.transport.nsw.gov.au"];           // regexp for blacklisted urls
-const originWhitelist = ["http.?://localhost", "https://trainboard.netlify.com"];     // regexp for whitelisted origins
+const originWhitelist = ["https?://localhost", "https://trainboard.netlify.app"];     // regexp for whitelisted origins
 
 function isListed(uri, listing) {
   var ret = false;
