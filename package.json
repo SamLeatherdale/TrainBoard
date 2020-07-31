@@ -1,6 +1,6 @@
 {
-  "name": "next-train",
-  "version": "0.1.0",
+  "name": "trainboard",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "cors-anywhere": "^0.4.3",
