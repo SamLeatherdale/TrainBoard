@@ -119,8 +119,8 @@ export default class SettingsSet extends SettingsSetCore {
         }
     }
 
-    isConfiguredTrip() {
-        return this.fromStop && this.toStop;
+     isConfiguredTrip(): boolean {
+        return !!(this.fromStop && this.toStop);
     }
 
     getConfiguredTrip(): undefined |
