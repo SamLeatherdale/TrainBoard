@@ -20,7 +20,8 @@ import TrainMap from "./components/Widget/TrainMap";
 import TripBoard from "./components/TripBoard";
 import {ParsedVehiclePositionEntity} from "./models/GTFS/VehiclePositions";
 import {TripRequestResponseJourney} from "./models/TripPlanner/tripRequestResponseJourney";
-import WelcomeMessage from "./components/WelcomeMessage";
+import CardMessage from "./components/CardMessage";
+import {styled} from "@material-ui/core/styles";
 
 interface AppState {
     settings: SettingsSet
@@ -117,6 +118,10 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         return `: ${trip.from.disassembledName} ➡ ${trip.to.disassembledName}`
     }
 
+    hasValidTrips(): boolean {
+        return this.state.settings.isConfiguredTrip() && this.state.trips.length > 0;
+    }
+
     async getTrips() {
         const {settings} = this.state;
         const trip = settings.getConfiguredTrip();
@@ -134,7 +139,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
             const getRealtime = settings.maps.enabled;
 
             this.setState({
-                trips: response.journeys,
+                trips: response.journeys || [],
                 isTripsRefreshing: getRealtime,
                 lastRefreshTime: Date.now(),
                 lastApiError: ''
@@ -213,7 +218,18 @@ export default class App extends AutoBoundComponent<{}, AppState> {
 
                 <main className={[settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>  
                 
-                {!settings.isConfiguredTrip() && <WelcomeMessage />}  
+                {!settings.isConfiguredTrip() && (
+                    <CardMessage
+                        title="Welcome"
+                        body={<>
+                            Welcome to TrainBoard! To get started, open the settings menu (<MenuIconStyled />) and configure your From and To stops.
+                            </>
+                        }
+                    />
+                )}
+                {settings.isConfiguredTrip() && !this.state.trips.length && (
+                    <CardMessage title="No trips" body="No trips were found matching your from and to stops. Please try setting different stops." />
+                )}
                     <Snackbar
                         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                         open={!!lastApiError}
@@ -229,7 +245,7 @@ export default class App extends AutoBoundComponent<{}, AppState> {
                     <RemindersWidget settings={settings} />
                     <div className="main-wrap">
                         <div id="trip-board-container" hidden={settings.developer.mapDebug}>
-                            {settings.isConfiguredTrip() &&
+                            {this.hasValidTrips() &&
                             <div id="trip-board-toolbar">
                                 <Clock
                                     format={'hh:mm:ssa'}
@@ -262,3 +278,8 @@ export default class App extends AutoBoundComponent<{}, AppState> {
         );
     }
 }
+
+const MenuIconStyled = styled(MenuIcon)({
+    verticalAlign: 'middle',
+    lineHeight: 'initial'
+});

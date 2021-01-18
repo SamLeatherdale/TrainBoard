@@ -177,12 +177,12 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
     }
 
     render() {
+        const filteredTrips = (this.props.trips || [])
+            .filter(TripBoard.isTripNotExpired)
+            .slice(0, this.props.settings.tripCount);
         return (
             <ul className="board-items">
-                {this.props.trips
-                    .filter(TripBoard.isTripNotExpired)
-                    .slice(0, this.props.settings.tripCount)
-                    .map(this.renderTrip)}
+                {filteredTrips.map(this.renderTrip)}
             </ul>
         );
     }

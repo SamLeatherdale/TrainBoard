@@ -1,17 +1,20 @@
-import React from 'react';
+import React, {ReactElement} from 'react';
 import { Card, CardContent, Typography } from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
-import MenuIcon from "@material-ui/icons/Menu";
 
-export default function WelcomeMessage() {
+type PropsType = {
+    title: string | ReactElement;
+    body: string | ReactElement;
+}
+export default function CardMessage({title, body}: PropsType) {
     return (
         <CardStyled>
             <CardContent>
                 <HeadingStyled variant="h3">
-                    Welcome
+                    {title}
                 </HeadingStyled>
                 <ParagraphStyled variant="body1">
-                    Welcome to TrainBoard! To get started, open the settings menu (<MenuIconStyled />) and configure your From and To stops.
+                    {body}
                 </ParagraphStyled>
             </CardContent>
         </CardStyled>
@@ -24,10 +27,6 @@ const CardStyled = styled(Card)({
 });
 const HeadingStyled = styled(Typography)({
     marginBottom: '0.5em'
-});
-const MenuIconStyled = styled(MenuIcon)({
-    verticalAlign: 'middle',
-    lineHeight: 'initial'
 });
 const ParagraphStyled = styled(Typography)({
     lineHeight: '2em'
