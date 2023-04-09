@@ -10,9 +10,10 @@
  * Do not edit the class manually.
  */
 import {SimpleCoords} from "../../classes/types";
+
+import {StopFinderLocationMode} from "./custom/stopFinderLocationMode";
 import { ParentLocation } from './parentLocation';
 import { StopFinderAssignedStop } from './stopFinderAssignedStop';
-import {StopFinderLocationMode} from "./custom/stopFinderLocationMode";
 
 /**
  * This element describes a single location that is returned in an `XML_STOPFINDER_REQUEST` request.

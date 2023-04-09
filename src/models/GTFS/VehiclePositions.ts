@@ -1,4 +1,5 @@
 import ParsedTripId from "../../classes/ParsedTripId";
+
 import {FeedEntity} from "./Feed";
 
 export interface VehiclePositionEntity extends FeedEntity {

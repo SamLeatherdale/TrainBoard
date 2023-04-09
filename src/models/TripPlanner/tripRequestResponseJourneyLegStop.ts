@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import {SimpleCoords} from "../../classes/types";
+
 import { ParentLocation } from './parentLocation';
 
 /**

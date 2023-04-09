@@ -1,28 +1,25 @@
-import {createStyles, Theme, withStyles} from "@material-ui/core";
-import Dialog from "@material-ui/core/Dialog";
-import DialogContent from "@material-ui/core/DialogContent";
-import MuiDialogTitle from "@material-ui/core/DialogTitle";
-import Divider from "@material-ui/core/Divider";
-import Drawer from "@material-ui/core/Drawer";
-import IconButton from "@material-ui/core/IconButton";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import Typography from "@material-ui/core/Typography";
-import CloseIcon from "@material-ui/icons/Close";
-import React from "react";
-import SettingsSet from "../classes/SettingsSet";
-import AutoBoundComponent from "./AutoBoundComponent";
-import DeveloperSettingsPane from "./SettingsPane/DeveloperSettingsPane";
+import React, { FC } from "react";
+
+import CloseIcon from "@mui/icons-material/Close";
+import Commute from "@mui/icons-material/Commute";
+import ExtensionIcon from "@mui/icons-material/Extension";
+import LocationOn from "@mui/icons-material/LocationOn";
+import { Tab, Tabs, Theme, useMediaQuery } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import MuiDialogTitle from "@mui/material/DialogTitle";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import createStyles from "@mui/styles/createStyles";
+import withStyles from "@mui/styles/withStyles";
+import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
+
+import { SettingsSet } from "../classes/SettingsSet";
+
 import GeneralSettingsPane from "./SettingsPane/GeneralSettingsPane";
-import MapsSettingsPane from "./SettingsPane/MapsSettingsPane";
-import RemindersSettingsPane from "./SettingsPane/RemindersSettingsPane";
-import {OnUpdateFunc} from "./SettingsPane/SettingsPane";
-import SettingsIcon from "@material-ui/icons/Settings";
-import MapIcon from "@material-ui/icons/Map";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import CodeIcon from "@material-ui/icons/Code";
+import { OnUpdateFunc, SettingsPane } from "./SettingsPane/SettingsPane";
+import TransportModesSettingsPane from "./SettingsPane/TransportModesSettingsPane";
+import WidgetsSettingsPane from "./SettingsPane/WidgetsSettingsPane";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -31,20 +28,25 @@ const styles = (theme: Theme) =>
             padding: theme.spacing(2),
         },
         closeButton: {
-            position: 'absolute',
+            position: "absolute",
             right: theme.spacing(1),
             top: theme.spacing(1),
             color: theme.palette.grey[500],
         },
     });
 
-const DialogTitle = withStyles(styles)((props:  any) => {
+const DialogTitle = withStyles(styles)((props: any) => {
     const { children, classes, onClose, ...other } = props;
     return (
-        <MuiDialogTitle disableTypography className={classes.root} {...other}>
-            <Typography variant="h6">{children}</Typography>
+        <MuiDialogTitle className={classes.root} {...other}>
+            {children}
             {onClose ? (
-                <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+                <IconButton
+                    aria-label="close"
+                    className={classes.closeButton}
+                    onClick={onClose}
+                    size="large"
+                >
                     <CloseIcon />
                 </IconButton>
             ) : null}
@@ -52,103 +54,84 @@ const DialogTitle = withStyles(styles)((props:  any) => {
     );
 });
 
-enum SettingsPaneEnum {
-    GENERAL = "General",
-    MAPS = "Maps",
-    REMINDERS = "Reminders",
-    DEVELOPER = "Developer"
+interface PaneConfig {
+    key: SettingsPane;
+    name: string;
+    component: JSX.Element;
+    icon: JSX.Element;
 }
 
 export interface SettingsScreenProps {
-    settings: SettingsSet
-    menuOpen: boolean
-    onUpdate: OnUpdateFunc,
+    settings: SettingsSet;
+    menuOpen: boolean;
+    onUpdate: OnUpdateFunc;
     onReset: () => void;
     onClose: () => void;
 }
 
-class SettingsScreenState {
-    activePane = SettingsPaneEnum.GENERAL;
-}
+const SettingsScreen: FC<SettingsScreenProps> = (props) => {
+    const navigate = useNavigate();
+    const onClose = () => {
+        props.onClose();
+    };
 
-export default class SettingsScreen extends AutoBoundComponent<SettingsScreenProps, SettingsScreenState> {
-    constructor(props) {
-        super(props);
+    const { settings, onUpdate, onReset } = props;
+    const paneProps = { settings, onUpdate, onReset };
 
-        this.state = new SettingsScreenState();
-    }
-
-    onClose() {
-        this.props.onClose();
-    }
-
-    setActivePane(key: SettingsPaneEnum) {
-        this.setState({activePane: key});
-    }
-
-    render() {
-        const {settings, onUpdate, onReset} = this.props;
-        const {activePane} = this.state;
-
-        const paneProps = {settings, onUpdate, onReset};
-
-        interface PaneConfig {
-            key: SettingsPaneEnum,
-            component: JSX.Element,
-            icon: JSX.Element
-        }
-        const panes: PaneConfig[] = [{
-            key: SettingsPaneEnum.GENERAL,
+    const panes: PaneConfig[] = [
+        {
+            key: SettingsPane.GENERAL,
+            name: "General",
             component: <GeneralSettingsPane {...paneProps} />,
-            icon: <SettingsIcon />
-        }, {
-            key: SettingsPaneEnum.MAPS,
-            component: <MapsSettingsPane {...paneProps} />,
-            icon: <MapIcon />
-        }, {
-            key: SettingsPaneEnum.REMINDERS,
-            component: <RemindersSettingsPane {...paneProps} />,
-            icon: <NotificationsIcon />
-        }, {
-            key: SettingsPaneEnum.DEVELOPER,
-            component: <DeveloperSettingsPane {...paneProps} />,
-            icon: <CodeIcon />
-        }];
+            icon: <LocationOn />,
+        },
+        {
+            key: SettingsPane.MODES,
+            name: "Modes",
+            component: <TransportModesSettingsPane {...paneProps} />,
+            icon: <Commute />,
+        },
+        {
+            key: SettingsPane.WIDGETS,
+            name: "Widgets",
+            component: <WidgetsSettingsPane {...paneProps} />,
+            icon: <ExtensionIcon />,
+        },
+    ];
 
-        const currentPane = panes.find(pane => pane.key === activePane) as PaneConfig;
+    const activePane = useMatch("/settings/:pane")?.params["pane"];
+    const currentPane = panes.findIndex((pane) => pane.key === activePane) || 0;
+    const fullScreen = useMediaQuery("(max-height: 600px)");
 
-        return (
-            <Dialog id={"settings-dialog"} open={this.props.menuOpen} fullWidth={true}>
-                <DialogTitle onClose={this.onClose}>Settings</DialogTitle>
+    return (
+        <Dialog id="settings-dialog" open={props.menuOpen} fullWidth={true} fullScreen={fullScreen}>
+            <DialogTitle onClose={onClose}>Settings</DialogTitle>
+            <Divider />
+            <Tabs value={currentPane} variant="fullWidth">
+                {panes.map((pane) => (
+                    <Tab
+                        key={pane.key}
+                        onClick={() =>
+                            navigate({ pathname: `/settings/${pane.key}` }, { replace: true })
+                        }
+                        icon={pane.icon}
+                        label={pane.name}
+                    />
+                ))}
+            </Tabs>
+            <div className="dialog-main">
+                <Routes>
+                    {panes.map((pane) => (
+                        <Route
+                            key={pane.key}
+                            path={pane.key}
+                            element={<DialogContent>{pane.component}</DialogContent>}
+                        />
+                    ))}
+                </Routes>
+            </div>
+        </Dialog>
+    );
+};
 
-                <Drawer
-                    //className={classes.drawer}
-                    variant="permanent"
-                    //classes={{paper: classes.drawerPaper,}}
-                    //anchor="left"
-                >
-                    <Divider />
-                    <List>
-                        {panes.map((pane) => (
-                            <ListItem
-                                button
-                                key={pane.key}
-                                onClick={() => this.setActivePane(pane.key)}
-                                selected={pane.key === activePane}
-                            >
-                                <ListItemIcon>{pane.icon}</ListItemIcon>
-                                <ListItemText primary={pane.key} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Drawer>
-
-                <div className={"dialog-main"}>
-                    <DialogContent>
-                        {currentPane.component}
-                    </DialogContent>
-                </div>
-            </Dialog>
-        )
-    }
-}
+export default SettingsScreen;

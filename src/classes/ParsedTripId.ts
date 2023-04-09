@@ -6,10 +6,10 @@
  *
  * @see https://opendata.transport.nsw.gov.au/sites/default/files/TfNSW_Realtime_Train_Technical_Doc.pdf
  */
-import {tryParseInt} from "./functions";
-import {SetType} from "./TrainSets";
+import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
 
-
+import { tryParseInt } from "./functions";
+import { SetType } from "./TrainSets";
 
 export default class ParsedTripId {
     tripName = "";
@@ -54,6 +54,12 @@ export default class ParsedTripId {
     }
 
     toEqualityString(): string {
-        return [this.tripName, this.timetableId, this.tripInstance].join('.');
+        return [this.tripName, this.timetableId, this.tripInstance].join(".");
     }
+}
+
+export function getTripId(trip: TripRequestResponseJourney) {
+    return trip.legs
+        .map((leg) => leg.transportation?.properties?.RealtimeTripId || "walk")
+        .join(",");
 }

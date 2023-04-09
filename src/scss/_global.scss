@@ -2,11 +2,15 @@ html, body, #root, .App {
     height: 100%;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    font-family: "Roboto", "Oxygen",
       "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-      sans-serif;
+      -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -63,4 +67,10 @@ code {
             }
         }
     }
+}
+*:focus {
+    outline: 1px solid $blue !important;
+}
+.dpad-debugger-line {
+    z-index: 100000;
 }

@@ -1,17 +1,6 @@
-
-
-#main-toolbar {
-}
-
 .App {
     > main {
-        position: relative;
-        flex-grow: 1;
-        background-color: $main-bg;
 
-        //display: flex;
-        align-items: center;
-        justify-content: center;
 
         .main-grid {
             display: grid;
@@ -20,7 +9,7 @@
             grid-column-gap: 16px;
             grid-template-columns: 200px 1fr 200px;
             grid-template-areas:
-                "reminders main x";
+                "leftSide main rightSide";
         }
 
         > * {
@@ -41,40 +30,12 @@
         }
 
         #bg-google-maps {
-            z-index: 0;
+            z-index: -2;
         }
 
         #bg-google-maps-overlay {
-            z-index: 1;
+            z-index: -1;
             background-color: rgba(0,0,0,0.5);
-        }
-
-        #reminders-panel {
-            grid-area: reminders;
-
-            .MuiListItem-root {
-                display: flex;
-                align-items: center;
-            }
-
-            .MuiListItemIcon-root {
-                min-width: 0;
-                margin-right: 8px;
-            }
-
-            .MuiButtonBase-root {
-                padding: 4px;
-            }
-
-            .MuiListItemText-root {
-                display: inline-flex;
-                margin: 0;
-
-                .MuiTypography-root {
-                    font-size: 0.7em;
-                    line-height: normal;
-                }
-            }
         }
 
         .main-wrap {
@@ -82,194 +43,6 @@
             padding: 0 16px;
             justify-self: center;
             width: 100%;
-        }
-    }
-}
-
-#trip-board-toolbar {
-    $toolbar-height: 4em;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: $toolbar-height;
-    padding: 4px 8px;
-
-
-    time {
-        font-size: 3em;
-        color: $primary-text;
-    }
-
-    #trip-board-timer-container {
-        display: flex;
-        align-items: center;
-        > * {
-            margin-left: .5em;
-        }
-    }
-
-
-    .status-last-refresh {
-        color: $primary-text;
-    }
-
-    $widget-size: 50px;
-    .refresh-timer {
-        width: $widget-size;
-        height: $widget-size;
-
-        > [aria-label="countdownCircleWidget"] {
-            $default-timer-size: 180px;
-            transform: scale($widget-size / $default-timer-size);
-            transform-origin: top left;
-        }
-
-        svg.MuiSvgIcon-root {
-            fill: white;
-        }
-    }
-}
-
-@mixin board-item-rating($rating, $color) {
-    &[data-rating=#{$rating}] {
-        border: 1px solid $color;
-
-        .board-departure, .board-arrival {
-            border: 1px solid $color;
-            background-color: $color;
-            color: white;
-        }
-    }
-}
-
-@mixin board-departure-label($status, $color) {
-    &[data-status=#{$status}] {
-        &:before {
-            $size: 10px;
-            content: '';
-            width: $size;
-            height: $size;
-            display: inline-block;
-            background-color: lighten($color, 10%);
-            margin-right: 6px;
-        }
-    }
-}
-
-.board-items {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-main.maps-enabled {
-    .board-item-container {
-
-        > .MuiPaper-root {
-            background: transparent;
-        }
-
-        .board-departure-large {
-            color: white;
-        }
-
-        .board-item-legs, .board-info-bottom {
-            color: #ccc !important;
-        }
-    }
-}
-
-.board-item-container {
-    margin: 12px 0;
-
-    > .MuiPaper-root {
-    }
-
-    .board-item {
-        display: flex;
-        align-items: stretch;
-
-        @include board-item-rating("success", $success);
-        @include board-item-rating("warning", $warning);
-        @include board-item-rating("danger", $danger);
-
-        .board-departure, .board-arrival {
-            flex-shrink: 0;
-            width: 4em;
-            padding: 0 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-        }
-
-        .board-item-mid {
-            flex-grow: 1;
-            padding: 4px 8px;
-
-            .board-item-legs, .board-departure-label {
-                color: #555;
-            }
-
-            .board-item-legs, .board-info-bottom {
-                display: flex;
-                align-items: baseline; //So font lines up
-                justify-content: space-between;
-            }
-
-            .board-item-legs {
-
-                > div {
-                    display: flex;
-                    align-items: center;
-
-                    > span {
-                        white-space: nowrap;
-                    }
-                }
-
-                .MuiChip-root {
-                    height: auto;
-                    padding: 4px;
-                    margin-left: 8px;
-                    font-size: 0.7em;
-                }
-
-                .line-icon {
-                    //$size: 1em;
-                    //min-width: 3em;
-                    //padding: 0.2em;
-                    //font-size: 0.5em;
-                    //border-radius: 50%;
-
-                    height: auto;
-                    color: white;
-                    border: 1px solid white;
-
-                    &.line-icon-train {
-                    }
-                    &.line-icon-bus {
-                        background-color: $primary;
-                    }
-                }
-            }
-
-            .board-departure-large {
-                margin: 8px 0;
-            }
-
-            .board-info-bottom {
-
-                .board-departure-label {
-                    display: flex;
-                    align-items: center;
-                    color: inherit;
-
-                    @include board-departure-label("onTime", $success);
-                    @include board-departure-label("early", $primary);
-                    @include board-departure-label("late", $danger);
-                }
-            }
         }
     }
 }

@@ -1,5 +1,7 @@
 import React from "react";
-import TrainIcon from "@material-ui/icons/Train";
+
+import TrainIcon from "@mui/icons-material/Train";
+
 import {LatLng} from "../../classes/types";
 
 interface TrainMapMarkerProps extends LatLng {

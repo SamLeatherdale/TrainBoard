@@ -1,37 +1,42 @@
-import {IconButton} from "@material-ui/core";
-import RefreshIcon from "@material-ui/icons/Refresh";
-import React from "react";
-import {CountdownCircleTimer} from "react-countdown-circle-timer";
-import AutoBoundComponent from "./AutoBoundComponent";
+import React, { useEffect, useRef, useState } from "react";
+
+import { CircularProgress } from "@mui/material";
 
 interface RefreshTimerProps {
     isRefreshing: boolean;
     durationSeconds: number;
-    resetKey: number;
 }
 
-export default class RefreshTimer extends AutoBoundComponent<RefreshTimerProps, {}>{
-    render() {
-        return <div className="refresh-timer">{this.getContent()}</div>
-    }
-
-    getContent() {
-        if (this.props.isRefreshing) {
-            return (
-                <IconButton>
-                    <RefreshIcon />
-                </IconButton>
-            );
+export default function RefreshTimer(props: RefreshTimerProps) {
+    const { isRefreshing, durationSeconds } = props;
+    const [startTime] = useState(new Date().getTime());
+    const [progress, setProgress] = React.useState(0);
+    const timerKey = useRef(0);
+    const updateInterval = 200;
+    function updateProgress() {
+        const elapsed = new Date().getTime() - startTime;
+        const newProgress = Math.min(100, (elapsed / (durationSeconds * 1000)) * 100);
+        setProgress(newProgress);
+        if (newProgress < 100) {
+            timerKey.current = window.setTimeout(updateProgress, updateInterval);
         }
-        return (
-            <CountdownCircleTimer
-                ariaLabel={"countdownCircleWidget"}
-                key={this.props.resetKey}
-                isPlaying={true}
-                duration={this.props.durationSeconds}
-                colors={[['#ffffff', 0]]}
-                trailColor={'#333'}
-            />
-        )
     }
+    useEffect(() => {
+        timerKey.current = window.setTimeout(updateProgress, updateInterval);
+        return () => {
+            window.clearTimeout(timerKey.current);
+        };
+    }, []);
+
+    return (
+        <div className="refresh-timer">
+            <CircularProgress
+                color="inherit"
+                size={25}
+                thickness={6}
+                value={isRefreshing ? undefined : progress}
+                variant={isRefreshing ? "indeterminate" : "determinate"}
+            />
+        </div>
+    );
 }

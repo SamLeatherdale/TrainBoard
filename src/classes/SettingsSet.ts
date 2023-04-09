@@ -1,94 +1,95 @@
-import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
+import { PaletteMode } from "@mui/material";
+
+import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
+
 import APIClient from "./APIClient";
+import { TransportModeId } from "./LineType";
 
-class SettingsSetCore {
-    public walkTimeRange: [number, number] = [8,10];
-    public tripCount = 6;
-    public apiKey = "OOtMuUcfZU5rsvDZlGrVqFl8vJDGMVybeuDS"; // Default public API key
-    public proxyServer = "https://cors-anywhere.trainboard.workers.dev/?";
-
-    public maps = {
-        enabled: false,
-        apiKey: ""
-    };
-
-    public reminders = {
-        enabled: false,
-        title: "",
-        itemList: [] as string[]
-    };
-
-    public developer = {
-        mapDebug: false
-    };
+interface SettingsSetCore {
+    theme: PaletteMode;
+    walkTime: number;
+    tripCount: number;
+    mapsEnabled: boolean;
+    excludedModes: TransportModeId[];
+}
+interface SettingsSetImport extends SettingsSetCore {
+    fromStopName?: string;
+    toStopName?: string;
 }
 
-class SettingsSetImport extends SettingsSetCore {
-    public fromStopName?: string;
-    public toStopName?: string;
+export interface SettingsSet extends SettingsSetCore {
+    fromStop?: StopFinderLocation;
+    toStop?: StopFinderLocation;
 }
 
-export default class SettingsSet extends SettingsSetCore {
+const defaultSettings: SettingsSet = {
+    theme: "dark",
+    walkTime: 10,
+    tripCount: 6,
+    mapsEnabled: false,
+    excludedModes: [],
+};
+
+export default class SettingsManager {
     static readonly STORAGE_KEY = "appSettings";
 
-    public fromStop?: StopFinderLocation;
-    public toStop?: StopFinderLocation;
-
-    static readSettings() {
+    static readSettings(): SettingsSet {
         let rawSettings;
         try {
-            rawSettings = JSON.parse(window.localStorage.getItem(SettingsSet.STORAGE_KEY) || "");
+            rawSettings = JSON.parse(
+                window.localStorage.getItem(SettingsManager.STORAGE_KEY) || ""
+            );
+            console.log(rawSettings);
         } catch (e) {
             rawSettings = {};
         }
 
-        return new SettingsSet(rawSettings);
+        return {
+            ...defaultSettings,
+            ...rawSettings,
+        };
     }
 
-    static writeSettings(settings: SettingsSet) {
-        window.localStorage.setItem(SettingsSet.STORAGE_KEY, JSON.stringify(settings));
+    static writeSettings(settings: SettingsSet | {}) {
+        window.localStorage.setItem(SettingsManager.STORAGE_KEY, JSON.stringify(settings));
     }
 
     static resetSettings() {
-        SettingsSet.writeSettings(new SettingsSet());
+        SettingsManager.writeSettings({});
     }
 
-    protected static fetchRemoteSettings(url: string, proxy?: string): Promise<any> {
-        return fetch(url).catch((e) => {
-            if (!proxy) {
-                throw e;
-            }
-            // If CORS fails, try with the proxy
-            return fetch(APIClient.getProxiedUrl(proxy, url));
-        }).then((res) => {
-            if (!res.ok) {
-                throw new Error(`Failed to load remote settings: ${res.status} ${res.statusText}`)
-            }
-            return res.json();
-        });
+    protected static fetchRemoteSettings(url: string): Promise<any> {
+        return fetch(url)
+            .catch(() => {
+                // If CORS fails, try with the proxy
+                return fetch(APIClient.getProxiedUrl(url));
+            })
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(
+                        `Failed to load remote settings: ${res.status} ${res.statusText}`
+                    );
+                }
+                return res.json();
+            });
     }
 
-    static async loadRemoteSettings(url: string, currentSettings: SettingsSet): Promise<SettingsSet> {
-        const json: SettingsSetImport = await SettingsSet.fetchRemoteSettings(url, currentSettings.proxyServer);
-        const settings = new SettingsSet(json);
-
-        const {
-            fromStopName,
-            toStopName
-        } = json;
-        const {
-            apiKey,
-            proxyServer
-        } = {
-            ...currentSettings,
-            ...json
+    static async loadRemoteSettings(
+        url: string,
+        currentSettings: SettingsManager
+    ): Promise<SettingsSet> {
+        const json: SettingsSetImport = await SettingsManager.fetchRemoteSettings(url);
+        const settings = {
+            ...defaultSettings,
         };
+
+        const { fromStopName, toStopName } = json;
 
         const importMap = {
-            'fromStop': fromStopName,
-            'toStop': toStopName
+            fromStop: fromStopName,
+            toStop: toStopName,
         };
-        const client = new APIClient(apiKey, proxyServer);
+        const client = new APIClient();
         for (const [key, query] of Object.entries(importMap)) {
             if (!query) {
                 continue;
@@ -106,32 +107,20 @@ export default class SettingsSet extends SettingsSetCore {
         return settings;
     }
 
-    constructor(params?: {[key: string]: any}) {
-        super();
-        if (!params) {
-            return;
-        }
-        const keys = Object.keys(params);
-        for (let key of Object.keys(this)) {
-            if (keys.includes(key)) {
-                this[key] = params[key];
-            }
-        }
+    static isConfiguredTrip(settings: SettingsSet): boolean {
+        return !!(settings.fromStop && settings.toStop);
     }
 
-     isConfiguredTrip(): boolean {
-        return !!(this.fromStop && this.toStop);
-    }
-
-    getConfiguredTrip(): undefined |
-        {from: StopFinderLocation, to: StopFinderLocation} {
-        if (!this.isConfiguredTrip()) {
+    static getConfiguredTrip(
+        settings: SettingsSet
+    ): undefined | { from: StopFinderLocation; to: StopFinderLocation } {
+        if (!SettingsManager.isConfiguredTrip(settings)) {
             return undefined;
         }
 
         return {
-            from: this.fromStop as StopFinderLocation,
-            to: this.toStop as StopFinderLocation
+            from: settings.fromStop as StopFinderLocation,
+            to: settings.toStop as StopFinderLocation,
         };
     }
 }
