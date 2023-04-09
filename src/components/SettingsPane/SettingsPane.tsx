@@ -1,16 +1,16 @@
 import SettingsSet from "../../classes/SettingsSet";
-import AutoBoundComponent from "../AutoBoundComponent";
 
-export type OnUpdateFunc = (key: string, value: any) => void;
+export type OnUpdateFunc = (key: string, value: any, delta?: boolean) => void;
 
 export interface SettingsPaneProps {
-    onUpdate: OnUpdateFunc,
-    onReset: () => void,
-    settings: SettingsSet
+    onUpdate: OnUpdateFunc;
+    onReset: () => void;
+    settings: SettingsSet;
 }
 
-export default abstract class SettingsPane extends AutoBoundComponent<SettingsPaneProps, {}>{
-    onUpdateSetting(key: string, value: any) {
-        this.props.onUpdate(key, value);
-    }
+export enum SettingsPane {
+    GENERAL = "general",
+    MAPS = "maps",
+    REMINDERS = "reminders",
+    DEVELOPER = "developer",
 }

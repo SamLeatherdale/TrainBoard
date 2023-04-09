@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import {SimpleCoords} from "../../classes/types";
+
 import { TripRequestResponseJourneyLegInterchange } from './tripRequestResponseJourneyLegInterchange';
 import { TripRequestResponseJourneyLegPathDescription } from './tripRequestResponseJourneyLegPathDescription';
 import { TripRequestResponseJourneyLegStop } from './tripRequestResponseJourneyLegStop';

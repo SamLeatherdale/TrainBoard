@@ -13,6 +13,8 @@
 
 # production
 /build
+/dist
+/reports
 
 # misc
 .DS_Store

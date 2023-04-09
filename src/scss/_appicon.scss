@@ -1,6 +1,6 @@
 #AppIcon {
     $total-size: 256px;
-    $padding: $total-size / 8;
+    $padding: calc($total-size / 8);
     $size: $total-size - ($padding * 2);
     @include square($size);
     padding: $padding;

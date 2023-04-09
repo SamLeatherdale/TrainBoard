@@ -1,11 +1,13 @@
-import {CardContent} from "@material-ui/core";
-import Card from "@material-ui/core/Card";
-import Checkbox from "@material-ui/core/Checkbox";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
 import React from "react";
+
+import {CardContent} from "@mui/material";
+import Card from "@mui/material/Card";
+import Checkbox from "@mui/material/Checkbox";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+
 import SettingsSet from "../../classes/SettingsSet";
 
 interface RemindersWidgetProps {

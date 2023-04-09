@@ -1,6 +1,7 @@
 import React from "react";
-import AirPlayIcon from "@material-ui/icons/Airplay";
-import TrainIcon from "@material-ui/icons/Train"
+
+import AirPlayIcon from "@mui/icons-material/Airplay";
+import TrainIcon from "@mui/icons-material/Train"
 
 export default class AppIcon extends React.Component<{}, {}> {
     render() {

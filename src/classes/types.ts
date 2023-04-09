@@ -1,12 +1,8 @@
 //Some types adapted from https://github.com/toast-studio/tfnsw-trip-planner/
 
-export type TypedObj<T> = {
-    [prop: string]: T
-}
-
 export interface LatLng {
-    lat: number
-    lng: number
+    lat: number;
+    lng: number;
 }
 
 export enum TPStopType {
@@ -27,7 +23,7 @@ export enum TPLocationType {
 }
 
 export enum TPCoordOutputFormat {
-    EPSG_4326 = "EPSG:4326"
+    EPSG_4326 = "EPSG:4326",
 }
 
 export type SimpleCoords = [number, number];

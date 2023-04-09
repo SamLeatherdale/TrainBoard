@@ -1,11 +1,13 @@
+import { TripRequestResponseJourneyLegStop } from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
+
 export default class ParsedStation {
     public platform = "";
     public station = "";
     protected parseSuccess = false;
 
-    constructor(fullName: string) {
+    constructor(stop: TripRequestResponseJourneyLegStop) {
         const pattern = /(?:.*,\s*)?(.+) Station,\s*Platform (\d+)/;
-        const results = pattern.exec(fullName);
+        const results = pattern.exec(stop.name);
         if (results) {
             if (results.length >= 1) {
                 this.station = results[1];

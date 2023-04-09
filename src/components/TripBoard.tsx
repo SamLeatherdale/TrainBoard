@@ -1,86 +1,98 @@
-import {Card} from "@material-ui/core";
-import Chip from "@material-ui/core/Chip";
-import createMoment from "../classes/Moment"
-import moment from "moment";
-import { Moment } from "../classes/Moment";
-import React, {Fragment} from "react";
+import React, { Fragment, useEffect } from "react";
+
+import { Card } from "@mui/material";
+import Chip from "@mui/material/Chip";
+import { differenceInMinutes, formatDistanceStrict } from "date-fns";
+
+import {
+    getLineType,
+    getTransportMode,
+    TransportMode,
+    TransportModeId,
+    transportModes,
+} from "../classes/LineType";
 import ParsedStation from "../classes/ParsedStation";
 import ParsedTripId from "../classes/ParsedTripId";
 import SettingsSet from "../classes/SettingsSet";
-import {getTrainSet} from "../classes/TrainSets";
-import {ParsedVehiclePositionEntity} from "../models/GTFS/VehiclePositions";
-import {TripRequestResponseJourney} from "../models/TripPlanner/tripRequestResponseJourney";
-import {TripRequestResponseJourneyLeg} from "../models/TripPlanner/tripRequestResponseJourneyLeg";
-import {TripRequestResponseJourneyLegStop} from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
-import AutoBoundComponent from "./AutoBoundComponent";
-import {getLineType} from "../classes/LineType";
-
+import { getTrainSet } from "../classes/TrainSets";
+import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
+import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
+import { TripRequestResponseJourneyLeg } from "../models/TripPlanner/tripRequestResponseJourneyLeg";
+import { TripRequestResponseJourneyLegStop } from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
+import { formatShortTime, parseLocalDateTime } from "../util/date";
 
 interface TripBoardProps {
-    trips: TripRequestResponseJourney[],
-    realtimeTripData: ParsedVehiclePositionEntity[],
-    settings: SettingsSet,
+    trips: TripRequestResponseJourney[];
+    realtimeTripData: ParsedVehiclePositionEntity[];
+    settings: SettingsSet;
     renderInterval: number; // In seconds
 }
 
-class TripBoardState {
-    lastRender = 0;
-}
+export default function TripBoard(props: TripBoardProps) {
+    const { trips, realtimeTripData, settings, renderInterval } = props;
+    const [lastRender, setLastRender] = React.useState(0);
 
-export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBoardState> {
-    protected renderIntervalKey = 0;
+    const timerKey = React.useRef(0);
+    useEffect(() => {
+        timerKey.current = window.setInterval(
+            () => setLastRender(Date.now()),
+            renderInterval * 1000
+        );
+        return () => clearInterval(timerKey.current);
+    }, []);
 
-    constructor(props) {
-        super(props);
-        this.state = new TripBoardState();
-    }
+    const getDepartureTimeClass = (time: Date) => {
+        const diffMinutes = differenceInMinutes(time, new Date(), { roundingMethod: "floor" });
+        const { walkTime } = settings;
 
-    componentDidMount(): void {
-        this.renderIntervalKey = window.setInterval(this.forceRerender, this.props.renderInterval * 1000);
-    }
-
-    componentWillUnmount(): void {
-        clearInterval(this.renderIntervalKey);
-    }
-
-    forceRerender() {
-        this.setState({lastRender: Date.now()});
-    }
-
-    getDepartureTimeClass(time: Moment) {
-        const diff = time.diff(moment.now(), "minutes"); //Positive if time > now
-        const minTime = Math.min(...this.props.settings.walkTimeRange);
-        const maxTime = Math.max(...this.props.settings.walkTimeRange);
-
-        if (diff > maxTime) {
+        if (diffMinutes > walkTime) {
             return "success";
-        } else if (diff < minTime) {
+        } else if (diffMinutes < walkTime) {
             return "danger";
         } else {
             return "warning";
         }
-    }
+    };
 
-    static getTripIcon(leg: TripRequestResponseJourneyLeg) {
+    const getTripIcon = (leg: TripRequestResponseJourneyLeg) => {
         const tripName = leg.transportation?.disassembledName?.toUpperCase();
-        if (!tripName) {
-            return null;
-        }
+        const transportMode = getTransportMode(leg.transportation?.product?.iconId);
 
-        const isTrain = tripName.startsWith('T');
-        const className = isTrain ? 'line-icon-train' : 'line-icon-bus';
-        const color = getLineType(tripName).color;
-        const style = isTrain ? {backgroundColor: color} : {};
+        const isTrain = transportMode?.id === TransportModeId.Train;
+        let color = transportModes[TransportModeId.Walk].color;
+        if (isTrain && tripName) {
+            color = getLineType(tripName).color;
+        } else if (transportMode && tripName) {
+            color = transportMode.color;
+        } else if (transportMode) {
+            return getTransportModeIcon(transportMode);
+        }
         return (
             <Chip
                 label={tripName}
-                style={style}
-                className={['line-icon', className].join(' ')}
+                sx={{
+                    backgroundColor: color,
+                    color: "white",
+                    border: "1px solid white",
+                }}
+                className="line-icon"
             />
         );
-    }
+    };
 
-    static getTripLabel(legs: TripRequestResponseJourneyLeg[], all = false) {
+    const getTransportModeIcon = (transportMode: TransportMode) => {
+        const Icon = transportMode.icon;
+        return (
+            <Icon
+                style={{
+                    width: "1.5em",
+                    height: "1.5em",
+                }}
+            />
+        );
+    };
+
+    function getTripLabel(legs: TripRequestResponseJourneyLeg[], all = false) {
         let showLegs: TripRequestResponseJourneyLeg[];
 
         if (all) {
@@ -93,140 +105,140 @@ export default class TripBoard extends AutoBoundComponent<TripBoardProps, TripBo
         }
 
         // Add the final one on again as destination
-
         return (
             <div className="board-item-legs">
                 {showLegs.map((leg, i) => {
+                    const transportMode = getTransportMode(leg.transportation?.product?.iconId);
                     const isLast = i === showLegs.length - 1;
-                    const station: TripRequestResponseJourneyLegStop = isLast ? leg.destination : leg.origin;
-                    const parsedStation = new ParsedStation(station.name);
+                    const station: TripRequestResponseJourneyLegStop = isLast
+                        ? leg.destination
+                        : leg.origin;
+                    const parsedStation = new ParsedStation(station);
                     const lineName = leg.transportation?.disassembledName;
                     let content;
 
                     if (parsedStation.isParseSuccess()) {
-                        content = <>
-                            {parsedStation.station}
-                            <Chip label={`P${parsedStation.platform}`} />
-                        </>
+                        content = (
+                            <>
+                                {parsedStation.station}
+                                <Chip sx={{ ml: 2 }} label={`P${parsedStation.platform}`} />
+                            </>
+                        );
                     } else {
-                        content = station.parent.disassembledName;
+                        content = station.disassembledName || station.name;
                         if (content && content.length > 30) {
-                            content = content.substr(0, 30) + '...';
+                            content = content.substr(0, 30) + "...";
                         }
                     }
 
                     return (
-                    <Fragment key={`fragment-${i}`}>
-                        <div key={i}>
+                        <Fragment key={`fragment-${i}`}>
                             <span>{content}</span>
-                        </div>
-                        {(!isLast && !!lineName) &&
-                        <div key={`line-${i}`}>
-                            {TripBoard.getTripIcon(leg)}
-                        </div>}
-                    </Fragment>
+                            {!isLast && getTripIcon(leg)}
+                        </Fragment>
                     );
                 })}
             </div>
-        )
+        );
     }
 
-    static getPlannedEstimatedDiff(planned: Moment, estimated: Moment) {
-        const minsLate = estimated.diff(planned, "minutes");
+    function getPlannedEstimatedDiff(planned: Date, estimated: Date) {
+        const minsLate = differenceInMinutes(estimated, planned, { roundingMethod: "floor" });
 
         if (minsLate === 0) {
             return {
                 label: "On time",
-                css: "onTime"
+                css: "onTime",
             };
         } else if (minsLate > 0) {
             return {
                 label: `${minsLate} minutes late`,
-                css: "late"
-            }
+                css: "late",
+            };
         } else {
             return {
                 label: `${Math.abs(minsLate)} minutes early`,
-                css: "early"
-            }
+                css: "early",
+            };
         }
     }
 
-    static getPlural(str: string, count: number, suffix = 's') {
+    function getPlural(str: string, count: number, suffix = "s") {
         return count === 1 ? str : `${str}${suffix}`;
     }
 
-    static getRelativeFriendlyTime(time: Moment, toMoment?: Moment) {
-        const to: Moment = toMoment ?? createMoment();
-
-        const minutesDiff = time.diff(to, "minutes");
-        const hoursDiff = time.diff(to, "hours");
-
-        if (hoursDiff > 0) {
-            return `${hoursDiff} ${TripBoard.getPlural('hr', hoursDiff)}`
-        } else if (minutesDiff > 0) {
-            return `${minutesDiff} ${TripBoard.getPlural('min', minutesDiff)}`
-        } else {
-            return '<1 min';
+    function getRelativeFriendlyTime(time: Date) {
+        const to = new Date();
+        if (differenceInMinutes(time, to, { roundingMethod: "floor" }) === 0) {
+            return "now";
         }
+        return formatDistanceStrict(time, to, { roundingMethod: "floor" })
+            .replace("minute", "min")
+            .replace("hour", "hr");
     }
 
-    static isTripNotExpired(trip: TripRequestResponseJourney) {
-        const departureEst = createMoment(trip.legs[0].origin.departureTimeEstimated);
-        return departureEst.isAfter(createMoment(), "minutes");
+    function isTripNotExpired(trip: TripRequestResponseJourney) {
+        const departureEst = parseLocalDateTime(trip.legs[0].origin.departureTimeEstimated);
+        return departureEst > new Date();
     }
 
-    render() {
-        const filteredTrips = (this.props.trips || [])
-            .filter(TripBoard.isTripNotExpired)
-            .slice(0, this.props.settings.tripCount);
-        return (
-            <ul className="board-items">
-                {filteredTrips.map(this.renderTrip)}
-            </ul>
-        );
-    }
-
-    renderTrip(journey: TripRequestResponseJourney, key: number) {
+    function renderTrip(journey: TripRequestResponseJourney, key: number) {
         const legs = journey.legs as TripRequestResponseJourneyLeg[];
 
         const first = legs[0];
         const last = legs[legs.length - 1];
-        const parsedTripId = new ParsedTripId(first.transportation?.properties?.RealtimeTripId || '');
+        const parsedTripId = new ParsedTripId(
+            first.transportation?.properties?.RealtimeTripId || ""
+        );
 
         // if (parsedTripId.valid) {
         //     realtime = this.props.realtimeTripData.find(entity => entity.parsedTripId.equals(parsedTripId));
         // }
 
-        const departurePlanned = createMoment(first.origin.departureTimePlanned);
-        const departureEst = createMoment(first.origin.departureTimeEstimated);
-        const arrivalEst = createMoment(last.destination.arrivalTimeEstimated);
-        const rating = this.getDepartureTimeClass(departureEst);
+        const departurePlanned = parseLocalDateTime(first.origin.departureTimePlanned);
+        const departureEst = parseLocalDateTime(first.origin.departureTimeEstimated);
+        const arrivalEst = parseLocalDateTime(last.destination.arrivalTimeEstimated);
+        const now = new Date();
+        const rating = getDepartureTimeClass(departureEst);
 
-        const departureRelative = departureEst.diff(moment.now(), "seconds");
-        const departureLabel = departureRelative > 0 ? "departing" : "departed";
-        const departureDiff = TripBoard.getPlannedEstimatedDiff(departurePlanned, departureEst);
+        const departureLabel = departureEst > now ? "departing" : "departed";
+        const departureDiff = getPlannedEstimatedDiff(departurePlanned, departureEst);
 
         return (
             <li key={key} className="board-item-container">
                 <Card>
                     <div className="board-item" data-rating={rating}>
-                        <div className="board-departure">{TripBoard.getRelativeFriendlyTime(departureEst)}</div>
+                        <div className="board-departure">
+                            {getRelativeFriendlyTime(departureEst)}
+                        </div>
                         <div className="board-item-mid">
-                            {TripBoard.getTripLabel(legs, true)}
-                            <div className={"board-departure-large"}>
-                                {departureLabel} at {departureEst.format("LT")}
+                            {getTripLabel(legs, true)}
+                            <div className="board-departure-large">
+                                {departureLabel} at {formatShortTime(departureEst)}
                             </div>
                             <div className="board-info-bottom">
-                                <div className="board-departure-label" data-status={departureDiff.css}>{departureDiff.label}</div>
-                                {parsedTripId.valid &&
-                                    <div>{`${parsedTripId.numberOfCars} car ${getTrainSet(parsedTripId.setType).name}`}</div>}
+                                <div
+                                    className="board-departure-label"
+                                    data-status={departureDiff.css}
+                                >
+                                    {departureDiff.label}
+                                </div>
+                                {parsedTripId.valid && (
+                                    <div>{`${parsedTripId.numberOfCars} car ${
+                                        getTrainSet(parsedTripId.setType).name
+                                    }`}</div>
+                                )}
                             </div>
                         </div>
-                        <div className="board-arrival">{arrivalEst.format("LT")}</div>
+                        <div className="board-arrival">{formatShortTime(arrivalEst)}</div>
                     </div>
                 </Card>
             </li>
-        )
+        );
     }
+
+    const filteredTrips = (props.trips || [])
+        .filter(isTripNotExpired)
+        .slice(0, props.settings.tripCount);
+    return <ul className="board-items">{filteredTrips.map(renderTrip)}</ul>;
 }

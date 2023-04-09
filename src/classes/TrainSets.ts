@@ -1,5 +1,3 @@
-import {TypedObj} from "./types";
-
 export enum SetType {
     UNKNOWN = "",
     WARATAH = "A",
@@ -14,56 +12,56 @@ export enum SetType {
     TANGARA = "T",
     V_SET = "V",
     XPT = "X",
-    INDIAN_PACIFIC = "Z"
+    INDIAN_PACIFIC = "Z",
 }
 
 export interface TrainSet {
     name: string;
 }
 
-const TrainSets: TypedObj<TrainSet> = {
+const TrainSets: Record<string, TrainSet> = {
     [SetType.UNKNOWN]: {
-        name: ""
+        name: "",
     },
     [SetType.WARATAH]: {
-        name: "Waratah"
+        name: "Waratah",
     },
     [SetType.C_SET]: {
-        name: "C Set"
+        name: "C Set",
     },
     [SetType.OSCAR]: {
-        name: "OSCAR"
+        name: "OSCAR",
     },
     [SetType.HUNTER]: {
-        name: "Hunter"
+        name: "Hunter",
     },
     [SetType.K_SET]: {
-        name: "K Set"
+        name: "K Set",
     },
     [SetType.MILLENIUM]: {
-        name: "Millenium"
+        name: "Millenium",
     },
     [SetType.ENDEAVOUR]: {
-        name: "Endeavour"
+        name: "Endeavour",
     },
     [SetType.XPLORER]: {
-        name: "Xplorer"
+        name: "Xplorer",
     },
     [SetType.S_SET]: {
-        name: "S Set"
+        name: "S Set",
     },
     [SetType.TANGARA]: {
-        name: "Tangara"
+        name: "Tangara",
     },
     [SetType.V_SET]: {
-        name: "V Set"
+        name: "V Set",
     },
     [SetType.XPT]: {
-        name: "XPT"
+        name: "XPT",
     },
     [SetType.INDIAN_PACIFIC]: {
-        name: "Indian Pacific"
-    }
+        name: "Indian Pacific",
+    },
 };
 export default TrainSets;
 

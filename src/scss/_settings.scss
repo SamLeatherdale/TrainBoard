@@ -7,55 +7,10 @@
 }
 
 #settings-dialog {
-    .MuiDialog-container {
-        > .MuiPaper-root {
-            display: grid;
-            grid-template-columns: min-content 1fr;
-            grid-template-rows: min-content 1fr;
-            grid-template-areas:
-                "sidebar title"
-                "sidebar main";
-
-            max-width: 800px;
-            min-height: 600px;
-
-            .MuiDialogTitle-root {
-                grid-area: title;
-            }
-
-            .MuiDrawer-root {
-                grid-area: sidebar;
-                > .MuiPaper-root {
-                    position: static;
-
-                    > .MuiDivider-root {
-                        //display: none;
-                    }
-                }
-            }
-
-            .dialog-main {
-                grid-area: main;
-                flex: 1 0 auto;
-                display: flex;
-                flex-direction: column;
-
-                .MuiDialogTitle-root {
-                    padding-bottom: 0;
-                }
-            }
-        }
-    }
-
     .settings-row {
         margin: 16px 0;
     }
 
-    #GeneralSettingsPane .MuiExpansionPanelDetails-root {
-        display: block;
-    }
-    #MapsSettingsPane {
-    }
     #RemindersSettingsPane {
         #reminder-item-textbox {
             width: 100%;

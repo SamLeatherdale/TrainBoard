@@ -1,66 +1,68 @@
-import {FeedMessage} from "../models/GTFS/Feed";
-import {ParsedVehiclePositionEntity} from "../models/GTFS/VehiclePositions";
-import {VehiclePositionEntity} from "../models/GTFS/VehiclePositions";
-import ParsedTripId from "./ParsedTripId";
-import {TPStopType, TPCoordOutputFormat, TypedObj} from "./types";
-import {StopFinderResponse} from "../models/TripPlanner/stopFinderResponse";
-import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
-import {TripRequestResponse} from "../models/TripPlanner/tripRequestResponse";
 import GTFS from "gtfs-realtime-bindings";
-import {StopFinderLocationMode} from "../models/TripPlanner/custom/stopFinderLocationMode";
+
+import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
+import { StopFinderLocationMode } from "../models/TripPlanner/custom/stopFinderLocationMode";
+import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
+import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
+import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
+
+import ParsedTripId from "./ParsedTripId";
+import { TPStopType, TPCoordOutputFormat } from "./types";
 
 export default class APIClient {
     static readonly API_VERSION = "10.2.1.42";
     static readonly API_URL = "https://api.transport.nsw.gov.au/v1";
-    apiKey = "";
-    readonly proxyUrl;
+    static readonly PROXY_URL = "https://cors-proxy.trainboard.workers.dev/";
+    // static readonly PROXY_URL = "http://localhost:8787/";
 
-    constructor(apiKey: string, proxyUrl: string) {
-        this.apiKey = apiKey;
-        this.proxyUrl = APIClient.getProxiedUrl(proxyUrl, APIClient.API_URL);
+    static getProxiedUrl(url: string): string {
+        const params = new URLSearchParams();
+        params.set("url", url);
+
+        return `${this.PROXY_URL}?${params.toString()}`;
     }
 
-    static getProxiedUrl(proxy: string, url: string): string {
-        return `${proxy}${url}`;
-    }
-
-    async performJsonRequest(url: string, params: TypedObj<any> = {}): Promise<any> {
+    async performJsonRequest(url: string, params: Record<string, any> = {}): Promise<any> {
         const allParams = {
             outputFormat: "rapidJSON",
             ...params,
-            version: APIClient.API_VERSION
+            version: APIClient.API_VERSION,
         };
         const headers = {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
         };
         const response = await this.performRequest(url, allParams, headers);
         return response.json();
     }
 
-    async performProtobufRequest(url: string, params: TypedObj<any> = {}): Promise<Uint8Array> {
+    async performProtobufRequest(
+        url: string,
+        params: Record<string, any> = {}
+    ): Promise<Uint8Array> {
         const headers = {
-            'Content-Type': 'application/x-google-protobuf'
+            "Content-Type": "application/x-google-protobuf",
         };
         const response = await this.performRequest(url, params, headers);
         const arrayBuffer = await response.arrayBuffer();
         return new Uint8Array(arrayBuffer);
     }
 
-    async performRequest(url: string, params: TypedObj<any>, headers: TypedObj<string>): Promise<Response> {
-        headers = {
-            ...headers,
-            'Authorization': `apikey ${this.apiKey}`
-        };
-        const fullUrl = `${this.proxyUrl}/${url}`;
+    async performRequest(
+        url: string,
+        params: Record<string, any>,
+        headers: Record<string, string>
+    ): Promise<Response> {
+        const fullUrl = APIClient.getProxiedUrl(
+            `${APIClient.API_URL}/${url}?${new URLSearchParams(params).toString()}`
+        );
 
-        return window.fetch(`${fullUrl}?${(new URLSearchParams(params)).toString()}`, {
-            headers: headers
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error(`Fetch failed: HTTP ${response.status} ${response.statusText}`);
-            }
-            return response;
+        const response = await window.fetch(fullUrl, {
+            headers: headers,
         });
+        if (!response.ok) {
+            throw new Error(`Fetch failed: HTTP ${response.status} ${response.statusText}`);
+        }
+        return response;
     }
 
     async getStops(query: string): Promise<StopFinderResponse> {
@@ -68,21 +70,27 @@ export default class APIClient {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             type_sf: TPStopType.Stop,
             name_sf: query,
-            TfNSWSF: true
+            TfNSWSF: true,
         });
     }
 
     async getTrainStops(query: string): Promise<StopFinderLocation[]> {
         const results = await this.getStops(query);
-        return results.locations.filter(location => location.modes?.includes(StopFinderLocationMode.Train));
+        return results.locations.filter((location) =>
+            location.modes?.includes(StopFinderLocationMode.Train)
+        );
     }
 
     /**
      * Uses the _Trip Planner_ API.
      * @see https://opendata.transport.nsw.gov.au/dataset/trip-planner-apis
      */
-    async getTrips(stopOrigin: StopFinderLocation, stopDestination: StopFinderLocation, tripCount: number): Promise<TripRequestResponse> {
-       return await this.performJsonRequest("tp/trip", {
+    async getTrips(
+        stopOrigin: StopFinderLocation,
+        stopDestination: StopFinderLocation,
+        tripCount: number
+    ): Promise<TripRequestResponse> {
+        return await this.performJsonRequest("tp/trip", {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             depArrMacro: "dep",
             type_origin: "any",
@@ -90,7 +98,7 @@ export default class APIClient {
             name_origin: stopOrigin.id,
             name_destination: stopDestination.id,
             calcNumberOfTrips: tripCount,
-            TfNSWTR: true
+            TfNSWTR: true,
         });
     }
 
@@ -100,14 +108,16 @@ export default class APIClient {
      */
     async getGTFSRealtime(tripIds: string[] = []): Promise<ParsedVehiclePositionEntity[]> {
         const body = await this.performProtobufRequest("gtfs/vehiclepos/sydneytrains");
-        const feed: FeedMessage<VehiclePositionEntity> = GTFS.transit_realtime.FeedMessage.decode(body);
+        const feed = GTFS.transit_realtime.FeedMessage.decode(body);
 
         let entities = feed.entity;
-        const parsedTripIds: string[] = tripIds.map(tripId => new ParsedTripId(tripId).toEqualityString());
+        const parsedTripIds: string[] = tripIds.map((tripId) =>
+            new ParsedTripId(tripId).toEqualityString()
+        );
 
         const map = new Map<string, ParsedVehiclePositionEntity>();
         for (const entity of entities) {
-            const parsedTripId = new ParsedTripId(entity.vehicle.trip.tripId);
+            const parsedTripId = new ParsedTripId(entity?.vehicle?.trip?.tripId || "");
             const parsedEntity = entity as ParsedVehiclePositionEntity;
             parsedEntity.parsedTripId = parsedTripId;
             map.set(parsedTripId.toEqualityString(), parsedEntity);
@@ -118,7 +128,7 @@ export default class APIClient {
             for (const tripId of parsedTripIds) {
                 const entity = map.get(tripId);
                 if (entity) {
-                    filteredMap.set(tripId, entity)
+                    filteredMap.set(tripId, entity);
                 }
             }
             return Array.from(filteredMap.values());

@@ -120,7 +120,7 @@
 
         > [aria-label="countdownCircleWidget"] {
             $default-timer-size: 180px;
-            transform: scale($widget-size / $default-timer-size);
+            transform: scale(calc($widget-size / $default-timer-size));
             transform-origin: top left;
         }
 
@@ -168,14 +168,6 @@ main.maps-enabled {
         > .MuiPaper-root {
             background: transparent;
         }
-
-        .board-departure-large {
-            color: white;
-        }
-
-        .board-item-legs, .board-info-bottom {
-            color: #ccc !important;
-        }
     }
 }
 
@@ -207,10 +199,6 @@ main.maps-enabled {
             flex-grow: 1;
             padding: 4px 8px;
 
-            .board-item-legs, .board-departure-label {
-                color: #555;
-            }
-
             .board-item-legs, .board-info-bottom {
                 display: flex;
                 align-items: baseline; //So font lines up
@@ -218,39 +206,18 @@ main.maps-enabled {
             }
 
             .board-item-legs {
+                display: flex;
+                align-items: center;
+                gap: 4px;
 
-                > div {
-                    display: flex;
-                    align-items: center;
-
-                    > span {
-                        white-space: nowrap;
-                    }
+                span {
+                    white-space: nowrap;
                 }
 
                 .MuiChip-root {
                     height: auto;
                     padding: 4px;
-                    margin-left: 8px;
                     font-size: 0.7em;
-                }
-
-                .line-icon {
-                    //$size: 1em;
-                    //min-width: 3em;
-                    //padding: 0.2em;
-                    //font-size: 0.5em;
-                    //border-radius: 50%;
-
-                    height: auto;
-                    color: white;
-                    border: 1px solid white;
-
-                    &.line-icon-train {
-                    }
-                    &.line-icon-bus {
-                        background-color: $primary;
-                    }
                 }
             }
 

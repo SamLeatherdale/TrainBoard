@@ -64,3 +64,9 @@ code {
         }
     }
 }
+*:focus {
+    outline: 1px solid $blue !important;
+}
+.dpad-debugger-line {
+    z-index: 100000;
+}

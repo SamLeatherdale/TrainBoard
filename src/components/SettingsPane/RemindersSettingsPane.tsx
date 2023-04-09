@@ -1,44 +1,48 @@
-import {FormControlLabel} from "@material-ui/core";
-import Switch from "@material-ui/core/Switch";
-import TextField from "@material-ui/core/TextField";
 import React from "react";
-import SettingsPane from "./SettingsPane";
 
-export default class RemindersSettingsPane extends SettingsPane {
-    render() {
-        return (
-            <div id={this.constructor.name}>
-                <div className="settings-row">
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={this.props.settings.reminders.enabled}
-                                onChange={event => this.onUpdateSetting("reminders.enabled", event.target.checked)}
-                                value="reminders.enabled"
-                                color="primary"
-                            />
-                        }
-                        label="Enable Reminders widget"
-                    />
-                </div>
+import { FormControlLabel } from "@mui/material";
+import Switch from "@mui/material/Switch";
+import TextField from "@mui/material/TextField";
 
-                <div className="settings-row">
-                    <TextField
-                        label="Reminder title"
-                        value={this.props.settings.reminders.title}
-                        onChange={event => this.onUpdateSetting("reminders.title", event.target.value)}
-                    />
-                </div>
+import { SettingsPaneProps } from "./SettingsPane";
 
-                <TextField
-                    label="Reminder items (one per line)"
-                    fullWidth
-                    multiline
-                    value={this.props.settings.reminders.itemList.join("\n")}
-                    onChange={event => this.onUpdateSetting("reminders.itemList", event.target.value.split("\n"))}
-                    variant="outlined"
+export default function RemindersSettingsPane(props: SettingsPaneProps) {
+    const { onUpdate } = props;
+    const { enabled, title, itemList } = props.settings.reminders;
+    return (
+        <div id={RemindersSettingsPane.name}>
+            <div className="settings-row">
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={enabled}
+                            onChange={(event) =>
+                                onUpdate("reminders.enabled", event.target.checked)
+                            }
+                            color="primary"
+                            tabIndex={0}
+                        />
+                    }
+                    label="Enable Reminders widget"
                 />
             </div>
-        )
-    }
+
+            <div className="settings-row">
+                <TextField
+                    label="Reminder title"
+                    value={title}
+                    onChange={(event) => onUpdate("reminders.title", event.target.value)}
+                />
+            </div>
+
+            <TextField
+                label="Reminder items (one per line)"
+                fullWidth
+                multiline
+                value={itemList.join("\n")}
+                onChange={(event) => onUpdate("reminders.itemList", event.target.value.split("\n"))}
+                variant="outlined"
+            />
+        </div>
+    );
 }

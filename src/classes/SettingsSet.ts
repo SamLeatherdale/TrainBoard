@@ -1,43 +1,38 @@
-import {StopFinderLocation} from "../models/TripPlanner/stopFinderLocation";
+import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
+
 import APIClient from "./APIClient";
 
 class SettingsSetCore {
-    public walkTimeRange: [number, number] = [8,10];
+    public walkTime: number = 10;
     public tripCount = 6;
-    public apiKey = "OOtMuUcfZU5rsvDZlGrVqFl8vJDGMVybeuDS"; // Default public API key
-    public proxyServer = "https://cors-anywhere.trainboard.workers.dev/?";
 
     public maps = {
         enabled: false,
-        apiKey: ""
+        apiKey: "",
     };
 
     public reminders = {
         enabled: false,
         title: "",
-        itemList: [] as string[]
-    };
-
-    public developer = {
-        mapDebug: false
+        itemList: [] as string[],
     };
 }
-
-class SettingsSetImport extends SettingsSetCore {
-    public fromStopName?: string;
-    public toStopName?: string;
+interface SettingsSetImport extends SettingsSetCore {
+    fromStopName?: string;
+    toStopName?: string;
 }
 
 export default class SettingsSet extends SettingsSetCore {
     static readonly STORAGE_KEY = "appSettings";
 
-    public fromStop?: StopFinderLocation;
-    public toStop?: StopFinderLocation;
+    public fromStop?: StopFinderLocation = undefined;
+    public toStop?: StopFinderLocation = undefined;
 
     static readSettings() {
         let rawSettings;
         try {
             rawSettings = JSON.parse(window.localStorage.getItem(SettingsSet.STORAGE_KEY) || "");
+            console.log(rawSettings);
         } catch (e) {
             rawSettings = {};
         }
@@ -53,42 +48,36 @@ export default class SettingsSet extends SettingsSetCore {
         SettingsSet.writeSettings(new SettingsSet());
     }
 
-    protected static fetchRemoteSettings(url: string, proxy?: string): Promise<any> {
-        return fetch(url).catch((e) => {
-            if (!proxy) {
-                throw e;
-            }
-            // If CORS fails, try with the proxy
-            return fetch(APIClient.getProxiedUrl(proxy, url));
-        }).then((res) => {
-            if (!res.ok) {
-                throw new Error(`Failed to load remote settings: ${res.status} ${res.statusText}`)
-            }
-            return res.json();
-        });
+    protected static fetchRemoteSettings(url: string): Promise<any> {
+        return fetch(url)
+            .catch(() => {
+                // If CORS fails, try with the proxy
+                return fetch(APIClient.getProxiedUrl(url));
+            })
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(
+                        `Failed to load remote settings: ${res.status} ${res.statusText}`
+                    );
+                }
+                return res.json();
+            });
     }
 
-    static async loadRemoteSettings(url: string, currentSettings: SettingsSet): Promise<SettingsSet> {
-        const json: SettingsSetImport = await SettingsSet.fetchRemoteSettings(url, currentSettings.proxyServer);
+    static async loadRemoteSettings(
+        url: string,
+        currentSettings: SettingsSet
+    ): Promise<SettingsSet> {
+        const json: SettingsSetImport = await SettingsSet.fetchRemoteSettings(url);
         const settings = new SettingsSet(json);
 
-        const {
-            fromStopName,
-            toStopName
-        } = json;
-        const {
-            apiKey,
-            proxyServer
-        } = {
-            ...currentSettings,
-            ...json
-        };
+        const { fromStopName, toStopName } = json;
 
         const importMap = {
-            'fromStop': fromStopName,
-            'toStop': toStopName
+            fromStop: fromStopName,
+            toStop: toStopName,
         };
-        const client = new APIClient(apiKey, proxyServer);
+        const client = new APIClient();
         for (const [key, query] of Object.entries(importMap)) {
             if (!query) {
                 continue;
@@ -106,7 +95,7 @@ export default class SettingsSet extends SettingsSetCore {
         return settings;
     }
 
-    constructor(params?: {[key: string]: any}) {
+    constructor(params?: Record<string, any>) {
         super();
         if (!params) {
             return;
@@ -119,19 +108,18 @@ export default class SettingsSet extends SettingsSetCore {
         }
     }
 
-     isConfiguredTrip(): boolean {
+    isConfiguredTrip(): boolean {
         return !!(this.fromStop && this.toStop);
     }
 
-    getConfiguredTrip(): undefined |
-        {from: StopFinderLocation, to: StopFinderLocation} {
+    getConfiguredTrip(): undefined | { from: StopFinderLocation; to: StopFinderLocation } {
         if (!this.isConfiguredTrip()) {
             return undefined;
         }
 
         return {
             from: this.fromStop as StopFinderLocation,
-            to: this.toStop as StopFinderLocation
+            to: this.toStop as StopFinderLocation,
         };
     }
 }
