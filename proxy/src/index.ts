@@ -11,6 +11,7 @@ const handler: ExportedHandler<{ API_KEY: string }> = {
         const fetchAllowlist = [new RegExp("^https://api.transport.nsw.gov.au/")];
         const originAllowlist = [
             new RegExp("^https?://localhost"),
+            new RegExp("^https://trainboard\\.samleatherdale\\.com"),
             new RegExp("^https://[\\w-]*trainboard\\.netlify\\.app"),
             new RegExp("^https://[\\w-]+\\.ngrok\\.io"),
             new RegExp("^https://[\\w-]+\\.ngrok-free\\.app"),
