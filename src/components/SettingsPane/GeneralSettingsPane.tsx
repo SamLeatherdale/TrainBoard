@@ -47,7 +47,7 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
 
                 <RangeInput
                     value={walkTime}
-                    onChange={(newValue, delta) => onUpdate("walkTime", newValue, delta)}
+                    onChange={(newValue) => onUpdate("walkTime", newValue)}
                     min={0}
                     max={30}
                 />
@@ -58,7 +58,7 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
 
                 <RangeInput
                     value={tripCount}
-                    onChange={(newValue, delta) => onUpdate("tripCount", newValue, delta)}
+                    onChange={(newValue) => onUpdate("tripCount", newValue)}
                     min={5}
                     max={10}
                 />

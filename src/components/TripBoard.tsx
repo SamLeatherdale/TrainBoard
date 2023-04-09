@@ -3,7 +3,7 @@ import React from "react";
 import { Box } from "@mui/material";
 
 import { getTripId } from "../classes/ParsedTripId";
-import SettingsSet from "../classes/SettingsSet";
+import { SettingsSet } from "../classes/SettingsSet";
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
 import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
 import { parseLocalDateTime } from "../util/date";

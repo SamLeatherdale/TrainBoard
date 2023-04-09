@@ -5,10 +5,11 @@ import React from "react";
 import GoogleMap from "google-map-react";
 
 import { COLOR_PRIMARY } from "../../classes/functions";
-import SettingsSet from "../../classes/SettingsSet";
+import { SettingsSet } from "../../classes/SettingsSet";
 import { LatLng, SimpleCoords } from "../../classes/types";
 import { ParsedVehiclePositionEntity, VehicleCoords } from "../../models/GTFS/VehiclePositions";
 import { TripRequestResponseJourney } from "../../models/TripPlanner/tripRequestResponseJourney";
+import { getMapsApiKey } from "../../util/env";
 
 import TrainMapMarker from "./TrainMapMarker";
 
@@ -41,11 +42,8 @@ function getAverageLatLng(a: LatLng, b: LatLng): LatLng {
 
 function TrainMap(props: TrainMapProps) {
     const { trips, settings, realtimeTripData } = props;
-    if (
-        !settings.maps.enabled ||
-        (!settings.maps.apiKey && process.env.NODE_ENV === "production") ||
-        !trips.length
-    ) {
+    const { mapsEnabled } = settings;
+    if (!mapsEnabled || !trips.length) {
         return null;
     }
 
@@ -62,9 +60,9 @@ function TrainMap(props: TrainMapProps) {
         <>
             <div id="bg-google-maps">
                 <GoogleMap
-                    bootstrapURLKeys={{ key: settings.maps.apiKey }}
+                    bootstrapURLKeys={{ key: getMapsApiKey() }}
                     defaultCenter={fromLatLng}
-                    defaultZoom={12}
+                    zoom={12}
                     options={{
                         disableDefaultUI: true,
                         styles: [

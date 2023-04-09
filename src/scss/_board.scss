@@ -1,17 +1,6 @@
-
-
-#main-toolbar {
-}
-
 .App {
     > main {
-        position: relative;
-        flex-grow: 1;
-        background-color: $main-bg;
 
-        //display: flex;
-        align-items: center;
-        justify-content: center;
 
         .main-grid {
             display: grid;
@@ -20,7 +9,7 @@
             grid-column-gap: 16px;
             grid-template-columns: 200px 1fr 200px;
             grid-template-areas:
-                "reminders main x";
+                "leftSide main rightSide";
         }
 
         > * {
@@ -41,40 +30,12 @@
         }
 
         #bg-google-maps {
-            z-index: 0;
+            z-index: -2;
         }
 
         #bg-google-maps-overlay {
-            z-index: 1;
+            z-index: -1;
             background-color: rgba(0,0,0,0.5);
-        }
-
-        #reminders-panel {
-            grid-area: reminders;
-
-            .MuiListItem-root {
-                display: flex;
-                align-items: center;
-            }
-
-            .MuiListItemIcon-root {
-                min-width: 0;
-                margin-right: 8px;
-            }
-
-            .MuiButtonBase-root {
-                padding: 4px;
-            }
-
-            .MuiListItemText-root {
-                display: inline-flex;
-                margin: 0;
-
-                .MuiTypography-root {
-                    font-size: 0.7em;
-                    line-height: normal;
-                }
-            }
         }
 
         .main-wrap {
@@ -82,15 +43,6 @@
             padding: 0 16px;
             justify-self: center;
             width: 100%;
-        }
-    }
-}
-
-main.maps-enabled {
-    .board-item-container {
-
-        > .MuiPaper-root {
-            background: transparent;
         }
     }
 }

@@ -1,33 +1,30 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
-import { styled } from "@mui/material/styles";
-import cloneDeep from "lodash/cloneDeep";
-import get from "lodash/get";
-import set from "lodash/set";
+import { styled, ThemeProvider } from "@mui/material/styles";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
 import APIClient from "./classes/APIClient";
-import SettingsSet from "./classes/SettingsSet";
+import SettingsManager, { SettingsSet } from "./classes/SettingsSet";
 import CardMessage from "./components/CardMessage";
 import MainAppBar from "./components/MainAppBar";
 import RefreshTimer from "./components/RefreshTimer";
 import { OnUpdateFunc, SettingsPane } from "./components/SettingsPane/SettingsPane";
 import SettingsScreen from "./components/SettingsScreen";
 import TripBoard from "./components/TripBoard";
-import RemindersWidget from "./components/Widget/RemindersWidget";
 import TrainMap from "./components/Widget/TrainMap";
 import { ParsedVehiclePositionEntity } from "./models/GTFS/VehiclePositions";
 import { TripRequestResponseJourney } from "./models/TripPlanner/tripRequestResponseJourney";
+import { createAppTheme } from "./theme";
 import { getAndroid } from "./util/android";
 import { initDpad } from "./util/dpad";
 
 export default function App() {
     const tripsInterval = 30;
     const navigate = useNavigate();
-    const [settings, setSettings] = useState(() => SettingsSet.readSettings());
+    const [settings, setSettings] = useState(() => SettingsManager.readSettings());
     const [hasInitialized, setHasInitialized] = useState(false);
     const [trips, setTrips] = useState<TripRequestResponseJourney[]>([]);
     const [realtimeTripData, setRealtimeTripData] = useState<ParsedVehiclePositionEntity[]>([]);
@@ -35,6 +32,8 @@ export default function App() {
     const [lastRefreshTime, setLastRefreshTime] = useState(0);
     const [lastApiError, setLastApiError] = useState("");
     const tripsTimeoutKey = useRef(0);
+
+    const theme = useMemo(() => createAppTheme(settings.theme), [settings.theme]);
 
     useEffect(() => {
         getAndroid()?.ready();
@@ -53,7 +52,7 @@ export default function App() {
         const loadUrl = url.searchParams.get("loadSettings");
         if (loadUrl) {
             try {
-                const newSettings = await SettingsSet.loadRemoteSettings(loadUrl, settings);
+                const newSettings = await SettingsManager.loadRemoteSettings(loadUrl, settings);
                 setSettings(newSettings);
             } catch (e) {
                 console.error(e);
@@ -62,23 +61,20 @@ export default function App() {
     };
 
     const readSettings = () => {
-        setSettings(SettingsSet.readSettings());
+        setSettings(SettingsManager.readSettings());
     };
 
-    const onUpdateSetting: OnUpdateFunc = (key, value, delta) => {
+    const onUpdateSetting: OnUpdateFunc = (key, value) => {
         setSettings((prevState) => {
-            const settings = cloneDeep(prevState);
-            const currentValue = get(settings, key);
-            if (delta && typeof currentValue === "number") {
-                set(settings, key, currentValue + value);
-            } else {
-                set(settings, key, value);
-            }
-
+            const prevValue = prevState[key];
+            const settings = {
+                ...prevState,
+                [key]: typeof value === "function" ? value(prevValue) : value,
+            };
             console.log(settings);
 
-            SettingsSet.writeSettings(settings);
-            if (["fromStop", "toStop"].includes(key)) {
+            SettingsManager.writeSettings(settings);
+            if ((["fromStop", "toStop", "excludedModes"] as (keyof SettingsSet)[]).includes(key)) {
                 getTrips(settings);
             }
 
@@ -87,7 +83,7 @@ export default function App() {
     };
 
     const onResetSettings = () => {
-        SettingsSet.resetSettings();
+        SettingsManager.resetSettings();
         readSettings();
     };
 
@@ -96,7 +92,7 @@ export default function App() {
     };
 
     const getCurrentTripLabel = () => {
-        const trip = settings.getConfiguredTrip();
+        const trip = SettingsManager.getConfiguredTrip(settings);
         if (!trip) {
             return "";
         }
@@ -104,7 +100,7 @@ export default function App() {
     };
 
     const getTrips = async (useSettings: SettingsSet = settings) => {
-        const trip = useSettings.getConfiguredTrip();
+        const trip = SettingsManager.getConfiguredTrip(useSettings);
         if (!trip) {
             return;
         }
@@ -115,8 +111,8 @@ export default function App() {
         setIsTripsRefreshing(true);
         const client = new APIClient();
         try {
-            const response = await client.getTrips(from, to, useSettings.tripCount + 1);
-            const getRealtime = useSettings.maps.enabled;
+            const response = await client.getTrips(from, to, useSettings);
+            const getRealtime = useSettings.mapsEnabled;
 
             setHasInitialized(true);
             setTrips(response.journeys || []);
@@ -160,84 +156,98 @@ export default function App() {
     };
 
     return (
-        <div className="App">
-            <MainAppBar
-                openMenu={openMenu}
-                label={getCurrentTripLabel()}
-                refreshTimer={
-                    <RefreshTimer
-                        isRefreshing={isTripsRefreshing}
-                        durationSeconds={tripsInterval}
-                        key={lastRefreshTime}
-                    />
-                }
-            />
-            <Routes>
-                <Route
-                    path="settings/*"
-                    element={
-                        <SettingsScreen
-                            menuOpen={true}
-                            settings={settings}
-                            onUpdate={onUpdateSetting}
-                            onReset={onResetSettings}
-                            onClose={() => {
-                                navigate({ pathname: "/" });
-                            }}
+        <ThemeProvider theme={theme}>
+            <div className="App">
+                <MainAppBar
+                    openMenu={openMenu}
+                    label={getCurrentTripLabel()}
+                    refreshTimer={
+                        <RefreshTimer
+                            isRefreshing={isTripsRefreshing}
+                            durationSeconds={tripsInterval}
+                            key={lastRefreshTime}
                         />
                     }
+                    theme={settings.theme}
+                    toggleTheme={() =>
+                        onUpdateSetting("theme", (theme) => (theme === "dark" ? "light" : "dark"))
+                    }
                 />
-            </Routes>
-
-            <main className={[settings.maps.enabled ? "maps-enabled" : ""].join(" ")}>
-                {!settings.isConfiguredTrip() && (
-                    <CardMessage
-                        title="Welcome"
-                        body={
-                            <>
-                                Welcome to TrainBoard! To get started, open the settings menu (
-                                <MenuIconStyled />) and configure your From and To stops.
-                            </>
+                <Routes>
+                    <Route
+                        path="settings/*"
+                        element={
+                            <SettingsScreen
+                                menuOpen={true}
+                                settings={settings}
+                                onUpdate={onUpdateSetting}
+                                onReset={onResetSettings}
+                                onClose={() => {
+                                    navigate({ pathname: "/" });
+                                }}
+                            />
                         }
                     />
-                )}
-                {settings.isConfiguredTrip() && hasInitialized && trips.length === 0 && (
-                    <CardMessage
-                        title="No trips"
-                        body="No trips were found matching your from and to stops. Please try setting different stops."
-                    />
-                )}
-                <Snackbar
-                    anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                    open={!!lastApiError}
-                    autoHideDuration={5000}
-                >
-                    <Alert severity={"error"} elevation={6} variant={"filled"}>
-                        {lastApiError}
-                    </Alert>
-                </Snackbar>
-                <TrainMap
-                    settings={settings}
-                    trips={trips}
-                    realtimeTripData={realtimeTripData.slice(0, 2)}
-                />
-                <div className="main-grid">
-                    <RemindersWidget settings={settings} />
-                    <div className="main-wrap">
-                        <div id="trip-board-container">
-                            <TripBoard
-                                trips={trips}
-                                realtimeTripData={realtimeTripData}
-                                settings={settings}
+                </Routes>
+
+                <Main transparent={settings.mapsEnabled}>
+                    {!SettingsManager.isConfiguredTrip(settings) && (
+                        <CardMessage
+                            title="Welcome"
+                            body={
+                                <>
+                                    Welcome to TrainBoard! To get started, open the settings menu (
+                                    <MenuIconStyled />) and configure your From and To stops.
+                                </>
+                            }
+                        />
+                    )}
+                    {SettingsManager.isConfiguredTrip(settings) &&
+                        hasInitialized &&
+                        trips.length === 0 && (
+                            <CardMessage
+                                title="No trips"
+                                body="No trips were found matching your from and to stops. Please try setting different stops."
                             />
+                        )}
+                    <Snackbar
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                        open={!!lastApiError}
+                        autoHideDuration={5000}
+                    >
+                        <Alert severity={"error"} elevation={6} variant={"filled"}>
+                            {lastApiError}
+                        </Alert>
+                    </Snackbar>
+                    <TrainMap
+                        settings={settings}
+                        trips={trips}
+                        realtimeTripData={realtimeTripData.slice(0, 2)}
+                    />
+                    <div className="main-grid">
+                        <div className="main-wrap">
+                            <div id="trip-board-container">
+                                <TripBoard
+                                    trips={trips}
+                                    realtimeTripData={realtimeTripData}
+                                    settings={settings}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </main>
-        </div>
+                </Main>
+            </div>
+        </ThemeProvider>
     );
 }
 
+const Main = styled("main")<{ transparent: boolean }>((props) => ({
+    position: "relative",
+    flexGrow: 1,
+    backgroundColor: props.transparent ? "transparent" : "#222",
+    alignItems: "center",
+    justifyContent: "center",
+}));
 const MenuIconStyled = styled(MenuIcon)({
     verticalAlign: "middle",
     lineHeight: "initial",

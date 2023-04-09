@@ -26,7 +26,7 @@ export function TripIcon({ leg }: { leg: TripRequestResponseJourneyLeg }) {
     return <InfoChip label={tripName} sx={{ backgroundColor: color }} />;
 }
 
-function TransportModeIcon({ mode }: { mode: TransportMode }) {
+export function TransportModeIcon({ mode }: { mode: TransportMode }) {
     const Icon = mode.icon;
     return (
         <Icon

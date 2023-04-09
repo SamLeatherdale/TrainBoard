@@ -1,6 +1,6 @@
-import SettingsSet from "../../classes/SettingsSet";
+import { SettingsSet } from "../../classes/SettingsSet";
 
-export type OnUpdateFunc = (key: string, value: any, delta?: boolean) => void;
+export type OnUpdateFunc = (key: keyof SettingsSet, value: any) => void;
 
 export interface SettingsPaneProps {
     onUpdate: OnUpdateFunc;
@@ -10,7 +10,6 @@ export interface SettingsPaneProps {
 
 export enum SettingsPane {
     GENERAL = "general",
-    MAPS = "maps",
-    REMINDERS = "reminders",
-    DEVELOPER = "developer",
+    MODES = "modes",
+    WIDGETS = "widgets",
 }

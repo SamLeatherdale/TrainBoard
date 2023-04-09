@@ -1,9 +1,9 @@
 import React, { FC } from "react";
 
 import CloseIcon from "@mui/icons-material/Close";
-import MapIcon from "@mui/icons-material/Map";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import SettingsIcon from "@mui/icons-material/Settings";
+import Commute from "@mui/icons-material/Commute";
+import ExtensionIcon from "@mui/icons-material/Extension";
+import LocationOn from "@mui/icons-material/LocationOn";
 import { Tab, Tabs, Theme, useMediaQuery } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -14,13 +14,12 @@ import createStyles from "@mui/styles/createStyles";
 import withStyles from "@mui/styles/withStyles";
 import { Route, Routes, useMatch, useNavigate } from "react-router-dom";
 
-import SettingsSet from "../classes/SettingsSet";
+import { SettingsSet } from "../classes/SettingsSet";
 
 import GeneralSettingsPane from "./SettingsPane/GeneralSettingsPane";
-import MapsSettingsPane from "./SettingsPane/MapsSettingsPane";
-import RemindersSettingsPane from "./SettingsPane/RemindersSettingsPane";
 import { OnUpdateFunc, SettingsPane } from "./SettingsPane/SettingsPane";
-
+import TransportModesSettingsPane from "./SettingsPane/TransportModesSettingsPane";
+import WidgetsSettingsPane from "./SettingsPane/WidgetsSettingsPane";
 
 const styles = (theme: Theme) =>
     createStyles({
@@ -84,19 +83,19 @@ const SettingsScreen: FC<SettingsScreenProps> = (props) => {
             key: SettingsPane.GENERAL,
             name: "General",
             component: <GeneralSettingsPane {...paneProps} />,
-            icon: <SettingsIcon />,
+            icon: <LocationOn />,
         },
         {
-            key: SettingsPane.MAPS,
-            name: "Maps",
-            component: <MapsSettingsPane {...paneProps} />,
-            icon: <MapIcon />,
+            key: SettingsPane.MODES,
+            name: "Modes",
+            component: <TransportModesSettingsPane {...paneProps} />,
+            icon: <Commute />,
         },
         {
-            key: SettingsPane.REMINDERS,
-            name: "Reminders",
-            component: <RemindersSettingsPane {...paneProps} />,
-            icon: <NotificationsIcon />,
+            key: SettingsPane.WIDGETS,
+            name: "Widgets",
+            component: <WidgetsSettingsPane {...paneProps} />,
+            icon: <ExtensionIcon />,
         },
     ];
 

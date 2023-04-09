@@ -6,7 +6,9 @@ import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
 import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
 
+import { TransportModeId } from "./LineType";
 import ParsedTripId from "./ParsedTripId";
+import { SettingsSet } from "./SettingsSet";
 import { TPStopType, TPCoordOutputFormat } from "./types";
 
 export default class APIClient {
@@ -88,18 +90,31 @@ export default class APIClient {
     async getTrips(
         stopOrigin: StopFinderLocation,
         stopDestination: StopFinderLocation,
-        tripCount: number
+        settings: SettingsSet
     ): Promise<TripRequestResponse> {
-        return await this.performJsonRequest("tp/trip", {
+        const params = {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             depArrMacro: "dep",
             type_origin: "any",
             type_destination: "any",
             name_origin: stopOrigin.id,
             name_destination: stopDestination.id,
-            calcNumberOfTrips: tripCount,
+            calcNumberOfTrips: settings.tripCount,
             TfNSWTR: true,
+            ...this.getExcludedModesOptions(settings.excludedModes),
+        };
+        return await this.performJsonRequest("tp/trip", params);
+    }
+
+    private getExcludedModesOptions(excludedModes: TransportModeId[]): Record<string, string> {
+        const options: Record<string, string> = {};
+        if (excludedModes.length) {
+            options["excludedMeans"] = "checkbox";
+        }
+        excludedModes.forEach((mode) => {
+            options[`exclMOT_${mode}`] = "1";
         });
+        return options;
     }
 
     /**

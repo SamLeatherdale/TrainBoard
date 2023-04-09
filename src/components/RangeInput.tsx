@@ -12,7 +12,7 @@ export default function RangeInput({
     onChange,
     value,
 }: Pick<SliderProps, "min" | "max" | "value"> & {
-    onChange: (value: number, delta: boolean) => void;
+    onChange: (value: number) => void;
 }) {
     const ref = useRef<HTMLInputElement>();
     const keyDownHandler = (e: React.KeyboardEvent) => {
@@ -41,7 +41,7 @@ export default function RangeInput({
             type="range"
             onChange={(e) => {
                 const val = parseInt(e.target.value);
-                onChange(val, false);
+                onChange(val);
             }}
             onKeyDown={keyDownHandler}
             slotProps={{

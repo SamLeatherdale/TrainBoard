@@ -22,7 +22,7 @@ export default class ParsedStation {
     }
 
     isParseSuccess() {
-        return this.parseSuccess;
+        return !!this.platform;
     }
 }
 

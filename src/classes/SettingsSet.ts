@@ -1,51 +1,61 @@
+import { PaletteMode } from "@mui/material";
+
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 
 import APIClient from "./APIClient";
+import { TransportModeId } from "./LineType";
 
-class SettingsSetCore {
-    public walkTime: number = 10;
-    public tripCount = 6;
-
-    public maps = {
-        enabled: false,
-        apiKey: "",
-    };
-
-    public reminders = {
-        enabled: false,
-        title: "",
-        itemList: [] as string[],
-    };
+interface SettingsSetCore {
+    theme: PaletteMode;
+    walkTime: number;
+    tripCount: number;
+    mapsEnabled: boolean;
+    excludedModes: TransportModeId[];
 }
 interface SettingsSetImport extends SettingsSetCore {
     fromStopName?: string;
     toStopName?: string;
 }
 
-export default class SettingsSet extends SettingsSetCore {
+export interface SettingsSet extends SettingsSetCore {
+    fromStop?: StopFinderLocation;
+    toStop?: StopFinderLocation;
+}
+
+const defaultSettings: SettingsSet = {
+    theme: "dark",
+    walkTime: 10,
+    tripCount: 6,
+    mapsEnabled: false,
+    excludedModes: [],
+};
+
+export default class SettingsManager {
     static readonly STORAGE_KEY = "appSettings";
 
-    public fromStop?: StopFinderLocation = undefined;
-    public toStop?: StopFinderLocation = undefined;
-
-    static readSettings() {
+    static readSettings(): SettingsSet {
         let rawSettings;
         try {
-            rawSettings = JSON.parse(window.localStorage.getItem(SettingsSet.STORAGE_KEY) || "");
+            rawSettings = JSON.parse(
+                window.localStorage.getItem(SettingsManager.STORAGE_KEY) || ""
+            );
             console.log(rawSettings);
         } catch (e) {
             rawSettings = {};
         }
 
-        return new SettingsSet(rawSettings);
+        return {
+            ...defaultSettings,
+            ...rawSettings,
+        };
     }
 
-    static writeSettings(settings: SettingsSet) {
-        window.localStorage.setItem(SettingsSet.STORAGE_KEY, JSON.stringify(settings));
+    static writeSettings(settings: SettingsSet | {}) {
+        window.localStorage.setItem(SettingsManager.STORAGE_KEY, JSON.stringify(settings));
     }
 
     static resetSettings() {
-        SettingsSet.writeSettings(new SettingsSet());
+        SettingsManager.writeSettings({});
     }
 
     protected static fetchRemoteSettings(url: string): Promise<any> {
@@ -66,10 +76,12 @@ export default class SettingsSet extends SettingsSetCore {
 
     static async loadRemoteSettings(
         url: string,
-        currentSettings: SettingsSet
+        currentSettings: SettingsManager
     ): Promise<SettingsSet> {
-        const json: SettingsSetImport = await SettingsSet.fetchRemoteSettings(url);
-        const settings = new SettingsSet(json);
+        const json: SettingsSetImport = await SettingsManager.fetchRemoteSettings(url);
+        const settings = {
+            ...defaultSettings,
+        };
 
         const { fromStopName, toStopName } = json;
 
@@ -95,31 +107,20 @@ export default class SettingsSet extends SettingsSetCore {
         return settings;
     }
 
-    constructor(params?: Record<string, any>) {
-        super();
-        if (!params) {
-            return;
-        }
-        const keys = Object.keys(params);
-        for (let key of Object.keys(this)) {
-            if (keys.includes(key)) {
-                this[key] = params[key];
-            }
-        }
+    static isConfiguredTrip(settings: SettingsSet): boolean {
+        return !!(settings.fromStop && settings.toStop);
     }
 
-    isConfiguredTrip(): boolean {
-        return !!(this.fromStop && this.toStop);
-    }
-
-    getConfiguredTrip(): undefined | { from: StopFinderLocation; to: StopFinderLocation } {
-        if (!this.isConfiguredTrip()) {
+    static getConfiguredTrip(
+        settings: SettingsSet
+    ): undefined | { from: StopFinderLocation; to: StopFinderLocation } {
+        if (!SettingsManager.isConfiguredTrip(settings)) {
             return undefined;
         }
 
         return {
-            from: this.fromStop as StopFinderLocation,
-            to: this.toStop as StopFinderLocation,
+            from: settings.fromStop as StopFinderLocation,
+            to: settings.toStop as StopFinderLocation,
         };
     }
 }

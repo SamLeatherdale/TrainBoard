@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import { useDebouncedCallback } from "use-debounce";
 
 import APIClient from "../classes/APIClient";
-import SettingsSet from "../classes/SettingsSet";
+import { SettingsSet } from "../classes/SettingsSet";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 
 type Option = {
