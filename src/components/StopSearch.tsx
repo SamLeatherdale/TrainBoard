@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Box, CircularProgress, NativeSelect } from "@mui/material";
+import { Box, CircularProgress, InputAdornment, NativeSelect } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -63,21 +63,36 @@ export default function StopSearch(props: StopSearchProps) {
     async function getStops(query: string) {
         const client = new APIClient();
         setIsLoading(true);
-        const locations = await client.getTrainStops(query);
+        const locations = await client.getStopsByMode(query, props.settings.excludedModes);
 
         setIsLoading(false);
         setStops(locations);
     }
 
     return (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                "> *": {
+                    width: "50%",
+                },
+            }}
+        >
             <TextField
                 inputProps={{ tabIndex: 0 }}
+                InputProps={{
+                    endAdornment: isLoading ? (
+                        <InputAdornment position="end">
+                            <CircularProgress size={20} />
+                        </InputAdornment>
+                    ) : null,
+                }}
                 variant="outlined"
                 onChange={(e) => onChange(e.target.value)}
                 value={query}
             />
-            {isLoading && <CircularProgress />}
             <NativeSelect
                 disableUnderline={true}
                 sx={{

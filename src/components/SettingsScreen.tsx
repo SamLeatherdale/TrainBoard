@@ -8,7 +8,6 @@ import { Tab, Tabs, Theme, useMediaQuery } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import MuiDialogTitle from "@mui/material/DialogTitle";
-import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import createStyles from "@mui/styles/createStyles";
 import withStyles from "@mui/styles/withStyles";
@@ -105,8 +104,6 @@ const SettingsScreen: FC<SettingsScreenProps> = (props) => {
 
     return (
         <Dialog id="settings-dialog" open={props.menuOpen} fullWidth={true} fullScreen={fullScreen}>
-            <DialogTitle onClose={onClose}>Settings</DialogTitle>
-            <Divider />
             <Tabs value={currentPane} variant="fullWidth">
                 {panes.map((pane) => (
                     <Tab
@@ -118,6 +115,7 @@ const SettingsScreen: FC<SettingsScreenProps> = (props) => {
                         label={pane.name}
                     />
                 ))}
+                <Tab onClick={onClose} icon={<CloseIcon />} label="Close" />
             </Tabs>
             <div className="dialog-main">
                 <Routes>

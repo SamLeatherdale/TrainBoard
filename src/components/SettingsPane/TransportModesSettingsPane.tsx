@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Box, FormControlLabel } from "@mui/material";
+import Alert from "@mui/material/Alert";
 import Switch from "@mui/material/Switch";
 
 import { TransportModeId, transportModes } from "../../classes/LineType";
@@ -22,6 +23,10 @@ export default function TransportModesSettingsPane(props: SettingsPaneProps) {
     ];
     return (
         <div id={TransportModesSettingsPane.name}>
+            <Alert severity="info">
+                Toggling the modes below will control which transport types are included for trip
+                planning, and also which stops are shown in the stop search.
+            </Alert>
             <Box>
                 {sortedTransportModeIds.map((id) => {
                     const mode = transportModes[id];
@@ -55,7 +60,7 @@ export default function TransportModesSettingsPane(props: SettingsPaneProps) {
                             label={
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                     <TransportModeIcon mode={mode} />
-                                    Show {mode.name} trips
+                                    Enable {mode.name}
                                 </Box>
                             }
                         />

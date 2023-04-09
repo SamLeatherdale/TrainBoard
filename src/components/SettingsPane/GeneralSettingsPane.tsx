@@ -1,6 +1,7 @@
 import React from "react";
 
 import { InputLabel } from "@mui/material";
+import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 
 import { isDev } from "../../util/env";
@@ -15,6 +16,10 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
     const { fromStop, toStop, walkTime, tripCount } = props.settings;
     return (
         <div id={GeneralSettingsPane.name}>
+            <Alert severity="info">
+                If you're seeing too many search results, try changing which modes of transport are
+                enabled in the Modes tab.
+            </Alert>
             <SettingsRow>
                 <InputLabel htmlFor={"stopSearchFrom"} shrink={true}>
                     From stop

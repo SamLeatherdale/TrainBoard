@@ -95,7 +95,7 @@ export default class SettingsManager {
                 continue;
             }
             try {
-                const locations = await client.getTrainStops(query);
+                const locations = await client.getStopsByMode(query, settings.excludedModes);
                 if (locations && locations.length) {
                     settings[key] = locations[0];
                 }

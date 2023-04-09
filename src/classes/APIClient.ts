@@ -1,16 +1,15 @@
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
-import { StopFinderLocationMode } from "../models/TripPlanner/custom/stopFinderLocationMode";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
 import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
 
-import { TransportModeId } from "./LineType";
+import { TransportModeId, transportModes } from "./LineType";
 import ParsedTripId from "./ParsedTripId";
 import { SettingsSet } from "./SettingsSet";
 import { TPStopType, TPCoordOutputFormat } from "./types";
 
 export default class APIClient {
-    static readonly API_VERSION = "10.2.1.42";
+    static readonly API_VERSION = "10.5.17.3";
     static readonly API_URL = "https://api.transport.nsw.gov.au/v1";
     static readonly PROXY_URL = "https://cors-proxy.trainboard.workers.dev/";
     // static readonly PROXY_URL = "http://localhost:8787/";
@@ -74,10 +73,18 @@ export default class APIClient {
         });
     }
 
-    async getTrainStops(query: string): Promise<StopFinderLocation[]> {
+    async getStopsByMode(
+        query: string,
+        excludedModes: TransportModeId[]
+    ): Promise<StopFinderLocation[]> {
         const results = await this.getStops(query);
+        const includedModeIds = new Set(
+            Object.values(transportModes)
+                .map((mode) => mode.id)
+                .filter((mode) => !excludedModes.includes(mode))
+        );
         return results.locations.filter((location) =>
-            location.modes?.includes(StopFinderLocationMode.Train)
+            location.productClasses?.some((product) => includedModeIds.has(product))
         );
     }
 
