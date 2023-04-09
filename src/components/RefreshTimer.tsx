@@ -31,7 +31,9 @@ export default function RefreshTimer(props: RefreshTimerProps) {
     return (
         <div className="refresh-timer">
             <CircularProgress
-                size={60}
+                color="inherit"
+                size={25}
+                thickness={6}
                 value={isRefreshing ? undefined : progress}
                 variant={isRefreshing ? "indeterminate" : "determinate"}
             />

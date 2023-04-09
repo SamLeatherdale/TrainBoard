@@ -2,6 +2,7 @@ type WindowWithAndroid = Window & {
     android?: AndroidModule;
 };
 type AndroidModule = {
+    ready: () => void;
     reload: () => void;
     exit: () => void;
 };

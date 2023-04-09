@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import Alert from "@mui/material/Alert";
@@ -12,7 +12,6 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import APIClient from "./classes/APIClient";
 import SettingsSet from "./classes/SettingsSet";
 import CardMessage from "./components/CardMessage";
-import Clock from "./components/Clock";
 import MainAppBar from "./components/MainAppBar";
 import RefreshTimer from "./components/RefreshTimer";
 import { OnUpdateFunc, SettingsPane } from "./components/SettingsPane/SettingsPane";
@@ -22,13 +21,12 @@ import RemindersWidget from "./components/Widget/RemindersWidget";
 import TrainMap from "./components/Widget/TrainMap";
 import { ParsedVehiclePositionEntity } from "./models/GTFS/VehiclePositions";
 import { TripRequestResponseJourney } from "./models/TripPlanner/tripRequestResponseJourney";
-import { formatMediumTime } from "./util/date";
+import { getAndroid } from "./util/android";
+import { initDpad } from "./util/dpad";
 
 export default function App() {
     const tripsInterval = 30;
-    const renderTripsInterval = 5;
     const navigate = useNavigate();
-    const [tripsTimeoutKey, setTripsTimeoutKey] = useState(-1);
     const [settings, setSettings] = useState(() => SettingsSet.readSettings());
     const [hasInitialized, setHasInitialized] = useState(false);
     const [trips, setTrips] = useState<TripRequestResponseJourney[]>([]);
@@ -36,14 +34,17 @@ export default function App() {
     const [isTripsRefreshing, setIsTripsRefreshing] = useState(false);
     const [lastRefreshTime, setLastRefreshTime] = useState(0);
     const [lastApiError, setLastApiError] = useState("");
+    const tripsTimeoutKey = useRef(0);
 
     useEffect(() => {
+        getAndroid()?.ready();
+        initDpad();
         (async () => {
             await maybeLoadRemoteSettings();
             await getTrips();
         })();
         return () => {
-            clearTimeout(tripsTimeoutKey);
+            window.clearTimeout(tripsTimeoutKey.current);
         };
     }, []);
 
@@ -109,7 +110,7 @@ export default function App() {
         }
         const { from, to } = trip;
 
-        clearTimeout(tripsTimeoutKey);
+        window.clearTimeout(tripsTimeoutKey.current);
 
         setIsTripsRefreshing(true);
         const client = new APIClient();
@@ -154,13 +155,23 @@ export default function App() {
     };
 
     const scheduleTimeout = () => {
-        window.clearTimeout(tripsTimeoutKey);
-        setTripsTimeoutKey(window.setTimeout(getTrips, tripsInterval * 1000));
+        window.clearTimeout(tripsTimeoutKey.current);
+        tripsTimeoutKey.current = window.setTimeout(getTrips, tripsInterval * 1000);
     };
 
     return (
         <div className="App">
-            <MainAppBar openMenu={openMenu} label={getCurrentTripLabel()} />
+            <MainAppBar
+                openMenu={openMenu}
+                label={getCurrentTripLabel()}
+                refreshTimer={
+                    <RefreshTimer
+                        isRefreshing={isTripsRefreshing}
+                        durationSeconds={tripsInterval}
+                        key={lastRefreshTime}
+                    />
+                }
+            />
             <Routes>
                 <Route
                     path="settings/*"
@@ -214,29 +225,10 @@ export default function App() {
                     <RemindersWidget settings={settings} />
                     <div className="main-wrap">
                         <div id="trip-board-container">
-                            {settings.isConfiguredTrip() && (
-                                <div id="trip-board-toolbar">
-                                    <Clock />
-                                    <div id="trip-board-timer-container">
-                                        {!!lastRefreshTime && (
-                                            <div className="status-last-refresh">
-                                                Last refreshed:{" "}
-                                                {formatMediumTime(new Date(lastRefreshTime))}
-                                            </div>
-                                        )}
-                                        <RefreshTimer
-                                            isRefreshing={isTripsRefreshing}
-                                            durationSeconds={tripsInterval}
-                                            key={lastRefreshTime}
-                                        />
-                                    </div>
-                                </div>
-                            )}
                             <TripBoard
                                 trips={trips}
                                 realtimeTripData={realtimeTripData}
                                 settings={settings}
-                                renderInterval={renderTripsInterval}
                             />
                         </div>
                     </div>

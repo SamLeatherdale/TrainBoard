@@ -36,6 +36,7 @@ export default function RangeInput({
         <CustomInput
             inputRef={ref}
             fullWidth={true}
+            disableUnderline={true}
             value={value}
             type="range"
             onChange={(e) => {

@@ -1,16 +1,21 @@
-#AppIcon {
+#AppIcon, #AppIconTV {
+  box-sizing: border-box;
     $total-size: 256px;
     $padding: calc($total-size / 8);
-    $size: $total-size - ($padding * 2);
-    @include square($size);
-    padding: $padding;
+  padding: $padding;
+    $icon-size: $total-size - ($padding * 4);
+    @include square($total-size);
     background-color: $main-bg;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+    align-items: center;
 
     .icon-container {
         position: relative;
 
         .airplay {
-            @include square($size);
+            @include square($icon-size);
             fill: $theme-primary;
             //zoom: 3;
         }
@@ -26,7 +31,7 @@
 
             svg {
                 fill: $theme-primary;
-                @include square($size * 0.4);
+                @include square($icon-size * 0.4);
 
             }
 
@@ -34,4 +39,17 @@
         }
     }
 
+}
+
+/* https://developer.android.com/training/tv/start/start#banner */
+#AppIconTV {
+  width: 320px;
+  height: 180px;
+
+  p {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    color: white;
+    font-size: 2.5em;
+    margin: -12px 0 0;
+  }
 }

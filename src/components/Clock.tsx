@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import { Typography } from "@mui/material";
 
-import { formatMediumTime } from "../util/date";
+import { LOCALE } from "../util/date";
+
+function formatDateTime(date: Date): string {
+    return new Intl.DateTimeFormat(LOCALE, {
+        dateStyle: "medium",
+        timeStyle: "medium",
+    }).format(date);
+}
 
 export default function Clock() {
     const [time, setTime] = useState(new Date().getTime());
@@ -17,10 +24,10 @@ export default function Clock() {
         };
     });
 
-    const timeString = formatMediumTime(new Date());
+    const timeString = formatDateTime(new Date());
 
     return (
-        <Typography variant="h6">
+        <Typography variant="body1">
             <time>{timeString}</time>
         </Typography>
     );

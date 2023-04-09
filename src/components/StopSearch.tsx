@@ -72,20 +72,18 @@ export default function StopSearch(props: StopSearchProps) {
     return (
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <TextField
-                inputProps={{
-                    className: "dpad-focusable",
-                    tabIndex: 0,
-                }}
+                inputProps={{ tabIndex: 0 }}
                 variant="outlined"
                 onChange={(e) => onChange(e.target.value)}
                 value={query}
             />
             {isLoading && <CircularProgress />}
             <NativeSelect
-                inputProps={{
-                    className: "dpad-focusable",
-                    tabIndex: 0,
+                disableUnderline={true}
+                sx={{
+                    minWidth: 200,
                 }}
+                inputProps={{ tabIndex: 0 }}
                 value={props.value?.id}
                 onChange={(e) => onSelect(e.target.value)}
                 variant="outlined"

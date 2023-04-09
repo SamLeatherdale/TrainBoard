@@ -8,9 +8,12 @@ import App from "./App";
 import "./scss/index.scss";
 import AppIcon from "./components/AppIcon";
 import { theme } from "./theme";
-import { initDpad } from "./util/dpad";
 
 const router = createHashRouter([
+    {
+        path: "/icon",
+        element: <AppIcon />,
+    },
     {
         path: "/*",
         element: <App />,
@@ -18,17 +21,12 @@ const router = createHashRouter([
 ]);
 
 const root = document.getElementById("root");
-if (window.location.href.includes("?icon")) {
-    ReactDOM.render(<AppIcon />, root);
-} else {
-    initDpad();
 
-    ReactDOM.render(
-        <StyledEngineProvider injectFirst>
-            <ThemeProvider theme={theme}>
-                <RouterProvider router={router}></RouterProvider>
-            </ThemeProvider>
-        </StyledEngineProvider>,
-        root
-    );
-}
+ReactDOM.render(
+    <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+            <RouterProvider router={router}></RouterProvider>
+        </ThemeProvider>
+    </StyledEngineProvider>,
+    root
+);

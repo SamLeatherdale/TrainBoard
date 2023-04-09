@@ -18,10 +18,13 @@ export const theme = createTheme({
     components: {
         MuiNativeSelect: {
             styleOverrides: {
-                select: ({ ownerState, theme }) => ({
-                    ...((ownerState.variant === "outlined" || true) && {
-                        padding: theme.spacing(2),
-                    }),
+                outlined: ({ theme }) => ({
+                    padding: `${theme.spacing(2)} !important`,
+                    paddingRight: `${theme.spacing(4)} !important`,
+                    outline: `1px solid ${theme.palette.divider}`,
+                    "&:hover": {
+                        outline: `1px solid ${theme.palette.common.white}`,
+                    },
                 }),
             },
         },

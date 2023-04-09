@@ -5,6 +5,9 @@ import { isDev } from "./env";
 let dpad: DpadController;
 let dpadDebug: DebugController;
 export function initDpad() {
+    if (dpad) {
+        return;
+    }
     // Create a new dpad controller
     dpad = new DpadController();
     // Call update to get the focusable items in the DOM
