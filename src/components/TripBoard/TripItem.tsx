@@ -92,14 +92,14 @@ const CenterItem = styled("div")((props) => ({
     flexDirection: "column",
     justifyContent: "space-between",
     padding: props.theme.spacing(1),
-    width: `calc(100% - 200px)`,
+    width: `calc(100% - 12em)`,
     overflow: "hidden",
 }));
 const DepartureArrival = styled("div")(
     // convert the below to a styled component of object syntax
     // https://styled-components.com/docs/basics#passed-props
     (props) => ({
-        width: 100,
+        width: "6em",
         padding: props.theme.spacing(2),
         gap: props.theme.spacing(1),
         display: "flex",

@@ -8,13 +8,14 @@ import RangeInput from "../RangeInput";
 import StopSearch from "../StopSearch";
 
 import { SettingsPaneProps } from "./SettingsPane";
+import { SettingsRow } from "./SettingsRow";
 
 export default function GeneralSettingsPane(props: SettingsPaneProps) {
     const { onUpdate, settings } = props;
     const { fromStop, toStop, walkTime, tripCount } = props.settings;
     return (
         <div id={GeneralSettingsPane.name}>
-            <div className="settings-row">
+            <SettingsRow>
                 <InputLabel htmlFor={"stopSearchFrom"} shrink={true}>
                     From stop
                 </InputLabel>
@@ -26,9 +27,9 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
                     value={fromStop}
                     onSelect={(s) => onUpdate("fromStop", s)}
                 />
-            </div>
+            </SettingsRow>
 
-            <div className="settings-row">
+            <SettingsRow>
                 <InputLabel htmlFor={"stopSearchTo"} shrink={true}>
                     To stop
                 </InputLabel>
@@ -40,9 +41,9 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
                     value={toStop}
                     onSelect={(s) => onUpdate("toStop", s)}
                 />
-            </div>
+            </SettingsRow>
 
-            <div className="settings-row">
+            <SettingsRow>
                 <InputLabel>Walking time (mins): {walkTime}</InputLabel>
 
                 <RangeInput
@@ -51,9 +52,9 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
                     min={0}
                     max={30}
                 />
-            </div>
+            </SettingsRow>
 
-            <div className="settings-row">
+            <SettingsRow>
                 <InputLabel>Number of trips to display: {tripCount}</InputLabel>
 
                 <RangeInput
@@ -62,14 +63,14 @@ export default function GeneralSettingsPane(props: SettingsPaneProps) {
                     min={5}
                     max={10}
                 />
-            </div>
+            </SettingsRow>
 
             {isDev() && false && (
-                <div className="settings-row">
+                <SettingsRow>
                     <Button variant="contained" color="error" onClick={props.onReset}>
                         Reset all Settings
                     </Button>
-                </div>
+                </SettingsRow>
             )}
         </div>
     );

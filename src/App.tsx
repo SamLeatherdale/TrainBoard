@@ -30,7 +30,7 @@ export default function App() {
     const [trips, setTrips] = useState<TripRequestResponseJourney[]>([]);
     const [realtimeTripData, setRealtimeTripData] = useState<ParsedVehiclePositionEntity[]>([]);
     const [isTripsRefreshing, setIsTripsRefreshing] = useState(false);
-    const [lastRefreshTime, setLastRefreshTime] = useState(0);
+    const [lastRefreshTime, setLastRefreshTime] = useState<number | null>(null);
     const [lastApiError, setLastApiError] = useState("");
     const tripsTimeoutKey = useRef(0);
 
@@ -163,11 +163,13 @@ export default function App() {
                     openMenu={openMenu}
                     label={getCurrentTripLabel()}
                     refreshTimer={
-                        <RefreshTimer
-                            isRefreshing={isTripsRefreshing}
-                            durationSeconds={tripsInterval}
-                            key={lastRefreshTime}
-                        />
+                        lastRefreshTime && (
+                            <RefreshTimer
+                                isRefreshing={isTripsRefreshing}
+                                durationSeconds={tripsInterval}
+                                key={lastRefreshTime}
+                            />
+                        )
                     }
                     theme={settings.theme}
                     toggleTheme={() =>
@@ -230,17 +232,13 @@ export default function App() {
                         </Suspense>
                     )}
                     {!settings.mapsEnabled && (
-                        <div className="main-grid">
-                            <div className="main-wrap">
-                                <div id="trip-board-container">
-                                    <TripBoard
-                                        trips={trips}
-                                        realtimeTripData={realtimeTripData}
-                                        settings={settings}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <TripBoardContainer className="main-wrap">
+                            <TripBoard
+                                trips={trips}
+                                realtimeTripData={realtimeTripData}
+                                settings={settings}
+                            />
+                        </TripBoardContainer>
                     )}
                 </Main>
             </div>
@@ -258,4 +256,8 @@ const Main = styled("main")<{ transparent: boolean }>((props) => ({
 const MenuIconStyled = styled(MenuIcon)({
     verticalAlign: "middle",
     lineHeight: "initial",
+});
+const TripBoardContainer = styled("div")({
+    width: "90%",
+    margin: "auto",
 });

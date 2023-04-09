@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Box, FormControlLabel } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
+import Switch from "@mui/material/Switch";
 
 import { TransportModeId, transportModes } from "../../classes/LineType";
 import { TransportModeIcon } from "../TripBoard/TripIcon";
@@ -14,27 +14,27 @@ export default function TransportModesSettingsPane(props: SettingsPaneProps) {
     const sortedTransportModeIds = [
         TransportModeId.Train,
         TransportModeId.Metro,
+        TransportModeId.Bus,
         TransportModeId.LightRail,
         TransportModeId.Ferry,
-        TransportModeId.Bus,
-        TransportModeId.SchoolBus,
         TransportModeId.Coach,
+        TransportModeId.SchoolBus,
     ];
     return (
         <div id={TransportModesSettingsPane.name}>
-            <Box
-                sx={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(100px, 1fr))",
-                }}
-            >
+            <Box>
                 {sortedTransportModeIds.map((id) => {
                     const mode = transportModes[id];
                     return (
                         <FormControlLabel
+                            sx={{
+                                width: "50%",
+                                mr: 0,
+                                my: 1,
+                            }}
                             key={mode.id}
                             control={
-                                <Checkbox
+                                <Switch
                                     checked={!excludedModes.includes(mode.id)}
                                     onChange={(event) => {
                                         const checked = event.target.checked;
@@ -47,6 +47,7 @@ export default function TransportModesSettingsPane(props: SettingsPaneProps) {
                                         }
                                         onUpdate("excludedModes", Array.from(set.values()));
                                     }}
+                                    value={mode.id}
                                     color="primary"
                                     tabIndex={0}
                                 />

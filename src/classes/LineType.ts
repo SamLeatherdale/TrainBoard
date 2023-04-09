@@ -5,6 +5,7 @@ import { ReactComponent as coach } from "../images/coach.svg";
 import { ReactComponent as ferry } from "../images/ferry.svg";
 import { ReactComponent as lightRail } from "../images/lightrail.svg";
 import { ReactComponent as metro } from "../images/metro.svg";
+import { ReactComponent as schoolBus } from "../images/schoolbus.svg";
 import { ReactComponent as train } from "../images/train.svg";
 import { ReactComponent as walk } from "../images/walk.svg";
 
@@ -74,7 +75,7 @@ export const transportModes: Record<number, TransportMode> = {
         id: TransportModeId.SchoolBus,
         name: "School Bus",
         color: "#f9d71c",
-        icon: bus,
+        icon: schoolBus,
     },
     [TransportModeId.Walk.valueOf()]: {
         id: TransportModeId.Walk,
