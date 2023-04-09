@@ -54,7 +54,7 @@ export default class ParsedTripId {
     }
 
     toEqualityString(): string {
-        return [this.tripName, this.timetableId, this.tripInstance].join(".");
+        return this.tripName.slice(0, 3);
     }
 }
 

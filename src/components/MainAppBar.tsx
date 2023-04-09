@@ -1,7 +1,8 @@
 import React, { ReactNode } from "react";
 
-import { DarkMode, LightMode } from "@mui/icons-material";
+import DarkMode from "@mui/icons-material/DarkMode";
 import ExitIcon from "@mui/icons-material/ExitToApp";
+import LightMode from "@mui/icons-material/LightMode";
 import MenuIcon from "@mui/icons-material/Menu";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Box, PaletteMode, Typography } from "@mui/material";

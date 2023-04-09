@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import Alert from "@mui/material/Alert";
@@ -14,12 +14,13 @@ import RefreshTimer from "./components/RefreshTimer";
 import { OnUpdateFunc, SettingsPane } from "./components/SettingsPane/SettingsPane";
 import SettingsScreen from "./components/SettingsScreen";
 import TripBoard from "./components/TripBoard";
-import TrainMap from "./components/Widget/TrainMap";
 import { ParsedVehiclePositionEntity } from "./models/GTFS/VehiclePositions";
 import { TripRequestResponseJourney } from "./models/TripPlanner/tripRequestResponseJourney";
 import { createAppTheme } from "./theme";
 import { getAndroid } from "./util/android";
 import { initDpad } from "./util/dpad";
+
+const TrainMap = React.lazy(() => import("./components/Widget/TrainMap"));
 
 export default function App() {
     const tripsInterval = 30;
@@ -219,22 +220,28 @@ export default function App() {
                             {lastApiError}
                         </Alert>
                     </Snackbar>
-                    <TrainMap
-                        settings={settings}
-                        trips={trips}
-                        realtimeTripData={realtimeTripData.slice(0, 2)}
-                    />
-                    <div className="main-grid">
-                        <div className="main-wrap">
-                            <div id="trip-board-container">
-                                <TripBoard
-                                    trips={trips}
-                                    realtimeTripData={realtimeTripData}
-                                    settings={settings}
-                                />
+                    {settings.mapsEnabled && (
+                        <Suspense fallback={<></>}>
+                            <TrainMap
+                                settings={settings}
+                                trips={trips}
+                                realtimeTripData={realtimeTripData}
+                            />
+                        </Suspense>
+                    )}
+                    {!settings.mapsEnabled && (
+                        <div className="main-grid">
+                            <div className="main-wrap">
+                                <div id="trip-board-container">
+                                    <TripBoard
+                                        trips={trips}
+                                        realtimeTripData={realtimeTripData}
+                                        settings={settings}
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </Main>
             </div>
         </ThemeProvider>

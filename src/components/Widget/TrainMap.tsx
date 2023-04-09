@@ -40,7 +40,7 @@ function getAverageLatLng(a: LatLng, b: LatLng): LatLng {
     };
 }
 
-function TrainMap(props: TrainMapProps) {
+export default function TrainMap(props: TrainMapProps) {
     const { trips, settings, realtimeTripData } = props;
     const { mapsEnabled } = settings;
     if (!mapsEnabled || !trips.length) {
@@ -74,7 +74,7 @@ function TrainMap(props: TrainMapProps) {
                             {
                                 featureType: "administrative",
                                 elementType: "all",
-                                stylers: [{ visibility: "off" }],
+                                stylers: [{ visibility: "on" }],
                             },
                             {
                                 featureType: "transit.line",
@@ -89,17 +89,22 @@ function TrainMap(props: TrainMapProps) {
                                 featureType: "transit.station",
                                 elementType: "labels.text.stroke",
                                 stylers: [
-                                    //{visibility: "on"},
-                                    //{color: COLOR_PRIMARY},
+                                    { visibility: "on" },
+                                    { color: COLOR_PRIMARY },
                                     { weight: 50 },
                                 ],
                             },
                             {
                                 featureType: "transit.station",
+                                elementType: "labels.text.fill",
+                                stylers: [{ visibility: "on" }],
+                            },
+                            {
+                                featureType: "transit.station",
                                 elementType: "labels.icon",
                                 stylers: [
-                                    //{visibility: "on"},
-                                    //{color: COLOR_PRIMARY},
+                                    { visibility: "on" },
+                                    { color: COLOR_PRIMARY },
                                     { weight: 50 },
                                 ],
                             },
@@ -139,5 +144,3 @@ function TrainMap(props: TrainMapProps) {
         </>
     );
 }
-
-export default TrainMap;

@@ -1,5 +1,3 @@
-import GTFS from "gtfs-realtime-bindings";
-
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
 import { StopFinderLocationMode } from "../models/TripPlanner/custom/stopFinderLocationMode";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
@@ -123,6 +121,7 @@ export default class APIClient {
      */
     async getGTFSRealtime(tripIds: string[] = []): Promise<ParsedVehiclePositionEntity[]> {
         const body = await this.performProtobufRequest("gtfs/vehiclepos/sydneytrains");
+        const GTFS = await import("gtfs-realtime-bindings");
         const feed = GTFS.transit_realtime.FeedMessage.decode(body);
 
         let entities = feed.entity;
