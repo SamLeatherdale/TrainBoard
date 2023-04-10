@@ -151,7 +151,7 @@ export default function App() {
             // No matter what, try again later
             scheduleTimeout();
             setBurnInProtection(
-                settings.burnInProtection
+                useSettings.burnInProtection
                     ? {
                           top: Math.random() * 10,
                           left: Math.random() * 10,
