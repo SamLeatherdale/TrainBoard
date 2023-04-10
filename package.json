@@ -26,6 +26,7 @@
     "@vitejs/plugin-react": "^3.1.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "husky": "^8.0.0",
     "rollup-plugin-visualizer": "^5.9.0",
     "sass": "^1.61.0",
     "typescript": "^4.9.5",
@@ -36,10 +37,12 @@
     "start": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "lint": "eslint --ext .ts,.tsx src",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "npm run lint:eslint && npm run typecheck",
+    "lint:eslint": "eslint --ext .ts,.tsx src",
+    "lint:fix": "npm run lint:eslint -- --fix",
     "typecheck": "tsc --noEmit",
-    "tunnel": "ngrok http 3000"
+    "tunnel": "ngrok http 3000",
+    "prepare": "husky install"
   },
   "browserslist": {
     "production": [
