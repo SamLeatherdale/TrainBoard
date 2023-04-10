@@ -24,7 +24,7 @@ export function createAppTheme(mode: PaletteMode) {
                         paddingRight: `${theme.spacing(4)} !important`,
                         outline: `1px solid ${theme.palette.divider}`,
                         "&:hover": {
-                            outline: `1px solid ${theme.palette.common.white}`,
+                            outline: `1px solid ${theme.palette.text.primary}`,
                         },
                     }),
                 },

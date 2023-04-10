@@ -83,7 +83,7 @@ export default function TripLabel({
 }
 
 const DottedLine = styled("div")((props) => ({
-    border: "3px dashed white",
+    border: `3px dashed ${props.theme.palette.text.primary}`,
     position: "absolute",
     width: "calc(100% - 8px)",
     zIndex: -1,

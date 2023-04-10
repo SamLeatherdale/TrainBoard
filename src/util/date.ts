@@ -53,7 +53,7 @@ export function getDepartureTimeClass(walkTime: number, time: Date) {
     const diffMinutes = differenceInMinutes(time, new Date(), { roundingMethod: "floor" });
 
     if (diffMinutes > walkTime) {
-        return green[600];
+        return green[700];
     } else if (diffMinutes < walkTime) {
         return red[600];
     } else {
