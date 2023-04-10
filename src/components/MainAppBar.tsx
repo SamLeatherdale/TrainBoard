@@ -28,8 +28,8 @@ export default function MainAppBar({
     toggleTheme: () => void;
 }) {
     return (
-        <AppBar position="static" id="main-appbar">
-            <Toolbar>
+        <AppBar position="static" sx={(theme) => ({ backgroundColor: theme.palette.primary.main })}>
+            <Toolbar sx={{ justifyContent: "space-between" }}>
                 <IconButton
                     edge="start"
                     color="inherit"
@@ -50,7 +50,9 @@ export default function MainAppBar({
                 >
                     <RefreshIcon />
                 </IconButton>
-                <Typography variant={"h6"}>Train Board{label}</Typography>
+                <Typography variant={"h6"} sx={{ flexGrow: 1 }}>
+                    Train Board{label}
+                </Typography>
 
                 <Clock />
                 <Box ml={1} />

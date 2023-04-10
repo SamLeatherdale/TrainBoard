@@ -8,7 +8,7 @@ import { SettingsRow } from "./SettingsRow";
 
 export default function WidgetsSettingsPane(props: SettingsPaneProps) {
     const { onUpdate } = props;
-    const { mapsEnabled } = props.settings;
+    const { mapsEnabled, burnInProtection } = props.settings;
     return (
         <div id={WidgetsSettingsPane.name}>
             <SettingsRow>
@@ -22,6 +22,19 @@ export default function WidgetsSettingsPane(props: SettingsPaneProps) {
                         />
                     }
                     label="Enable Maps widget"
+                />
+            </SettingsRow>
+            <SettingsRow>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={burnInProtection}
+                            onChange={(event) => onUpdate("burnInProtection", event.target.checked)}
+                            color="primary"
+                            tabIndex={0}
+                        />
+                    }
+                    label="Enable burn-in protection"
                 />
             </SettingsRow>
         </div>

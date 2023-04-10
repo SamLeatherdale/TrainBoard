@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
 import MenuIcon from "@mui/icons-material/Menu";
+import { Box } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { styled, ThemeProvider } from "@mui/material/styles";
@@ -32,6 +33,7 @@ export default function App() {
     const [isTripsRefreshing, setIsTripsRefreshing] = useState(false);
     const [lastRefreshTime, setLastRefreshTime] = useState<number | null>(null);
     const [lastApiError, setLastApiError] = useState("");
+    const [burnInProtection, setBurnInProtection] = useState({ top: 0, left: 0 });
     const tripsTimeoutKey = useRef(0);
 
     const theme = useMemo(() => createAppTheme(settings.theme), [settings.theme]);
@@ -148,6 +150,14 @@ export default function App() {
         } finally {
             // No matter what, try again later
             scheduleTimeout();
+            setBurnInProtection(
+                settings.burnInProtection
+                    ? {
+                          top: Math.random() * 10,
+                          left: Math.random() * 10,
+                      }
+                    : { top: 0, left: 0 }
+            );
         }
     };
 
@@ -158,7 +168,7 @@ export default function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <div className="App">
+            <Box sx={{ position: "relative", ...burnInProtection }}>
                 <MainAppBar
                     openMenu={openMenu}
                     label={getCurrentTripLabel()}
@@ -241,7 +251,7 @@ export default function App() {
                         </TripBoardContainer>
                     )}
                 </Main>
-            </div>
+            </Box>
         </ThemeProvider>
     );
 }

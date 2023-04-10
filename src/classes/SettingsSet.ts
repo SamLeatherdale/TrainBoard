@@ -10,6 +10,7 @@ interface SettingsSetCore {
     walkTime: number;
     tripCount: number;
     mapsEnabled: boolean;
+    burnInProtection: boolean;
     excludedModes: TransportModeId[];
 }
 interface SettingsSetImport extends SettingsSetCore {
@@ -22,11 +23,17 @@ export interface SettingsSet extends SettingsSetCore {
     toStop?: StopFinderLocation;
 }
 
+export interface BurnInProtection {
+    top: number;
+    left: number;
+}
+
 const defaultSettings: SettingsSet = {
     theme: "dark",
     walkTime: 10,
     tripCount: 6,
     mapsEnabled: false,
+    burnInProtection: false,
     excludedModes: [],
 };
 
