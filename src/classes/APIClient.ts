@@ -9,7 +9,7 @@ import { SettingsSet } from "./SettingsSet";
 import { TPStopType, TPCoordOutputFormat } from "./types";
 
 export default class APIClient {
-    static readonly API_VERSION = "10.5.17.3";
+    static readonly API_VERSION = "10.6.14.22";
     static readonly API_URL = "https://api.transport.nsw.gov.au/v1";
     static readonly PROXY_URL = "https://cors-proxy.trainboard.workers.dev/";
     // static readonly PROXY_URL = "http://localhost:8787/";
@@ -21,7 +21,7 @@ export default class APIClient {
         return `${this.PROXY_URL}?${params.toString()}`;
     }
 
-    async performJsonRequest(url: string, params: Record<string, any> = {}): Promise<any> {
+    private async performJsonRequest(url: string, params: Record<string, any> = {}): Promise<any> {
         const allParams = {
             outputFormat: "rapidJSON",
             ...params,
@@ -34,7 +34,7 @@ export default class APIClient {
         return response.json();
     }
 
-    async performProtobufRequest(
+    private async performProtobufRequest(
         url: string,
         params: Record<string, any> = {}
     ): Promise<Uint8Array> {
@@ -46,7 +46,7 @@ export default class APIClient {
         return new Uint8Array(arrayBuffer);
     }
 
-    async performRequest(
+    private async performRequest(
         url: string,
         params: Record<string, any>,
         headers: Record<string, string>
@@ -105,7 +105,6 @@ export default class APIClient {
             name_origin: stopOrigin.id,
             name_destination: stopDestination.id,
             calcNumberOfTrips: settings.tripCount,
-            TfNSWTR: true,
             ...this.getExcludedModesOptions(settings.excludedModes),
         };
         return await this.performJsonRequest("tp/trip", params);
