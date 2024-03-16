@@ -1,13 +1,13 @@
 /// <reference types="vite-plugin-svgr/client" />
 
-import { ReactComponent as bus } from "../images/bus.svg";
-import { ReactComponent as coach } from "../images/coach.svg";
-import { ReactComponent as ferry } from "../images/ferry.svg";
-import { ReactComponent as lightRail } from "../images/lightrail.svg";
-import { ReactComponent as metro } from "../images/metro.svg";
-import { ReactComponent as schoolBus } from "../images/schoolbus.svg";
-import { ReactComponent as train } from "../images/train.svg";
-import { ReactComponent as walk } from "../images/walk.svg";
+import Bus from "../images/bus.svg?react";
+import Coach from "../images/coach.svg?react";
+import Ferry from "../images/ferry.svg?react";
+import LightRail from "../images/lightrail.svg?react";
+import Metro from "../images/metro.svg?react";
+import SchoolBus from "../images/schoolbus.svg?react";
+import Train from "../images/train.svg?react";
+import Walk from "../images/walk.svg?react";
 
 import { COLOR_PRIMARY } from "./functions";
 
@@ -18,7 +18,7 @@ export interface TransportMode {
     id: TransportModeId;
     name: string;
     color: string;
-    icon: typeof bus;
+    icon: typeof Bus;
     isWalk?: boolean;
 }
 
@@ -39,56 +39,56 @@ export const transportModes: Record<number, TransportMode> = {
         id: TransportModeId.Metro,
         name: "Metro",
         color: "#05969f",
-        icon: metro,
+        icon: Metro,
     },
     [TransportModeId.Train.valueOf()]: {
         id: TransportModeId.Train,
         name: "Train",
         color: "#f79210",
-        icon: train,
+        icon: Train,
     },
     [TransportModeId.Bus.valueOf()]: {
         id: TransportModeId.Bus,
         name: "Bus",
         color: "#00b6f1",
-        icon: bus,
+        icon: Bus,
     },
     [TransportModeId.LightRail.valueOf()]: {
         id: TransportModeId.LightRail,
         name: "Light Rail",
         color: "#e4032e",
-        icon: lightRail,
+        icon: LightRail,
     },
     [TransportModeId.Ferry.valueOf()]: {
         id: TransportModeId.Ferry,
         name: "Ferry",
         color: "#5ab131",
-        icon: ferry,
+        icon: Ferry,
     },
     [TransportModeId.Coach.valueOf()]: {
         id: TransportModeId.Coach,
         name: "Coach",
         color: "#f9d71c",
-        icon: coach,
+        icon: Coach,
     },
     [TransportModeId.SchoolBus.valueOf()]: {
         id: TransportModeId.SchoolBus,
         name: "School Bus",
         color: "#f9d71c",
-        icon: schoolBus,
+        icon: SchoolBus,
     },
     [TransportModeId.Walk.valueOf()]: {
         id: TransportModeId.Walk,
         name: "Walk",
         color: "#444444",
-        icon: walk,
+        icon: Walk,
         isWalk: true,
     },
     [TransportModeId.Walking.valueOf()]: {
         id: TransportModeId.Walking,
         name: "Walk",
         color: "#444444",
-        icon: walk,
+        icon: Walk,
         isWalk: true,
     },
 };
