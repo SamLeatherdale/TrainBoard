@@ -93,17 +93,17 @@ export default class APIClient {
      * @see https://opendata.transport.nsw.gov.au/dataset/trip-planner-apis
      */
     async getTrips(
-        stopOrigin: StopFinderLocation,
-        stopDestination: StopFinderLocation,
-        settings: SettingsSet
+        stopOrigin: string,
+        stopDestination: string,
+        settings: Pick<SettingsSet, 'tripCount' | 'excludedModes'>
     ): Promise<TripRequestResponse> {
         const params = {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             depArrMacro: "dep",
             type_origin: "any",
             type_destination: "any",
-            name_origin: stopOrigin.id,
-            name_destination: stopDestination.id,
+            name_origin: stopOrigin,
+            name_destination: stopDestination,
             calcNumberOfTrips: settings.tripCount,
             ...this.getExcludedModesOptions(settings.excludedModes),
         };
