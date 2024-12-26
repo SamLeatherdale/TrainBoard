@@ -74,11 +74,10 @@ export default function App() {
                 ...prevState,
                 [key]: typeof value === "function" ? value(prevValue) : value,
             };
-            console.log(settings);
 
             SettingsManager.writeSettings(settings);
             if ((["fromStop", "toStop", "excludedModes"] as (keyof SettingsSet)[]).includes(key)) {
-                getTrips(settings);
+                getTrips();
             }
 
             return settings;
@@ -102,7 +101,8 @@ export default function App() {
         return `: ${trip.from.disassembledName} ➡ ${trip.to.disassembledName}`;
     };
 
-    const getTrips = async (useSettings: SettingsSet = settings) => {
+    const getTrips = async () => {
+        const useSettings = SettingsManager.readSettings();
         const trip = SettingsManager.getConfiguredTrip(useSettings);
         if (!trip) {
             return;
@@ -128,7 +128,7 @@ export default function App() {
                 const tripIds = response.journeys
                     .map((j) => j.legs[0].transportation?.properties?.RealtimeTripId)
                     .filter((id) => !!id) as string[];
-                const positionEntities = await client.getGTFSRealtime(tripIds);
+                const positionEntities = await client.getGTFSRealtimePosition(tripIds);
                 setRealtimeTripData(positionEntities);
                 setIsTripsRefreshing(false);
                 setLastApiError("");

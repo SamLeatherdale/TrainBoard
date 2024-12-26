@@ -95,7 +95,7 @@ export default class APIClient {
     async getTrips(
         stopOrigin: string,
         stopDestination: string,
-        settings: Pick<SettingsSet, 'tripCount' | 'excludedModes'>
+        settings: Pick<SettingsSet, "tripCount" | "excludedModes">
     ): Promise<TripRequestResponse> {
         const params = {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
@@ -125,7 +125,7 @@ export default class APIClient {
      * Uses the _Public Transport - Realtime Vehicle Positions_ API.
      * @see https://opendata.transport.nsw.gov.au/dataset/public-transport-realtime-vehicle-positions
      */
-    async getGTFSRealtime(tripIds: string[] = []): Promise<ParsedVehiclePositionEntity[]> {
+    async getGTFSRealtimePosition(tripIds: string[] = []): Promise<ParsedVehiclePositionEntity[]> {
         const body = await this.performProtobufRequest("gtfs/vehiclepos/sydneytrains");
         const GTFS = await import("gtfs-realtime-bindings");
         const feed = GTFS.transit_realtime.FeedMessage.decode(body);
