@@ -27,3 +27,19 @@ export enum TPCoordOutputFormat {
 }
 
 export type SimpleCoords = [number, number];
+
+export type RealtimeRequest = {
+	mode: TransportMode;
+	id: string;
+	operator: string;
+};
+
+export enum TransportMode {
+	TRAIN = "1",
+	METRO = "2",
+	LIGHT_RAIL = "4",
+	BUS = "5",
+	COACH = "7",
+	FERRY = "9",
+	SCHOOL_BUS = "11",
+}

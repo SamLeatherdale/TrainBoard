@@ -20,6 +20,8 @@ import { TripRequestResponseJourney } from "./models/TripPlanner/tripRequestResp
 import { createAppTheme } from "./theme";
 import { getAndroid } from "./util/android";
 import { initDpad } from "./util/dpad";
+import { RealtimeRequest, TransportMode } from "./classes/types";
+import { filterMap } from "./util/filterMap";
 
 const TrainMap = React.lazy(() => import("./components/Widget/TrainMap"));
 
@@ -115,24 +117,29 @@ export default function App() {
         const client = new APIClient();
         try {
             const response = await client.getTrips(from.id, to.id, useSettings);
-            const getRealtime = useSettings.mapsEnabled;
 
             setHasInitialized(true);
             setTrips(response.journeys || []);
-            setIsTripsRefreshing(getRealtime);
             setLastRefreshTime(Date.now());
             setLastApiError("");
 
             // Now get realtime data
-            if (getRealtime) {
-                const tripIds = response.journeys
-                    .map((j) => j.legs[0].transportation?.properties?.RealtimeTripId)
-                    .filter((id) => !!id) as string[];
-                const positionEntities = await client.getGTFSRealtimePosition(tripIds);
-                setRealtimeTripData(positionEntities);
-                setIsTripsRefreshing(false);
-                setLastApiError("");
-            }
+            console.log(response.journeys);
+            const realtimeRequests: RealtimeRequest[] = filterMap(response.journeys, (j) => {
+                const tripId = j.legs[0].transportation?.properties?.RealtimeTripId;
+                const operator = j.legs[0].transportation?.operator?.id;
+                if (tripId && operator) {
+                    return {
+                        mode: TransportMode.TRAIN,
+                        id: tripId,
+                        operator,
+                    };
+                }
+            });
+            const realtimeResponse = await client.getGTFSRealtime(realtimeRequests);
+            setRealtimeTripData(realtimeResponse);
+            setIsTripsRefreshing(false);
+            setLastApiError("");
         } catch (e) {
             let message = e instanceof Error ? e.message : JSON.stringify(e);
 

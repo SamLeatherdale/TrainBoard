@@ -1,3 +1,4 @@
+import { transit_realtime } from "../gen/proto";
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
@@ -6,12 +7,13 @@ import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
 import { TransportModeId, transportModes } from "./LineType";
 import ParsedTripId from "./ParsedTripId";
 import { SettingsSet } from "./SettingsSet";
-import { TPStopType, TPCoordOutputFormat } from "./types";
+import { TPStopType, TPCoordOutputFormat, RealtimeRequest } from "./types";
 
 export default class APIClient {
     static readonly API_VERSION = "10.6.14.22";
     static readonly API_URL = "https://api.transport.nsw.gov.au/v1";
     static readonly PROXY_URL = "https://cors-proxy.trainboard.workers.dev/";
+    static readonly REALTIME_PROXY_URL = "https://tripwatch-proxy.samleatherdale.com/api";
     // static readonly PROXY_URL = "http://localhost:8787/";
 
     static getProxiedUrl(url: string): string {
@@ -155,5 +157,17 @@ export default class APIClient {
         }
 
         return Array.from(map.values());
+    }
+
+    async getGTFSRealtime(realtimeRequests: RealtimeRequest[]): Promise<transit_realtime.ApiResponse> {
+        const response = await fetch(APIClient.REALTIME_PROXY_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                requests: realtimeRequests,
+            }),
+        });
+        const body = await response.arrayBuffer();
+        const apiResponse = transit_realtime.ApiResponse.decode(new Uint8Array(body));
+        return apiResponse;
     }
 }
