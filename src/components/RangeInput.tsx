@@ -14,18 +14,18 @@ export default function RangeInput({
 }: Pick<SliderProps, "min" | "max" | "value"> & {
     onChange: (value: number) => void;
 }) {
-    const ref = useRef<HTMLInputElement>();
+    const ref = useRef<HTMLInputElement>(null);
     const keyDownHandler = (e: React.KeyboardEvent) => {
         // if (e.key === "Enter") {
         //     // Prevent entering as it's hard to get back out
         //     e.preventDefault();
         //     return;
         // }
-        const el = ref.current;
+        const el = ref.current!;
         if ([KeyCode.UP, KeyCode.DOWN].includes(e.keyCode)) {
             e.preventDefault();
             // Up and down
-            getDpad().setCurrentFocusItemByElement(ref.current!);
+            getDpad().setCurrentFocusItemByElement(el);
             getDpad().moveFocus({
                 y: e.keyCode === KeyCode.DOWN ? -1 : 1,
                 x: 0,

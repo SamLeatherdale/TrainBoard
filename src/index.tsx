@@ -1,7 +1,7 @@
 import React from "react";
 
 import { StyledEngineProvider } from "@mui/material";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App";
@@ -27,6 +27,6 @@ function Root() {
     );
 }
 
-const root = document.getElementById("root");
+const root = document.getElementById("root")!;
 
-ReactDOM.render(<Root />, root);
+createRoot(root).render(<Root />);
