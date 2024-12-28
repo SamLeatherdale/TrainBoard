@@ -40,13 +40,16 @@ export function getPlannedEstimatedDiff(planned: Date, estimated: Date) {
     }
 }
 
-export function getRelativeFriendlyTime(time: Date, to: Date = new Date()) {
+export function getRelativeFriendlyTime(time: Date, to: Date = new Date(), prefix = "") {
     if (differenceInMinutes(time, to, { roundingMethod: "floor" }) === 0) {
         return "now";
     }
-    return formatDistanceStrict(time, to, { roundingMethod: "floor" })
-        .replace("minute", "min")
-        .replace("hour", "hr");
+    return (
+        prefix +
+        formatDistanceStrict(time, to, { roundingMethod: "floor" })
+            .replace("minute", "min")
+            .replace("hour", "hr")
+    );
 }
 
 export function getDepartureTimeClass(walkTime: number, time: Date) {

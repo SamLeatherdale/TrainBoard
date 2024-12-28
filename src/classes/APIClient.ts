@@ -1,5 +1,10 @@
 import { transit_realtime } from "../gen/proto";
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
+import { CancelStatus, getCancelStatus } from "../models/TripPlanner/custom/CancelStatus";
+import { TPJourney } from "../models/TripPlanner/custom/TPJourney";
+import { convertToNoRealtimeTPLeg, TPLeg } from "../models/TripPlanner/custom/TPLeg";
+import { convertToNoRealtimeTPLegStop, TPLegStop } from "../models/TripPlanner/custom/TPLegStop";
+import { TPResponse } from "../models/TripPlanner/custom/TPResponse";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
 import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
@@ -26,7 +31,7 @@ export default class APIClient {
         return `${this.PROXY_URL}?${params.toString()}`;
     }
 
-    private async performJsonRequest(url: string, params: Record<string, any> = {}): Promise<any> {
+    private async performJsonRequest<T>(url: string, params: Record<string, any> = {}): Promise<T> {
         const allParams = {
             outputFormat: "rapidJSON",
             ...params,
@@ -70,7 +75,7 @@ export default class APIClient {
     }
 
     async getStops(query: string): Promise<StopFinderResponse> {
-        return await this.performJsonRequest("tp/stop_finder", {
+        return await this.performJsonRequest<StopFinderResponse>("tp/stop_finder", {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             type_sf: TPStopType.Stop,
             name_sf: query,
@@ -101,7 +106,7 @@ export default class APIClient {
         stopOrigin: string,
         stopDestination: string,
         settings: Pick<SettingsSet, "tripCount" | "excludedModes">
-    ): Promise<TripRequestResponse> {
+    ): Promise<TPResponse> {
         const params = {
             coordOutputFormat: TPCoordOutputFormat.EPSG_4326,
             depArrMacro: "dep",
@@ -112,7 +117,7 @@ export default class APIClient {
             calcNumberOfTrips: settings.tripCount,
             ...this.getExcludedModesOptions(settings.excludedModes),
         };
-        return await this.performJsonRequest("tp/trip", params);
+        return await this.performJsonRequest<TripRequestResponse>("tp/trip", params);
     }
 
     private getExcludedModesOptions(excludedModes: TransportModeId[]): Record<string, string> {
@@ -162,9 +167,7 @@ export default class APIClient {
         return Array.from(map.values());
     }
 
-    async getGTFSRealtime(
-        journeys: TripRequestResponseJourney[]
-    ): Promise<TripRequestResponseJourney[]> {
+    async getGTFSRealtime(journeys: TPJourney[]): Promise<TPJourney[]> {
         const realtimeRequests = this.getRealtimeRequests(journeys);
         const response = await fetch(APIClient.REALTIME_PROXY_URL, {
             method: "POST",
@@ -198,22 +201,23 @@ export default class APIClient {
     }
 
     private applyRealtimeToTrips(
-        journeys: TripRequestResponseJourney[],
+        journeys: TPJourney[],
         realtime: transit_realtime.ApiResponse
-    ): TripRequestResponseJourney[] {
-        return journeys.map((journey) => {
-            const legs = journey.legs.map((leg) => {
+    ): TPJourney[] {
+        return journeys.map((journey): TPJourney => {
+            const legs = journey.legs.map((leg): TPLeg => {
+                const noRealtimeLeg = convertToNoRealtimeTPLeg(leg);
                 const realtimeId = leg.transportation?.properties?.RealtimeTripId;
-                if (!realtimeId) return leg;
+                if (!realtimeId) return noRealtimeLeg;
 
                 // Find matching realtime item
                 const realtimeItem = realtime.items.find((item) => item.id === realtimeId);
-                if (!realtimeItem?.message) return leg;
+                if (!realtimeItem?.message) return noRealtimeLeg;
 
                 const message = realtimeItem.message;
                 const entities = message.entity;
 
-                if (!entities) return leg;
+                if (!entities) return noRealtimeLeg;
 
                 // Find realtime stops for origin and destination
                 const originStop = this.findRealtimeStop(leg.origin.id, entities);
@@ -230,12 +234,10 @@ export default class APIClient {
                 // Update stop sequence with realtime data
                 const stopSequence = leg.stopSequence?.map((stop) => {
                     const realtimeStop = this.findRealtimeStop(stop.id, entities);
-                    if (!realtimeStop) return stop;
+                    if (!realtimeStop) return convertToNoRealtimeTPLegStop(stop);
 
                     return {
                         ...stop,
-                        departureDelay: realtimeStop.departure?.delay,
-                        arrivalDelay: realtimeStop.arrival?.delay,
                         hasRealtime: true,
                         isSkipped:
                             realtimeStop.scheduleRelationship ===
@@ -244,10 +246,9 @@ export default class APIClient {
                 });
 
                 // Update origin with realtime data
-                const updatedOrigin = originStop
+                const updatedOrigin: TPLegStop = originStop
                     ? {
                           ...leg.origin,
-                          departureDelay: originStop.departure?.delay,
                           hasRealtime: true,
                           isSkipped:
                               originStop.scheduleRelationship ===
@@ -257,7 +258,7 @@ export default class APIClient {
                     : leg.origin;
 
                 // Update destination with realtime data
-                let updatedDestination = leg.destination;
+                let updatedDestination: TPLegStop = leg.destination;
                 if (leg.isDepartureOnly) {
                     updatedDestination = {
                         ...leg.destination,
@@ -269,7 +270,6 @@ export default class APIClient {
                 } else if (destinationStop) {
                     updatedDestination = {
                         ...leg.destination,
-                        arrivalDelay: destinationStop.arrival?.delay,
                         hasRealtime: true,
                         isSkipped:
                             destinationStop.scheduleRelationship ===
@@ -277,13 +277,16 @@ export default class APIClient {
                     };
                 }
 
+                const isSkipped =
+                    updatedOrigin.isSkipped === true || updatedDestination.isSkipped === true;
+
                 return {
                     ...leg,
                     origin: updatedOrigin,
                     destination: updatedDestination,
                     stopSequence,
                     hasRealtime: true,
-                    isCancelled,
+                    cancelStatus: getCancelStatus(isCancelled, isSkipped),
                 };
             });
 
@@ -291,7 +294,10 @@ export default class APIClient {
                 ...journey,
                 legs,
                 hasRealtime: legs.some((leg) => leg.hasRealtime),
-                isCancelled: legs.some((leg) => leg.isCancelled),
+                cancelStatus: getCancelStatus(
+                    legs.some((leg) => leg.cancelStatus === CancelStatus.CANCELLED),
+                    legs.some((leg) => leg.cancelStatus === CancelStatus.SKIPPED)
+                ),
             };
         });
     }

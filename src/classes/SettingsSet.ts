@@ -46,7 +46,6 @@ export default class SettingsManager {
             rawSettings = JSON.parse(
                 window.localStorage.getItem(SettingsManager.STORAGE_KEY) || ""
             );
-            console.log(rawSettings);
         } catch (e) {
             rawSettings = {};
         }

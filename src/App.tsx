@@ -9,7 +9,6 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 
 import APIClient from "./classes/APIClient";
 import SettingsManager, { SettingsSet } from "./classes/SettingsSet";
-import { RealtimeRequest, TransportMode } from "./classes/types";
 import CardMessage from "./components/CardMessage";
 import MainAppBar from "./components/MainAppBar";
 import RefreshTimer from "./components/RefreshTimer";
@@ -21,7 +20,6 @@ import { TripRequestResponseJourney } from "./models/TripPlanner/tripRequestResp
 import { createAppTheme } from "./theme";
 import { getAndroid } from "./util/android";
 import { initDpad } from "./util/dpad";
-import { filterMap } from "./util/filterMap";
 
 const TrainMap = React.lazy(() => import("./components/Widget/TrainMap"));
 
@@ -123,12 +121,9 @@ export default function App() {
             setLastRefreshTime(Date.now());
             setLastApiError("");
 
-            console.log(response.journeys);
-
             const updatedJourneys = await client.getGTFSRealtime(response.journeys);
             setTrips(updatedJourneys);
             setIsTripsRefreshing(false);
-            setLastApiError("");
         } catch (e) {
             let message = e instanceof Error ? e.message : JSON.stringify(e);
 
