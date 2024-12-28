@@ -56,8 +56,8 @@ const DialogTitle = withStyles(styles)((props: any) => {
 interface PaneConfig {
     key: SettingsPane;
     name: string;
-    component: JSX.Element;
-    icon: JSX.Element;
+    component: React.ReactElement;
+    icon: React.ReactElement;
 }
 
 export interface SettingsScreenProps {

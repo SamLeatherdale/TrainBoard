@@ -2,8 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 
-import GoogleMap from "google-map-react";
-
 import { COLOR_PRIMARY } from "../../classes/functions";
 import { SettingsSet } from "../../classes/SettingsSet";
 import { LatLng, SimpleCoords } from "../../classes/types";
@@ -38,6 +36,10 @@ function getAverageLatLng(a: LatLng, b: LatLng): LatLng {
         lat: (a.lat + b.lat) / 2,
         lng: (a.lng + b.lng) / 2,
     };
+}
+
+function GoogleMap(_: Record<string, unknown>) {
+    return <div></div>;
 }
 
 export default function TrainMap(props: TrainMapProps) {

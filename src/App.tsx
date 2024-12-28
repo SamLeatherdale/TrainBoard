@@ -74,11 +74,10 @@ export default function App() {
                 ...prevState,
                 [key]: typeof value === "function" ? value(prevValue) : value,
             };
-            console.log(settings);
 
             SettingsManager.writeSettings(settings);
             if ((["fromStop", "toStop", "excludedModes"] as (keyof SettingsSet)[]).includes(key)) {
-                getTrips(settings);
+                getTrips();
             }
 
             return settings;
@@ -102,7 +101,8 @@ export default function App() {
         return `: ${trip.from.disassembledName} ➡ ${trip.to.disassembledName}`;
     };
 
-    const getTrips = async (useSettings: SettingsSet = settings) => {
+    const getTrips = async () => {
+        const useSettings = SettingsManager.readSettings();
         const trip = SettingsManager.getConfiguredTrip(useSettings);
         if (!trip) {
             return;
@@ -115,24 +115,15 @@ export default function App() {
         const client = new APIClient();
         try {
             const response = await client.getTrips(from.id, to.id, useSettings);
-            const getRealtime = useSettings.mapsEnabled;
 
             setHasInitialized(true);
             setTrips(response.journeys || []);
-            setIsTripsRefreshing(getRealtime);
             setLastRefreshTime(Date.now());
             setLastApiError("");
 
-            // Now get realtime data
-            if (getRealtime) {
-                const tripIds = response.journeys
-                    .map((j) => j.legs[0].transportation?.properties?.RealtimeTripId)
-                    .filter((id) => !!id) as string[];
-                const positionEntities = await client.getGTFSRealtime(tripIds);
-                setRealtimeTripData(positionEntities);
-                setIsTripsRefreshing(false);
-                setLastApiError("");
-            }
+            const updatedJourneys = await client.getGTFSRealtime(response.journeys);
+            setTrips(updatedJourneys);
+            setIsTripsRefreshing(false);
         } catch (e) {
             let message = e instanceof Error ? e.message : JSON.stringify(e);
 

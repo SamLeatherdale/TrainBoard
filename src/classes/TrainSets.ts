@@ -1,18 +1,21 @@
 export enum SetType {
     UNKNOWN = "",
-    WARATAH = "A",
+    WARATAH_A = "A",
+    WARATAH_B = "B",
     C_SET = "C",
+    D_SET = "D",
     OSCAR = "H",
     HUNTER = "J",
     K_SET = "K",
-    MILLENIUM = "M",
+    MILLENNIUM = "M",
     ENDEAVOUR = "N",
     XPLORER = "P",
     S_SET = "S",
     TANGARA = "T",
+    BUS = "U",
     V_SET = "V",
     XPT = "X",
-    INDIAN_PACIFIC = "Z",
+    PRIVATE = "Z",
 }
 
 export interface TrainSet {
@@ -23,11 +26,17 @@ const TrainSets: Record<string, TrainSet> = {
     [SetType.UNKNOWN]: {
         name: "",
     },
-    [SetType.WARATAH]: {
-        name: "Waratah",
+    [SetType.WARATAH_A]: {
+        name: "Waratah A",
+    },
+    [SetType.WARATAH_B]: {
+        name: "Waratah B",
     },
     [SetType.C_SET]: {
-        name: "C Set",
+        name: "C set",
+    },
+    [SetType.D_SET]: {
+        name: "Mariyung (NIF)",
     },
     [SetType.OSCAR]: {
         name: "OSCAR",
@@ -36,10 +45,10 @@ const TrainSets: Record<string, TrainSet> = {
         name: "Hunter",
     },
     [SetType.K_SET]: {
-        name: "K Set",
+        name: "K set",
     },
-    [SetType.MILLENIUM]: {
-        name: "Millenium",
+    [SetType.MILLENNIUM]: {
+        name: "Millennium",
     },
     [SetType.ENDEAVOUR]: {
         name: "Endeavour",
@@ -48,21 +57,25 @@ const TrainSets: Record<string, TrainSet> = {
         name: "Xplorer",
     },
     [SetType.S_SET]: {
-        name: "S Set",
+        name: "S set",
     },
     [SetType.TANGARA]: {
         name: "Tangara",
     },
+    [SetType.BUS]: {
+        name: "Bus",
+    },
     [SetType.V_SET]: {
-        name: "V Set",
+        name: "V set (Intercity)",
     },
     [SetType.XPT]: {
         name: "XPT",
     },
-    [SetType.INDIAN_PACIFIC]: {
-        name: "Indian Pacific",
+    [SetType.PRIVATE]: {
+        name: "Private Passenger",
     },
 };
+
 export default TrainSets;
 
 export function getTrainSet(setType: SetType) {
