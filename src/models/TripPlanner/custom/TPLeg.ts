@@ -1,7 +1,7 @@
 import { TripRequestResponseJourneyLeg } from "../tripRequestResponseJourneyLeg";
 
 import { CancelStatus } from "./CancelStatus";
-import { convertToNoRealtimeTPLegStop, TPLegStop } from "./TPLegStop";
+import { convertToTPLegStop, TPLegStop } from "./TPLegStop";
 
 export interface TPLeg
     extends Omit<TripRequestResponseJourneyLeg, "origin" | "destination" | "stopSequence"> {
@@ -13,17 +13,12 @@ export interface TPLeg
     stopSequence?: TPLegStop[];
 }
 
-export function convertToNoRealtimeTPLeg(
-    leg: TripRequestResponseJourneyLeg,
-    hasRealtime: boolean | undefined
-): TPLeg {
+export function convertToTPLeg(leg: TripRequestResponseJourneyLeg): TPLeg {
     return {
         ...leg,
-        hasRealtime,
-        origin: convertToNoRealtimeTPLegStop(leg.origin, hasRealtime),
-        destination: convertToNoRealtimeTPLegStop(leg.destination, hasRealtime),
-        stopSequence: leg.stopSequence?.map((stop) =>
-            convertToNoRealtimeTPLegStop(stop, hasRealtime)
-        ),
+        hasRealtime: undefined,
+        origin: convertToTPLegStop(leg.origin),
+        destination: convertToTPLegStop(leg.destination),
+        stopSequence: leg.stopSequence?.map(convertToTPLegStop),
     };
 }

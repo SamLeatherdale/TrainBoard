@@ -3,7 +3,7 @@ import { addSeconds } from "date-fns";
 import { transit_realtime } from "../gen/proto";
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
 import { CancelStatus, getCancelStatus } from "../models/TripPlanner/custom/CancelStatus";
-import { convertToNoRealtimeTPJourney, TPJourney } from "../models/TripPlanner/custom/TPJourney";
+import { convertToTPJourney, TPJourney } from "../models/TripPlanner/custom/TPJourney";
 import { TPLeg } from "../models/TripPlanner/custom/TPLeg";
 import { TPLegStop } from "../models/TripPlanner/custom/TPLegStop";
 import { TPResponse } from "../models/TripPlanner/custom/TPResponse";
@@ -126,9 +126,7 @@ export default class APIClient {
         }
         return {
             ...response,
-            journeys: response.journeys.map((journey) =>
-                convertToNoRealtimeTPJourney(journey, undefined)
-            ),
+            journeys: response.journeys.map(convertToTPJourney),
         };
     }
 

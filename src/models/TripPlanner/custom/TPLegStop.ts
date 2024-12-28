@@ -17,16 +17,13 @@ export interface TPLegStop
     departureTimePlanned: Date;
 }
 
-export function convertToNoRealtimeTPLegStop(
-    stop: TripRequestResponseJourneyLegStop,
-    hasRealtime: boolean | undefined
-): TPLegStop {
+export function convertToTPLegStop(stop: TripRequestResponseJourneyLegStop): TPLegStop {
     return {
         ...stop,
         arrivalTimeEstimated: parseLocalDateTime(stop.arrivalTimeEstimated),
         arrivalTimePlanned: parseLocalDateTime(stop.arrivalTimePlanned),
         departureTimeEstimated: parseLocalDateTime(stop.departureTimeEstimated),
         departureTimePlanned: parseLocalDateTime(stop.departureTimePlanned),
-        hasRealtime,
+        hasRealtime: undefined,
     };
 }
