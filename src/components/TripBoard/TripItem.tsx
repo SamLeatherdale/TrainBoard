@@ -37,7 +37,7 @@ export default function TripItem({ journey, walkTime }: { journey: TPJourney; wa
     function getRealtimeIndicator() {
         if (journey.cancelStatus) return <Block fontSize="small" />;
         if (journey.hasRealtime === false) return <NearMeDisabled fontSize="small" />;
-        if (journey.hasRealtime) return <LateIndicator color={rating} />;
+        if (journey.hasRealtime) return <LateIndicator color={departureDiff.color} />;
         return <CircularProgress size={10} sx={{ color: "text.primary" }} />;
     }
 

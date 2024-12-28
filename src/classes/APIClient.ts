@@ -117,7 +117,13 @@ export default class APIClient {
             calcNumberOfTrips: settings.tripCount,
             ...this.getExcludedModesOptions(settings.excludedModes),
         };
-        return await this.performJsonRequest<TripRequestResponse>("tp/trip", params);
+        const response = await this.performJsonRequest<TripRequestResponse>("tp/trip", params);
+        if (!response.journeys?.length) {
+            throw new Error(
+                response.systemMessages?.length ? response.systemMessages[0].text : "No trips"
+            );
+        }
+        return response;
     }
 
     private getExcludedModesOptions(excludedModes: TransportModeId[]): Record<string, string> {
@@ -249,7 +255,10 @@ export default class APIClient {
                 const updatedOrigin: TPLegStop = originStop
                     ? {
                           ...leg.origin,
-                          hasRealtime: true,
+                          departureTimeEstimated: originStop.departure?.delay
+                              ? leg.origin.departureTimePlanned + originStop.departure.delay
+                              : leg.origin.departureTimeEstimated,
+                          hasRealtime: !!originStop.departure?.delay,
                           isSkipped:
                               originStop.scheduleRelationship ===
                               transit_realtime.TripUpdate.StopTimeUpdate.ScheduleRelationship
@@ -270,7 +279,10 @@ export default class APIClient {
                 } else if (destinationStop) {
                     updatedDestination = {
                         ...leg.destination,
-                        hasRealtime: true,
+                        arrivalTimeEstimated: destinationStop.arrival?.delay
+                            ? leg.destination.arrivalTimePlanned + destinationStop.arrival.delay
+                            : leg.destination.arrivalTimeEstimated,
+                        hasRealtime: !!destinationStop.arrival?.delay,
                         isSkipped:
                             destinationStop.scheduleRelationship ===
                             transit_realtime.TripUpdate.StopTimeUpdate.ScheduleRelationship.SKIPPED,
