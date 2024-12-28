@@ -5,20 +5,14 @@ import { styled } from "@mui/material/styles";
 
 import { getTransportMode } from "../../classes/LineType";
 import ParsedStation from "../../classes/ParsedStation";
-import { TripRequestResponseJourneyLeg } from "../../models/TripPlanner/tripRequestResponseJourneyLeg";
-import { TripRequestResponseJourneyLegStop } from "../../models/TripPlanner/tripRequestResponseJourneyLegStop";
+import { TPLeg } from "../../models/TripPlanner/custom/TPLeg";
+import { TPLegStop } from "../../models/TripPlanner/custom/TPLegStop";
 import InfoChip from "../InfoChip";
 
 import { TripIcon } from "./TripIcon";
 
-export default function TripLabel({
-    legs,
-    all = true,
-}: {
-    legs: TripRequestResponseJourneyLeg[];
-    all: boolean;
-}) {
-    let showLegs: TripRequestResponseJourneyLeg[];
+export default function TripLabel({ legs, all = true }: { legs: TPLeg[]; all: boolean }) {
+    let showLegs: TPLeg[];
 
     if (all) {
         showLegs = [...legs].slice(0, 2);
@@ -48,9 +42,7 @@ export default function TripLabel({
             {showLegs.map((leg, i) => {
                 const transportMode = getTransportMode(leg.transportation?.product?.iconId);
                 const isLast = i === showLegs.length - 1;
-                const station: TripRequestResponseJourneyLegStop = isLast
-                    ? leg.destination
-                    : leg.origin;
+                const station: TPLegStop = isLast ? leg.destination : leg.origin;
                 const parsedStation = new ParsedStation(station);
                 const lineName = leg.transportation?.disassembledName;
 

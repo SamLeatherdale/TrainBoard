@@ -1,14 +1,15 @@
+import { addSeconds } from "date-fns";
+
 import { transit_realtime } from "../gen/proto";
 import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
 import { CancelStatus, getCancelStatus } from "../models/TripPlanner/custom/CancelStatus";
-import { TPJourney } from "../models/TripPlanner/custom/TPJourney";
-import { convertToNoRealtimeTPLeg, TPLeg } from "../models/TripPlanner/custom/TPLeg";
-import { convertToNoRealtimeTPLegStop, TPLegStop } from "../models/TripPlanner/custom/TPLegStop";
+import { convertToNoRealtimeTPJourney, TPJourney } from "../models/TripPlanner/custom/TPJourney";
+import { TPLeg } from "../models/TripPlanner/custom/TPLeg";
+import { TPLegStop } from "../models/TripPlanner/custom/TPLegStop";
 import { TPResponse } from "../models/TripPlanner/custom/TPResponse";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
 import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
-import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
 import { getDevApi } from "../util/env";
 
 import { TransportModeId, transportModes } from "./LineType";
@@ -123,7 +124,12 @@ export default class APIClient {
                 response.systemMessages?.length ? response.systemMessages[0].text : "No trips"
             );
         }
-        return response;
+        return {
+            ...response,
+            journeys: response.journeys.map((journey) =>
+                convertToNoRealtimeTPJourney(journey, undefined)
+            ),
+        };
     }
 
     private getExcludedModesOptions(excludedModes: TransportModeId[]): Record<string, string> {
@@ -186,7 +192,7 @@ export default class APIClient {
         return this.applyRealtimeToTrips(journeys, apiResponse);
     }
 
-    private getRealtimeRequests(journeys: TripRequestResponseJourney[]) {
+    private getRealtimeRequests(journeys: TPJourney[]) {
         return journeys.flatMap((journey) =>
             journey.legs
                 .map((leg): RealtimeRequest | null => {
@@ -212,7 +218,22 @@ export default class APIClient {
     ): TPJourney[] {
         return journeys.map((journey): TPJourney => {
             const legs = journey.legs.map((leg): TPLeg => {
-                const noRealtimeLeg = convertToNoRealtimeTPLeg(leg);
+                const noRealtimeLeg = {
+                    ...leg,
+                    hasRealtime: false,
+                    origin: {
+                        ...leg.origin,
+                        hasRealtime: false,
+                    },
+                    destination: {
+                        ...leg.destination,
+                        hasRealtime: false,
+                    },
+                    stopSequence: leg.stopSequence?.map((stop) => ({
+                        ...stop,
+                        hasRealtime: false,
+                    })),
+                };
                 const realtimeId = leg.transportation?.properties?.RealtimeTripId;
                 if (!realtimeId) return noRealtimeLeg;
 
@@ -240,7 +261,12 @@ export default class APIClient {
                 // Update stop sequence with realtime data
                 const stopSequence = leg.stopSequence?.map((stop) => {
                     const realtimeStop = this.findRealtimeStop(stop.id, entities);
-                    if (!realtimeStop) return convertToNoRealtimeTPLegStop(stop);
+                    if (!realtimeStop) {
+                        return {
+                            ...stop,
+                            hasRealtime: false,
+                        };
+                    }
 
                     return {
                         ...stop,
@@ -256,7 +282,10 @@ export default class APIClient {
                     ? {
                           ...leg.origin,
                           departureTimeEstimated: originStop.departure?.delay
-                              ? leg.origin.departureTimePlanned + originStop.departure.delay
+                              ? addSeconds(
+                                    leg.origin.departureTimePlanned,
+                                    originStop.departure.delay
+                                )
                               : leg.origin.departureTimeEstimated,
                           hasRealtime: !!originStop.departure?.delay,
                           isSkipped:
@@ -280,7 +309,10 @@ export default class APIClient {
                     updatedDestination = {
                         ...leg.destination,
                         arrivalTimeEstimated: destinationStop.arrival?.delay
-                            ? leg.destination.arrivalTimePlanned + destinationStop.arrival.delay
+                            ? addSeconds(
+                                  leg.destination.arrivalTimePlanned,
+                                  destinationStop.arrival.delay
+                              )
                             : leg.destination.arrivalTimeEstimated,
                         hasRealtime: !!destinationStop.arrival?.delay,
                         isSkipped:

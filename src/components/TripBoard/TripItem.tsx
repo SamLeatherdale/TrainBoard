@@ -8,27 +8,25 @@ import ParsedTripId from "../../classes/ParsedTripId";
 import { getTrainSet } from "../../classes/TrainSets";
 import { CancelStatus } from "../../models/TripPlanner/custom/CancelStatus";
 import { TPJourney } from "../../models/TripPlanner/custom/TPJourney";
-import { TripRequestResponseJourneyLeg } from "../../models/TripPlanner/tripRequestResponseJourneyLeg";
 import {
     formatShortTime,
     getDepartureTimeClass,
     getPlannedEstimatedDiff,
     getRelativeFriendlyTime,
-    parseLocalDateTime,
 } from "../../util/date";
 
 import TripLabel from "./TripLabel";
 
 export default function TripItem({ journey, walkTime }: { journey: TPJourney; walkTime: number }) {
-    const legs = journey.legs as TripRequestResponseJourneyLeg[];
+    const legs = journey.legs;
 
     const first = legs[0];
     const last = legs[legs.length - 1];
     const parsedTripId = new ParsedTripId(first.transportation?.properties?.RealtimeTripId || "");
 
-    const departurePlanned = parseLocalDateTime(first.origin.departureTimePlanned);
-    const departureEst = parseLocalDateTime(first.origin.departureTimeEstimated);
-    const arrivalEst = parseLocalDateTime(last.destination.arrivalTimeEstimated);
+    const departurePlanned = first.origin.departureTimePlanned;
+    const departureEst = first.origin.departureTimeEstimated;
+    const arrivalEst = last.destination.arrivalTimeEstimated;
     const rating = journey.cancelStatus ? "" : getDepartureTimeClass(walkTime, departureEst);
 
     const departureDiff = getPlannedEstimatedDiff(departurePlanned, departureEst);
