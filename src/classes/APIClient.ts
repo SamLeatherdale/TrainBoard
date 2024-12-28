@@ -20,7 +20,9 @@ import { TPStopType, TPCoordOutputFormat, RealtimeRequest } from "./types";
 export default class APIClient {
     static readonly API_VERSION = "10.6.14.22";
     static readonly API_URL = "https://api.transport.nsw.gov.au/v1";
-    static readonly PROXY_URL = "https://cors-proxy.trainboard.workers.dev/";
+    static readonly PROXY_URL = getDevApi()
+        ? "http://localhost:8787"
+        : "https://cors-proxy.trainboard.workers.dev/";
     static readonly REALTIME_PROXY_URL = getDevApi()
         ? "http://localhost:3001/api"
         : "https://tripwatch-proxy.samleatherdale.com/api";

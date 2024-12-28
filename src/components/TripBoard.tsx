@@ -19,7 +19,6 @@ export default function TripBoard(props: TripBoardProps) {
 
     function isTripNotExpired(trip: TPJourney) {
         const departureEst = trip.legs[0].origin.departureTimeEstimated;
-        console.log(trip.legs[0].origin.departureTimeEstimated, departureEst, new Date());
         return departureEst > new Date();
     }
 

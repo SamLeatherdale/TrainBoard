@@ -1,27 +1,24 @@
 const handler: ExportedHandler<{ API_KEY: string }> = {
     async fetch(request, env) {
-        const corsHeaders = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-            "Access-Control-Max-Age": "86400",
-        };
-
         // The URL for the remote third party API you want to fetch from
         // but does not implement CORS
-        const fetchAllowlist = [new RegExp("^https://api.transport.nsw.gov.au/")];
+        const fetchAllowlist = ["https://api.transport.nsw.gov.au/"].map((url) => new URL(url));
         const originAllowlist = [
-            new RegExp("^https?://localhost"),
-            new RegExp("^https://trainboard\\.samleatherdale\\.com"),
-            new RegExp("^https://[\\w-]*trainboard\\.netlify\\.app"),
-            new RegExp("^https://[\\w-]+\\.ngrok\\.io"),
-            new RegExp("^https://[\\w-]+\\.ngrok-free\\.app"),
-        ]; // regexp for whitelisted origins
+            /^https?:\/\/localhost(:\d+)?$/,
+            /^https:\/\/trainboard\.samleatherdale\.com$/,
+            /^https:\/\/([\w-]*-)?trainboard\.netlify\.app$/,
+            /^https:\/\/[\w-]+\.ngrok\.io$/,
+            /^https:\/\/[\w-]+\.ngrok-free\.app$/,
+        ];
 
         const url = new URL(request.url);
-        const origin = request.headers.get("Origin") || "";
-        const apiUrl = url.searchParams.get("url") || "";
+        const origin = request.headers.get("Origin");
+        const apiUrl = url.searchParams.get("url");
 
-        if (!isListed(apiUrl, fetchAllowlist)) {
+        if (
+            !apiUrl ||
+            !fetchAllowlist.some((allowed) => new URL(apiUrl).origin === allowed.origin)
+        ) {
             const error = `Fetch URL ${apiUrl} not allowed`;
             console.error(error);
             return new Response(error, {
@@ -29,7 +26,7 @@ const handler: ExportedHandler<{ API_KEY: string }> = {
                 statusText: error,
             });
         }
-        if (!isListed(origin, originAllowlist)) {
+        if (!origin || !isListed(origin, originAllowlist)) {
             const error = `Origin ${origin} not allowed`;
             console.error(error);
             return new Response(error, {
@@ -40,7 +37,7 @@ const handler: ExportedHandler<{ API_KEY: string }> = {
 
         if (request.method === "OPTIONS") {
             // Handle CORS preflight requests
-            return handleOptions(request);
+            return handleOptions(request, origin);
         } else if (
             request.method === "GET" ||
             request.method === "HEAD" ||
@@ -78,12 +75,13 @@ const handler: ExportedHandler<{ API_KEY: string }> = {
             response.headers.set("Access-Control-Allow-Origin", origin);
 
             // Append to/Add Vary header so browser will cache response correctly
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin#cors_and_caching
             response.headers.append("Vary", "Origin");
 
             return response;
         }
 
-        async function handleOptions(request: Request) {
+        async function handleOptions(request: Request, origin: string) {
             if (
                 request.headers.get("Origin") !== null &&
                 request.headers.get("Access-Control-Request-Method") !== null &&
@@ -92,9 +90,11 @@ const handler: ExportedHandler<{ API_KEY: string }> = {
                 // Handle CORS preflight requests.
                 return new Response(null, {
                     headers: {
-                        ...corsHeaders,
+                        "Access-Control-Allow-Origin": origin,
                         "Access-Control-Allow-Headers":
                             request.headers.get("Access-Control-Request-Headers") || "",
+                        "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+                        "Access-Control-Max-Age": "86400",
                     },
                 });
             } else {
