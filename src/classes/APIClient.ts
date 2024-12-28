@@ -3,6 +3,7 @@ import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
 import { StopFinderLocation } from "../models/TripPlanner/stopFinderLocation";
 import { StopFinderResponse } from "../models/TripPlanner/stopFinderResponse";
 import { TripRequestResponse } from "../models/TripPlanner/tripRequestResponse";
+import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
 import { getDevApi } from "../util/env";
 
 import { TransportModeId, transportModes } from "./LineType";
@@ -162,8 +163,9 @@ export default class APIClient {
     }
 
     async getGTFSRealtime(
-        realtimeRequests: RealtimeRequest[]
-    ): Promise<transit_realtime.ApiResponse> {
+        journeys: TripRequestResponseJourney[]
+    ): Promise<TripRequestResponseJourney[]> {
+        const realtimeRequests = this.getRealtimeRequests(journeys);
         const response = await fetch(APIClient.REALTIME_PROXY_URL, {
             method: "POST",
             body: JSON.stringify({
@@ -172,6 +174,153 @@ export default class APIClient {
         });
         const body = await response.arrayBuffer();
         const apiResponse = transit_realtime.ApiResponse.decode(new Uint8Array(body));
-        return apiResponse;
+        return this.applyRealtimeToTrips(journeys, apiResponse);
+    }
+
+    private getRealtimeRequests(journeys: TripRequestResponseJourney[]) {
+        return journeys.flatMap((journey) =>
+            journey.legs
+                .map((leg): RealtimeRequest | null => {
+                    const tripId = leg.transportation?.properties?.RealtimeTripId;
+                    const operator = leg.transportation?.operator?.id;
+                    const mode = leg.transportation?.product?.class;
+                    if (tripId && operator && mode) {
+                        return {
+                            mode,
+                            id: tripId,
+                            operator,
+                        };
+                    }
+                    return null;
+                })
+                .filter((req): req is RealtimeRequest => req !== null)
+        );
+    }
+
+    private applyRealtimeToTrips(
+        journeys: TripRequestResponseJourney[],
+        realtime: transit_realtime.ApiResponse
+    ): TripRequestResponseJourney[] {
+        return journeys.map((journey) => {
+            const legs = journey.legs.map((leg) => {
+                const realtimeId = leg.transportation?.properties?.RealtimeTripId;
+                if (!realtimeId) return leg;
+
+                // Find matching realtime item
+                const realtimeItem = realtime.items.find((item) => item.id === realtimeId);
+                if (!realtimeItem?.message) return leg;
+
+                const message = realtimeItem.message;
+                const entities = message.entity;
+
+                if (!entities) return leg;
+
+                // Find realtime stops for origin and destination
+                const originStop = this.findRealtimeStop(leg.origin.id, entities);
+                const destinationStop = this.findRealtimeStop(leg.destination.id, entities);
+
+                // Find exact trip match
+                const exactTrip = entities.find((entity) =>
+                    this.isExactTripMatch(entity, realtimeId)
+                );
+                const isCancelled =
+                    exactTrip?.tripUpdate?.trip?.scheduleRelationship ===
+                    transit_realtime.TripDescriptor.ScheduleRelationship.CANCELED;
+
+                // Update stop sequence with realtime data
+                const stopSequence = leg.stopSequence?.map((stop) => {
+                    const realtimeStop = this.findRealtimeStop(stop.id, entities);
+                    if (!realtimeStop) return stop;
+
+                    return {
+                        ...stop,
+                        departureDelay: realtimeStop.departure?.delay,
+                        arrivalDelay: realtimeStop.arrival?.delay,
+                        hasRealtime: true,
+                        isSkipped:
+                            realtimeStop.scheduleRelationship ===
+                            transit_realtime.TripUpdate.StopTimeUpdate.ScheduleRelationship.SKIPPED,
+                    };
+                });
+
+                // Update origin with realtime data
+                const updatedOrigin = originStop
+                    ? {
+                          ...leg.origin,
+                          departureDelay: originStop.departure?.delay,
+                          hasRealtime: true,
+                          isSkipped:
+                              originStop.scheduleRelationship ===
+                              transit_realtime.TripUpdate.StopTimeUpdate.ScheduleRelationship
+                                  .SKIPPED,
+                      }
+                    : leg.origin;
+
+                // Update destination with realtime data
+                let updatedDestination = leg.destination;
+                if (leg.isDepartureOnly) {
+                    updatedDestination = {
+                        ...leg.destination,
+                        arrivalTimePlanned: updatedOrigin.departureTimePlanned,
+                        arrivalTimeEstimated: updatedOrigin.departureTimeEstimated,
+                        hasRealtime: updatedOrigin.hasRealtime,
+                        isSkipped: updatedOrigin.isSkipped,
+                    };
+                } else if (destinationStop) {
+                    updatedDestination = {
+                        ...leg.destination,
+                        arrivalDelay: destinationStop.arrival?.delay,
+                        hasRealtime: true,
+                        isSkipped:
+                            destinationStop.scheduleRelationship ===
+                            transit_realtime.TripUpdate.StopTimeUpdate.ScheduleRelationship.SKIPPED,
+                    };
+                }
+
+                return {
+                    ...leg,
+                    origin: updatedOrigin,
+                    destination: updatedDestination,
+                    stopSequence,
+                    hasRealtime: true,
+                    isCancelled,
+                };
+            });
+
+            return {
+                ...journey,
+                legs,
+                hasRealtime: legs.some((leg) => leg.hasRealtime),
+                isCancelled: legs.some((leg) => leg.isCancelled),
+            };
+        });
+    }
+
+    private findRealtimeStop(
+        stopId: string,
+        entities: transit_realtime.IFeedEntity[]
+    ): transit_realtime.TripUpdate.IStopTimeUpdate | null {
+        for (const entity of entities) {
+            const stopUpdate = entity.tripUpdate?.stopTimeUpdate?.find(
+                (stop) => stop.stopId === stopId
+            );
+            if (stopUpdate) return stopUpdate;
+        }
+        return null;
+    }
+
+    private isExactTripMatch(entity: transit_realtime.IFeedEntity, realtimeId: string): boolean {
+        const entityTripId = entity.tripUpdate?.trip?.tripId;
+        if (!entityTripId) return false;
+
+        if (entityTripId === realtimeId) {
+            // For non-rail exact matches
+            return true;
+        }
+
+        const parsedTripId = new ParsedTripId(realtimeId);
+        const parsedEntityId = new ParsedTripId(entityTripId);
+
+        return parsedEntityId.tripName === parsedTripId.tripName;
     }
 }

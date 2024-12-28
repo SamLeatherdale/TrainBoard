@@ -1,5 +1,7 @@
 //Some types adapted from https://github.com/toast-studio/tfnsw-trip-planner/
 
+import { TransportModeId } from "./LineType";
+
 export interface LatLng {
     lat: number;
     lng: number;
@@ -29,17 +31,7 @@ export enum TPCoordOutputFormat {
 export type SimpleCoords = [number, number];
 
 export type RealtimeRequest = {
-	mode: TransportMode;
+	mode: TransportModeId;
 	id: string;
 	operator: string;
 };
-
-export enum TransportMode {
-	TRAIN = "1",
-	METRO = "2",
-	LIGHT_RAIL = "4",
-	BUS = "5",
-	COACH = "7",
-	FERRY = "9",
-	SCHOOL_BUS = "11",
-}

@@ -123,21 +123,10 @@ export default function App() {
             setLastRefreshTime(Date.now());
             setLastApiError("");
 
-            // Now get realtime data
             console.log(response.journeys);
-            const realtimeRequests: RealtimeRequest[] = filterMap(response.journeys, (j) => {
-                const tripId = j.legs[0].transportation?.properties?.RealtimeTripId;
-                const operator = j.legs[0].transportation?.operator?.id;
-                if (tripId && operator) {
-                    return {
-                        mode: TransportMode.TRAIN,
-                        id: tripId,
-                        operator,
-                    };
-                }
-            });
-            const realtimeResponse = await client.getGTFSRealtime(realtimeRequests);
-            console.log(realtimeResponse);
+
+            const updatedJourneys = await client.getGTFSRealtime(response.journeys);
+            setTrips(updatedJourneys);
             setIsTripsRefreshing(false);
             setLastApiError("");
         } catch (e) {
