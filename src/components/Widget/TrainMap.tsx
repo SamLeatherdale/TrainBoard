@@ -6,14 +6,14 @@ import { COLOR_PRIMARY } from "../../classes/functions";
 import { SettingsSet } from "../../classes/SettingsSet";
 import { LatLng, SimpleCoords } from "../../classes/types";
 import { ParsedVehiclePositionEntity, VehicleCoords } from "../../models/GTFS/VehiclePositions";
-import { TripRequestResponseJourney } from "../../models/TripPlanner/tripRequestResponseJourney";
+import { TPJourney } from "../../models/TripPlanner/custom/TPJourney";
 import { getMapsApiKey } from "../../util/env";
 
 import TrainMapMarker from "./TrainMapMarker";
 
 interface TrainMapProps {
     settings: SettingsSet;
-    trips: TripRequestResponseJourney[];
+    trips: TPJourney[];
     realtimeTripData: ParsedVehiclePositionEntity[];
 }
 

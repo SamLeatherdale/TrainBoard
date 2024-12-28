@@ -1,19 +1,18 @@
 import { TripRequestResponseJourney } from "../tripRequestResponseJourney";
 
 import { CancelStatus } from "./CancelStatus";
-import { convertToNoRealtimeTPLeg } from "./TPLeg";
-import { TPLeg } from "./TPLeg";
+import { convertToTPLeg, TPLeg } from "./TPLeg";
 
-export interface TPJourney extends TripRequestResponseJourney {
+export interface TPJourney extends Omit<TripRequestResponseJourney, "legs"> {
     hasRealtime?: boolean;
     cancelStatus?: CancelStatus;
     legs: TPLeg[];
 }
 
-export function convertToNoRealtimeTPJourney(journey: TripRequestResponseJourney): TPJourney {
+export function convertToTPJourney(journey: TripRequestResponseJourney): TPJourney {
     return {
         ...journey,
-        hasRealtime: false,
-        legs: journey.legs.map(convertToNoRealtimeTPLeg),
+        hasRealtime: undefined,
+        legs: journey.legs.map(convertToTPLeg),
     };
 }

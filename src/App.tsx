@@ -16,7 +16,7 @@ import { OnUpdateFunc, SettingsPane } from "./components/SettingsPane/SettingsPa
 import SettingsScreen from "./components/SettingsScreen";
 import TripBoard from "./components/TripBoard";
 import { ParsedVehiclePositionEntity } from "./models/GTFS/VehiclePositions";
-import { TripRequestResponseJourney } from "./models/TripPlanner/tripRequestResponseJourney";
+import { TPJourney } from "./models/TripPlanner/custom/TPJourney";
 import { createAppTheme } from "./theme";
 import { getAndroid } from "./util/android";
 import { initDpad } from "./util/dpad";
@@ -28,7 +28,7 @@ export default function App() {
     const navigate = useNavigate();
     const [settings, setSettings] = useState(() => SettingsManager.readSettings());
     const [hasInitialized, setHasInitialized] = useState(false);
-    const [trips, setTrips] = useState<TripRequestResponseJourney[]>([]);
+    const [trips, setTrips] = useState<TPJourney[]>([]);
     const [realtimeTripData, setRealtimeTripData] = useState<ParsedVehiclePositionEntity[]>([]);
     const [isTripsRefreshing, setIsTripsRefreshing] = useState(false);
     const [lastRefreshTime, setLastRefreshTime] = useState<number | null>(null);
@@ -234,11 +234,7 @@ export default function App() {
                     )}
                     {!settings.mapsEnabled && (
                         <TripBoardContainer className="main-wrap">
-                            <TripBoard
-                                trips={trips}
-                                realtimeTripData={realtimeTripData}
-                                settings={settings}
-                            />
+                            <TripBoard trips={trips} settings={settings} />
                         </TripBoardContainer>
                     )}
                 </Main>

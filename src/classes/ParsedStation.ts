@@ -1,11 +1,11 @@
-import { TripRequestResponseJourneyLegStop } from "../models/TripPlanner/tripRequestResponseJourneyLegStop";
+import { TPLegStop } from "../models/TripPlanner/custom/TPLegStop";
 
 export default class ParsedStation {
     public platform = "";
     public station = "";
     protected parseSuccess = true;
 
-    constructor(stop: TripRequestResponseJourneyLegStop) {
+    constructor(stop: TPLegStop) {
         const { name, disassembledName } = stop;
         const disNameParts = (disassembledName || name).split(", ");
         const station = disNameParts[0];

@@ -7,10 +7,10 @@ import {
     TransportModeId,
     transportModes,
 } from "../../classes/LineType";
-import { TripRequestResponseJourneyLeg } from "../../models/TripPlanner/tripRequestResponseJourneyLeg";
+import { TPLeg } from "../../models/TripPlanner/custom/TPLeg";
 import InfoChip from "../InfoChip";
 
-export function TripIcon({ leg }: { leg: TripRequestResponseJourneyLeg }) {
+export function TripIcon({ leg }: { leg: TPLeg }) {
     const tripName = leg.transportation?.disassembledName?.toUpperCase();
     const transportMode = getTransportMode(leg.transportation?.product?.iconId);
 

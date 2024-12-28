@@ -4,24 +4,22 @@ import { Box } from "@mui/material";
 
 import { getTripId } from "../classes/ParsedTripId";
 import { SettingsSet } from "../classes/SettingsSet";
-import { ParsedVehiclePositionEntity } from "../models/GTFS/VehiclePositions";
-import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
-import { parseLocalDateTime } from "../util/date";
+import { TPJourney } from "../models/TripPlanner/custom/TPJourney";
 
 import TripItem from "./TripBoard/TripItem";
 
 interface TripBoardProps {
-    trips: TripRequestResponseJourney[];
-    realtimeTripData: ParsedVehiclePositionEntity[];
+    trips: TPJourney[];
     settings: SettingsSet;
 }
 
 export default function TripBoard(props: TripBoardProps) {
-    const { trips, realtimeTripData, settings } = props;
+    const { trips, settings } = props;
     const filteredTrips = (trips || []).filter(isTripNotExpired).slice(0, props.settings.tripCount);
 
-    function isTripNotExpired(trip: TripRequestResponseJourney) {
-        const departureEst = parseLocalDateTime(trip.legs[0].origin.departureTimeEstimated);
+    function isTripNotExpired(trip: TPJourney) {
+        const departureEst = trip.legs[0].origin.departureTimeEstimated;
+        console.log(trip.legs[0].origin.departureTimeEstimated, departureEst, new Date());
         return departureEst > new Date();
     }
 

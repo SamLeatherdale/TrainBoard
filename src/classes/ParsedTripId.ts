@@ -14,7 +14,8 @@
  *
  * @see https://opendata.transport.nsw.gov.au/sites/default/files/TfNSW_Realtime_Train_Technical_Doc.pdf
  */
-import { TripRequestResponseJourney } from "../models/TripPlanner/tripRequestResponseJourney";
+
+import { TPJourney } from "../models/TripPlanner/custom/TPJourney";
 
 import { tryParseInt } from "./functions";
 import { SetType } from "./TrainSets";
@@ -71,7 +72,7 @@ export default class ParsedTripId {
     }
 }
 
-export function getTripId(trip: TripRequestResponseJourney) {
+export function getTripId(trip: TPJourney) {
     return trip.legs
         .map((leg) => leg.transportation?.properties?.RealtimeTripId || "walk")
         .join(",");
