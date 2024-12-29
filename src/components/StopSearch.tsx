@@ -21,7 +21,11 @@ interface StopSearchProps {
 }
 
 export default function StopSearch(props: StopSearchProps) {
-    const { value, label } = props;
+    const {
+        value,
+        label,
+        settings: { recentStops },
+    } = props;
     const [isLoading, setIsLoading] = useState(false);
     const [query, setQuery] = useState("");
     const [stops, setStops] = useState<StopFinderLocation[] | null>(value ? [value] : null);
@@ -54,10 +58,10 @@ export default function StopSearch(props: StopSearchProps) {
     }
 
     function onSelect(selectedId: string) {
-        if (!stops) {
-            return;
+        const stop = (stops || []).concat(recentStops || []).find((stop) => stop.id === selectedId);
+        if (stop) {
+            props.onSelect(stop);
         }
-        props.onSelect(selectedId ? stops.find((stop) => stop.id === selectedId) : undefined);
     }
 
     async function getStops(query: string) {
@@ -81,13 +85,15 @@ export default function StopSearch(props: StopSearchProps) {
             }}
         >
             <TextField
-                inputProps={{ tabIndex: 0 }}
-                InputProps={{
-                    endAdornment: isLoading ? (
-                        <InputAdornment position="end">
-                            <CircularProgress size={20} />
-                        </InputAdornment>
-                    ) : null,
+                slotProps={{
+                    htmlInput: { tabIndex: 0 },
+                    input: {
+                        endAdornment: isLoading ? (
+                            <InputAdornment position="end">
+                                <CircularProgress size={20} />
+                            </InputAdornment>
+                        ) : null,
+                    },
                 }}
                 variant="outlined"
                 onChange={(e) => onChange(e.target.value)}
@@ -108,6 +114,18 @@ export default function StopSearch(props: StopSearchProps) {
                         {option.label}
                     </option>
                 ))}
+                {recentStops?.length && (
+                    <optgroup label="Recent Stops">
+                        {recentStops.map((stop) => {
+                            const option = locToOption(stop);
+                            return (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            );
+                        })}
+                    </optgroup>
+                )}
             </NativeSelect>
         </Box>
     );

@@ -74,6 +74,12 @@ export default function App() {
                 ...prevState,
                 [key]: typeof value === "function" ? value(prevValue) : value,
             };
+            if (["fromStop", "toStop"].includes(key)) {
+                settings.recentStops = [
+                    value,
+                    ...(prevState.recentStops || []).filter((stop) => stop.id !== value.id),
+                ];
+            }
 
             SettingsManager.writeSettings(settings);
             if ((["fromStop", "toStop", "excludedModes"] as (keyof SettingsSet)[]).includes(key)) {

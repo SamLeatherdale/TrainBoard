@@ -21,6 +21,7 @@ interface SettingsSetImport extends SettingsSetCore {
 export interface SettingsSet extends SettingsSetCore {
     fromStop?: StopFinderLocation;
     toStop?: StopFinderLocation;
+    recentStops?: StopFinderLocation[];
 }
 
 export interface BurnInProtection {
@@ -32,6 +33,7 @@ const defaultSettings: SettingsSet = {
     theme: "dark",
     walkTime: 10,
     tripCount: 6,
+    recentStops: [],
     mapsEnabled: false,
     burnInProtection: false,
     excludedModes: [],
