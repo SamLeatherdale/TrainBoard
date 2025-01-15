@@ -5,7 +5,7 @@ const handler: ExportedHandler<{ API_KEY: string }> = {
         const fetchAllowlist = ["https://api.transport.nsw.gov.au/"].map((url) => new URL(url));
         const originAllowlist = [
             /^https?:\/\/localhost(:\d+)?$/,
-            /^https:\/\/trainboard\.samleatherdale\.com$/,
+            /^https:\/\/.+\.samleatherdale\.com$/,
             /^https:\/\/([\w-]*-)?trainboard\.netlify\.app$/,
             /^https:\/\/[\w-]+\.ngrok\.io$/,
             /^https:\/\/[\w-]+\.ngrok-free\.app$/,
