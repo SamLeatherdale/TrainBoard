@@ -63,9 +63,7 @@ export default function MainAppBar({
                 <IconButton
                     color="inherit"
                     onClick={() => {
-                        getAndroid()
-                            ? getAndroid()?.exit()
-                            : (window.location.href = "https://transportnsw.info/trip");
+                        window.location.href = "https://transportnsw.info/trip";
                     }}
                     size="large"
                 >

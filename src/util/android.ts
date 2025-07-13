@@ -4,7 +4,6 @@ type WindowWithAndroid = Window & {
 type AndroidModule = {
     ready: () => void;
     reload: () => void;
-    exit: () => void;
 };
 
 export function getAndroid(): AndroidModule | undefined {
